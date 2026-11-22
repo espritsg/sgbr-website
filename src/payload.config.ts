@@ -1,5 +1,4 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { de } from '@payloadcms/translations/languages/de'
 import { en } from '@payloadcms/translations/languages/en'
 import path from 'path'
@@ -7,8 +6,12 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
-import { Media } from './collections/media'
+import { canRunJobs } from './access/permissions'
+import { collections } from './collections'
 import { Users } from './collections/users'
+import { globals } from './globals'
+import { defaultEditor } from './lib/richtext/editors'
+import { plugins } from './plugins'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -20,6 +23,10 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    meta: {
+      titleSuffix: ' – SGBR Admin',
+    },
+    dateFormat: 'dd.MM.yyyy HH:mm',
   },
   // Admin UI in German by default, users can switch to English in their account.
   i18n: {
@@ -36,8 +43,9 @@ export default buildConfig({
       { code: 'de', label: 'Deutsch', fallbackLocale: 'en' },
     ],
   },
-  collections: [Users, Media],
-  editor: lexicalEditor(),
+  collections,
+  globals,
+  editor: defaultEditor,
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
@@ -48,6 +56,13 @@ export default buildConfig({
     },
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
+  // Background jobs (docs/architektur.md). Tasks are registered in src/jobs.
+  jobs: {
+    access: {
+      run: canRunJobs,
+    },
+    tasks: [],
+  },
   sharp,
-  plugins: [],
+  plugins: plugins(),
 })

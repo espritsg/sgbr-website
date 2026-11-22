@@ -33,3 +33,15 @@ Entschieden 2026-11-22. Feld `role` in `users`, genau eine Rolle pro Person.
 - Öffentlich (ohne Login): nur veröffentlichte Inhalte lesen; Abonnenten und Einsendungen nur anlegen (über die Formulare).
 - Semesterwechsel: Admin setzt Ausscheidende von `board` oder `editor` auf `advisory`.
 - Zugriffsregeln zentral in einer Datei definieren und mit Tests abdecken, damit spätere Änderungen nichts aufreissen.
+
+## Umsetzung
+
+- Alle Regeln stehen in `src/access/permissions.ts` (CRUD) und `src/access/actions.ts` (Newsletter senden, Testversand, Mail-Vorschau). Rollen in `src/access/roles.ts`.
+- Tests: `tests/int/access.test.ts` prüft die Tabelle oben für jede Rolle und für Besucher ohne Login.
+- **Kein Veröffentlichen für Editors:** Die Update-Regel lehnt `_status: 'published'` für Editors ab. Payload fragt genau diese Regel ab, um den Button „Veröffentlichen“ und „Veröffentlichung planen“ anzuzeigen. Beide erscheinen für Editors daher gar nicht. Der geplante Job läuft mit den Rechten der Person, die geplant hat.
+- **Medien** haben keine Entwürfe: Editors laden Dateien hoch und ändern sie, löschen dürfen nur Admin und Board.
+- **Newsletter:** Status, Versandzeit und Fortschritt setzt nur das System. `scheduledFor` (geplanter Versand) dürfen nur Admin und Board setzen.
+- **Abonnenten** entstehen nur über die Anmeldung (Local API). Über die API kann niemand ausser dem Admin Abonnenten anlegen.
+- **Site-Settings:** Die Website liest sie serverseitig über die Local API. Über die API lesen sie nur Admin und Board.
+- **Benutzer:** Der allererste Benutzer (`/admin/create-first-user`) wird automatisch Admin. Neue Benutzer starten als `advisory`, bis der Admin eine Rolle setzt.
+- **Hintergrund-Jobs** starten dürfen der Admin und der Vercel Cron (Header `Authorization: Bearer $CRON_SECRET`).

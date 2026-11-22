@@ -1,85 +1,92 @@
 ---
-description: Payload-CMS-Datenmodell der neuen SGBR-Website: Collections, Felder, Lokalisierung, Globals, Zugriffsrechte und Herkunft der Daten aus WordPress
+description: Payload-Datenmodell der SGBR-Website: Collections, Felder, Lokalisierung, Entwürfe, Globals und Plugin-Collections, mit Pfaden im Code
 aktualisiert: 2026-11-22
 ---
 
 # Datenmodell
 
-**L** = lokalisiert (en/de). Felder ohne L gelten für beide Sprachen. Inhalts-Collections haben Entwürfe, Versionen und geplantes Veröffentlichen. Wünsche aus dem Call sind eingearbeitet.
+**L** = lokalisiert (en/de). Felder ohne L gelten für beide Sprachen. Code: `src/collections/<name>/index.ts`, `src/globals/`, Plugins in `src/plugins/index.ts`. Typen: `src/payload-types.ts` (generiert).
 
-## Collections
+**Entwürfe:** `posts`, `people`, `topics`, `issues`, `events`, `team-members` und `pages` haben Entwürfe, Versionen (max. 50) und geplantes Veröffentlichen ([ADR 0014](entscheidungen/0014-entwuerfe.md)). Autosave bei `posts`, `issues`, `events` und `pages`. Pflichtfelder und Validierungen greifen erst beim Veröffentlichen. Öffentlich sichtbar ist nur, was veröffentlicht ist.
 
-**`posts`** (Artikel, aus 198 WP-Beiträgen, URL `/{l}/article/{slug}`)
-- `type` (interview, guest-article) · `title` L · `summary` L (Pflicht, 1–2 Sätze für Karten) · `summaryNeedsReview` (Checkbox, von der Migration gesetzt) · `content` L (Lexical mit Blöcken `QA`, `Quote`, `Embed`, `PdfDownload`)
-- `slug` eindeutig, aus WP · `publishedAt` · `originalLanguage` (en/de, Pflicht)
-- `heroImage` → media (Artikel und Karten) · `issueImage` → media (optional, freigestellt für die Ausgabenseite)
-- `interviewees` → people (mehrfach): Byline „Interview with …“
-- `interviewers` → team-members (mehrfach, optional)
-- `topics` → topics (mehrfach, mindestens ein Haupt-Topic, per Validierung) · `issue` → issues
-- `meta` L (SEO) · `wpId` (nur lesen, für wiederholbare Migration)
+Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, wird aus dem Titel erzeugt, wenn es leer ist (`src/fields/slug.ts`).
 
-**`people`** (Interviewpartner und Speaker, aus ~196 WP-Benutzern)
-- `name`, `slug` · `role` L · `organization` · `photo` → media · `organizationLogo` → media · `bio` L · `linkedin`
-- Join-Felder: Artikel und Events dieser Person (Personenseite)
+## Inhalte (Gruppe „Magazin“ und „Inhalte“)
 
-**`topics`** (aus 38 WP-Kategorien)
-- `title` L, `slug`, `description` L · `parent` → topics (leer = Haupt-Topic) · `order`
-- Haupt-Topics: Business, Entrepreneurship, Finance & Economics, Politics. Rest als Unter-Topics oder streichen.
-- Zuordnung der 38 alten Kategorien schlägt Claude Code als Tabelle in der Repo-Doku vor (Annahme). Die Redaktion bestätigt sie am Entwurf.
+**`posts`** (Artikel, URL `/{l}/article/{slug}`)
+- Reiter Inhalt: `type` (interview, guest-article) · `title` L · `summary` L (Pflicht, 1–2 Sätze für Karten) · `heroImage` → media · `content` L (Lexical mit Blöcken `qa`, `quote`, `embed`, `pdfDownload`, `src/blocks/content.ts`)
+- Reiter Zuordnung: `interviewees` → people (mehrfach, Byline, [ADR 0006](entscheidungen/0006-byline.md)) · `interviewers` → team-members · `topics` → topics (mindestens ein Haupt-Topic, `validateMainTopic.ts`) · `issue` → issues · `issueImage` → media (freigestelltes Porträt, nur Ausgabenseite)
+- Seitenleiste: `slug` · `publishedAt` (wird beim ersten Veröffentlichen gesetzt, wenn leer) · `originalLanguage` (en/de, Pflicht) · `summaryNeedsReview` (von der Migration gesetzt) · `wpId` (nur lesen)
+- `meta` L (SEO-Plugin: Titel, Beschreibung, Bild)
+- Liste „Zusammenfassung prüfen“: in der Artikelliste nach „Zusammenfassung prüfen = ja“ filtern.
+
+**`people`** (Interviewpartner, Gastautoren, Speaker, URL `/{l}/people/{slug}`)
+- `name`, `slug` · `role` L · `organization` · `photo` → media · `organizationLogo` → media · `bio` L · `linkedin` · `wpId`
+- Join-Felder `articles` (über `posts.interviewees`) und `events` (über `events.speaker`).
+
+**`topics`** (Themen)
+- `title` L, `slug`, `description` L · `parent` → topics (leer = Haupt-Topic, nur zwei Ebenen) · `order` · Join `articles`
+- Haupt-Topics: Business, Entrepreneurship, Finance & Economics, Politics. Zuordnung der alten Kategorien: [migration.md](migration.md).
 
 **`issues`** (Ausgaben)
-- `title` L, `slug`, `year`, `format` (digital, pdf) · `tagline` L · `description` L · `foreword` L
-- `cover` → media · `pdf` → media · `editors` → team-members
-- Join-Feld: zugehörige Artikel (zeigt deren `issueImage`)
+- `title` L · `tagline` L · `description` L · `foreword` L (Rich Text) · `cover` → media · `pdf` → media (nur PDFs) · `editors` → team-members · Join `articles` (über `posts.issue`)
+- Seitenleiste: `slug` · `year` · `format` (digital = eigene Seite, pdf = Archiv) · `wpId`
 
 **`events`** (Speaker Events)
-- `slug` (alte IDs wie `weimer` übernehmen) · `speaker` → people · `title` L (optional) · `startsAt` · `location` · `language` (English, German: Sprache des Talks) · `description` L
-- Bewerbung: `applicationForm` → forms · `applicationOpensAt` · `applicationDeadline` (Details: [formulare.md](formulare.md))
-- `gallery` → media (mehrfach, Fotos nach dem Event) · `recap` → posts
-- Kommend/vergangen wird aus `startsAt` berechnet.
+- Reiter Event: `speaker` → people (Pflicht) · `title` L (optional, sonst Name des Speakers) · `startsAt` · `language` (en/de: Sprache des Talks, im Feed als `English`/`German`) · `location` · `description` L
+- Reiter Bewerbung: `applicationForm` → forms · `applicationOpensAt` · `applicationDeadline` ([formulare.md](formulare.md))
+- Reiter Nach dem Event: `gallery` → media (mehrfach) · `recap` → posts
+- `slug` übernimmt alte IDs wie `weimer`. Kommend/vergangen wird aus `startsAt` berechnet.
 
-**`newsletters`** (Versand und Archiv, URL `/{l}/newsletter/{slug}`, Details: [newsletter.md](newsletter.md))
-- `title` L, `slug` · `subject` L · `previewText` L · `intro` L · `content` L (Gastbeiträge, Ankündigungen) · `featuredPosts` → posts
-- `audience` (newsletter, events) · `status` (draft, sending, sent, failed) · `sentAt` · `recipientCount` · Versandfortschritt und Fehler (nur lesen)
-- `archiveDelayDays` (Standard 30) · `showInArchive` (Standard an)
+**`team-members`** (Redaktion, About-Seite)
+- `name` · `photo` → media · `group` (`editorial-board`, `editors`, `advisory`) · `position` L · `study` L · `university` · `active` · `order`
 
-**`subscribers`** (Abonnenten, nicht öffentlich)
-- `email` eindeutig · `firstName` · `locale` · `interests` (newsletter, events) · `status` (pending, confirmed, unsubscribed, bounced, complained)
-- `consentAt`, `confirmedAt`, `unsubscribedAt` · `source` (footer, popup, newsletter-page, mailpoet-import) · Tokens für Bestätigung und Einstellungen (versteckt)
+**`pages`** (About, Contact, Imprint, Privacy, URL `/{l}/{slug}`)
+- `title` L · `layout` L aus Blöcken `richText`, `teamGrid`, `contactForm`, `imageText`, `cta` (`src/blocks/layout.ts`) · `slug` · `meta` L
 
-**`team-members`** (Redaktion)
-- `name`, `photo` → media · `group` (Editorial Board, Editors, Advisory) · `position` L · `study` L · `university` · `active`, `order`
+**`media`** (Bilder und PDFs, öffentliche URL `/files/{filename}`)
+- `alt` L · `caption` L · `credit` · `legacyPath` (alter Pfad unter `wp-content/uploads/`) · `wpId`
+- Bildgrössen: `thumbnail` (400×300), `card` (800), `hero` (1600), `og` (1200×630). Fokuspunkt einstellbar.
+- Keine Entwürfe: Dateien sind erst sichtbar, wenn ein veröffentlichter Inhalt sie verwendet.
 
-**`pages`** (About, Contact, Imprint, Privacy)
-- Contact mit Kontaktformular (Form Builder) und Adresse. Imprint: Text der alten Seite übernehmen.
-- Privacy: bestehenden Text übernehmen und Abschnitte zu Newsletter, Formularen mit Lebenslauf und Vercel Analytics als Entwurf ergänzen. Vor dem Livegang rechtlich prüfen lassen.
-- `title` L, `slug` · `layout` L aus Blöcken `RichText`, `TeamGrid`, `ContactForm`, `ImageText`, `Cta` · `meta` L
+## Newsletter
 
-**`media`** (902 Bilder plus PDFs)
-- Bilder und PDF · `alt` L, `caption` L, `credit` · `legacyPath` (alter Pfad unter `wp-content/uploads/`, für Weiterleitungen)
+**`newsletters`** (URL `/{l}/newsletter/{slug}`, Details: [newsletter.md](newsletter.md))
+- Reiter Inhalt: `title` L · `subject` L · `previewText` L · `intro` L · `content` L · `featuredPosts` → posts
+- Reiter Versand: `audience` (newsletter, events) · `scheduledFor` (optional, nur Admin/Board, [ADR 0013](entscheidungen/0013-newsletter-versand.md)) · `status` (draft, sending, sent, failed; nur vom System gesetzt) · `sentAt` · `recipientCount` · `progress` (Pakete, Fehler; nur lesen)
+- Reiter Archiv: `showInArchive` (Standard an) · `archiveDelayDays` (Standard 30, 0 = sofort) · `archiveVisibleFrom` (berechnet aus `sentAt` + Verzögerung)
+- Versionen ohne Entwürfe: veröffentlicht wird ein Newsletter durch den Versand.
 
-**`application-files`** (Lebensläufe aus Bewerbungen, privat)
-- PDF bis 5 MB · Bezug zur Einsendung · nie öffentlich abrufbar
+**`subscribers`** (nicht öffentlich)
+- `email` (eindeutig, klein geschrieben) · `firstName` · `locale` · `interests` (newsletter, events) · `status` (pending, confirmed, unsubscribed, bounced, complained)
+- `consentAt`, `confirmedAt`, `unsubscribedAt` · `source` (footer, popup, newsletter-page, mailpoet-import, admin)
+- `confirmToken`, `preferencesToken`: versteckt, über die API nie lesbar.
 
-**`users`**: `name`, `email`, `role` (admin, board, editor, advisory, Details: [rollen.md](rollen.md)) · optional `teamMember` → team-members
+## Formulare (Plugin `form-builder`)
 
-Von Plugins: `redirects`, `forms` (plus Feld `retentionMonths`, Standard 6), `form-submissions` (plus Feld `event` → events), `search` (Artikel, Ausgaben, Events, Personen).
+- **`forms`**: Felder Text, E-Mail, Textfeld, Auswahl, Checkbox, Zahl, Land, Hinweistext und **Datei-Upload** (eingebauter Feldtyp `upload` des Plugins, Ziel immer `application-files`, [ADR 0012](entscheidungen/0012-bewerbungsdateien.md)). Zusatzfeld `retentionMonths` (Standard 6).
+- **`form-submissions`**: `form`, `submissionData`, `submissionUploads` (Dateien) und Zusatzfeld `event` → events. Ein Feld `status` für den späteren Auswahlprozess lässt sich hier ergänzen.
+- **`application-files`**: Lebensläufe, nur PDF (Prüfung der Dateisignatur), max. 4 MB, privat ([ADR 0012](entscheidungen/0012-bewerbungsdateien.md)).
+
+## Weitere Plugin-Collections
+
+- `redirects`: Einzelfälle, die die Redaktion anlegt (Ziel: Artikel, Seiten, Ausgaben, Events, Personen, Themen oder URL).
+- `search`: Suchindex für Artikel, Ausgaben, Events, Personen, pro Sprache, mit `slug` und `excerpt`.
+- `exports`, `imports`: Import/Export-Plugin. Export für Artikel, Personen, Ausgaben, Events, Themen, Team, Abonnenten und Einsendungen. Import ist ausgeschaltet.
+- `payload-mcp-api-keys`: API-Keys für MCP, nur Admin. Bleibt im Schema, auch wenn MCP aus ist.
+- `payload-jobs`: Hintergrund-Jobs ([architektur.md](architektur.md)).
+
+## Intern
+
+- `rate-limits`: Zähler pro gehashter IP und Zweck ([ADR 0005](entscheidungen/0005-rate-limit-postgres.md)), im Admin versteckt.
+- `users`: `name`, `email`, `role` (admin, board, editor, advisory; [rollen.md](rollen.md)), `teamMember` → team-members. Der allererste Benutzer wird automatisch Admin.
 
 ## Globals
 
-- `header`: Navigation (Issues, Topics, Speaker Events, Newsletter), Label L
-- `footer`: Links, Social Links, Newsletter-Text L, ESPRIT-Hinweis L
-- `homepage`: `currentIssue` → issues, optional angepinnte Artikel. Der Rest füllt sich automatisch (neueste Artikel, kommende Events, Archiv).
-- `site-settings`: Standard-SEO L, Kontakt-E-Mail, Adresse, Social-Profile, Newsletter-Popup an/aus
-
-## Zugriff
-
-- Siehe [rollen.md](rollen.md). Öffentlich nur Veröffentlichtes lesen, Abonnenten und Einsendungen nur über die Formulare anlegen.
-
-## Schnittstelle für espritsg.ch
-
-- Gleiche Feed-URLs und exakt gleiches JSON wie heute, das Plugin bleibt unverändert. Spec: [esprit-feed.md](esprit-feed.md).
-- Nur veröffentlichte Daten. Die ESPRIT-Website soll später ebenfalls neu gebaut und an Payload angebunden werden.
+- `homepage`: `currentIssue` → issues (leer = neueste digitale Ausgabe) · `pinnedPosts` → posts (max. 4) · `showTopicSection`
+- `header`: `navItems` (Label L, Link). Standard: Issues, Topics, Speaker Events, Newsletter.
+- `footer`: `links` (Label L, Link) · `socialLinks` · `newsletterText` L · `espritNote` L
+- `site-settings`: `defaultSeo` (Titel L, Beschreibung L, Bild) · `contactEmail` · `address` · `socialProfiles` · `newsletterPopup` (an/aus, Verzögerung in Sekunden, Standard 10)
 
 ## Bewusst nicht im Modell
 

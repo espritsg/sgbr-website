@@ -22,6 +22,7 @@ export default defineConfig({
           environment: 'node',
           include: ['tests/int/**/*.test.ts'],
           setupFiles: ['./tests/setup/int.ts'],
+          globalSetup: ['./tests/setup/int-global.ts'],
           // One Payload instance and one database: run integration files one after another.
           fileParallelism: false,
           testTimeout: 60_000,
