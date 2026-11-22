@@ -17,4 +17,5 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 - Live Preview, Admin-Leiste, Vorschau für Entwürfe; Datei-Route `/files/…` und Weiterleitung alter Upload-Links.
 - Newsletter: Double-Opt-in, Einstellungen und Abmeldung ohne Login, One-Click-Abmeldung, Resend-Webhook, Versand in Paketen mit Idempotency-Keys und Fortsetzen, Testversand, geplanter Versand, verzögertes Archiv.
 - Lokale Mail-Vorschau unter `/admin/mail-preview`.
+- Formulare und Event-Bewerbungen: PDF-Upload in privaten Speicher, Honeypot, Rate-Limit, Zeitfenster am Event, automatische Löschung nach Frist.
 - Doku in `docs/`, Regeln für Agents in `AGENTS.md`, CI mit Lint, Typecheck, Tests und Build.

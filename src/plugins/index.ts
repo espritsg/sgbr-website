@@ -15,6 +15,7 @@ import {
   searchAccess,
 } from '@/access/permissions'
 import { formsGroup, settingsGroup } from '@/collections/shared'
+import { guardSubmission } from '@/lib/forms/submissionGuard'
 import { storagePlugins } from '@/lib/storage'
 
 import { searchBeforeSync } from './searchSync'
@@ -130,6 +131,8 @@ export function plugins(): Plugin[] {
           singular: { de: 'Einsendung', en: 'Submission' },
           plural: { de: 'Einsendungen', en: 'Submissions' },
         },
+        // Honeypot, rate limit and event checks before anything is stored (docs/formulare.md).
+        hooks: { beforeOperation: [guardSubmission] },
         fields: ({ defaultFields }) => [
           ...defaultFields,
           {
