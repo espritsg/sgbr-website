@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import fs from 'fs'
 import pg from 'pg'
 
 /**
@@ -15,4 +16,6 @@ export default async function setup() {
   await client.connect()
   await client.query('DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;')
   await client.end()
+  // Fresh upload folder per run.
+  fs.rmSync(`${process.env.TMPDIR || '/tmp'}/sgbr-test-uploads`, { recursive: true, force: true })
 }

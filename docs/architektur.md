@@ -76,6 +76,11 @@ Alles Zeitgesteuerte läuft über die Payload Jobs Queue, ausgelöst von **einem
 - Live Preview: Payload öffnet `/next/preview?path=…` im Admin neben dem Editor. Beim Speichern lädt `RefreshRouteOnSave` die Seite neu (pro Sprache).
 - Admin-Leiste (`@payloadcms/admin-bar`) erscheint nur für eingeloggte Benutzer, mit „Bearbeiten“ für das aktuelle Dokument.
 
+## Statistik und MCP
+
+- Vercel Web Analytics (`@vercel/analytics`) wird nur auf Vercel in Produktion eingebunden (`VERCEL_ENV=production`), ohne Cookies.
+- MCP: `MCP_ENABLED=true` schaltet `/api/mcp` ein. Zugriff über API-Keys, die der Admin unter Einstellungen → MCP-API-Keys pro Collection und Aktion freigibt. Freigegeben sind `find`, `create`, `update` für Artikel, Personen, Events, Medien, kein `delete`, keine Benutzer. Empfehlung: Keys nur für Entwürfe nutzen, ein Mensch veröffentlicht. Ist MCP aus, bleibt die Tabelle für die Keys im Schema, damit das Einschalten keine Migration braucht.
+
 ## Lokal ohne Konten
 
 Siehe [ADR 0007](entscheidungen/0007-lokal-ohne-konten.md). Pflicht für den Start sind nur `DATABASE_URL`, `PAYLOAD_SECRET` und `NEXT_PUBLIC_SERVER_URL`.

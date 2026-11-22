@@ -18,4 +18,7 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 - Newsletter: Double-Opt-in, Einstellungen und Abmeldung ohne Login, One-Click-Abmeldung, Resend-Webhook, Versand in Paketen mit Idempotency-Keys und Fortsetzen, Testversand, geplanter Versand, verzögertes Archiv.
 - Lokale Mail-Vorschau unter `/admin/mail-preview`.
 - Formulare und Event-Bewerbungen: PDF-Upload in privaten Speicher, Honeypot, Rate-Limit, Zeitfenster am Event, automatische Löschung nach Frist.
+- Weiterleitungen aller alten WordPress-URLs (308), Prüfskript `npm run check:redirects`.
+- JSON-Feeds für espritsg.ch im alten Format mit Vertragstest.
+- Sitemap, robots.txt, RSS pro Sprache, hreflang und canonical; Vercel Web Analytics; MCP (standardmässig aus).
 - Doku in `docs/`, Regeln für Agents in `AGENTS.md`, CI mit Lint, Typecheck, Tests und Build.

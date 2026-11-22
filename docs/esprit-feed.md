@@ -65,3 +65,10 @@ Beispiele vom 2026-11-22 als Vertrag: [sgbr-feed-events-2026-11-22.json](../test
 ## Später
 
 - Beim Neubau von espritsg.ch auf Payload kann eine neue, saubere Schnittstelle kommen. Diese Feeds bleiben so lange bestehen, wie das alte Plugin läuft.
+
+## Umsetzung
+
+- Route-Handler `src/app/(feeds)/issues/route.ts` und `src/app/(feeds)/category/speaker-events/route.ts`, Logik in `src/lib/feeds/esprit.ts`.
+- Ausgabe wie `json_encode` in PHP: Schrägstriche als `\/`, Umlaute unverändert, `Content-Type: application/json; charset=UTF-8`, CDN-Cache 5 Minuten.
+- Nur Veröffentlichtes (Zugriffsregeln wie für Besucher). Events nach `startsAt` aufsteigend, `status` aus `startsAt`. Ausgaben neueste zuerst.
+- Vertragstest: `tests/int/esprit-feed.test.ts` vergleicht Schlüssel, Reihenfolge und Typen mit den Fixtures und prüft die Formate (`15 October 2026`, `19:00`, `…+00:00`) und absolute `https`-URLs.

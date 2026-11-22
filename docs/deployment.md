@@ -21,6 +21,8 @@ Alle Variablen stehen mit Kommentar in [`.env.example`](../.env.example). In Ver
 | `EMAIL_FROM` | nein | Absender normaler Mails |
 | `NEWSLETTER_FROM`, `NEWSLETTER_REPLY_TO` | nein | Absender und Antwortadresse des Newsletters |
 | `CRON_SECRET` | ja | schützt Cron und Selbstaufruf des Newsletter-Versands |
+| `BLOB_READ_WRITE_TOKEN` | ja | Vercel Blob (setzt Vercel beim Verbinden des Blob-Stores) |
+| `MCP_ENABLED` | nein | `true` schaltet `/api/mcp` ein, Standard aus |
 
 ## Checkliste vor dem Livegang
 

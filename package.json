@@ -21,7 +21,8 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
-    "import:dev": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/import-dev.ts"
+    "import:dev": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/import-dev.ts",
+    "check:redirects": "tsx src/scripts/check-redirects.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.12.0",

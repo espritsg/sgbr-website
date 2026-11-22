@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
@@ -33,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     metadataBase: new URL(serverUrl()),
     title: { default: title, template: `%s | ${t('name')}` },
     description: settings.defaultSeo?.description || t('tagline'),
+    alternates: { types: { 'application/rss+xml': `${serverUrl()}/${locale}/feed.xml` } },
   }
 }
 
@@ -62,6 +64,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           <SiteFooter footer={footer} />
           {popup?.enabled && <NewsletterPopup delaySeconds={popup.delaySeconds ?? 10} />}
         </NextIntlClientProvider>
+        {/* Vercel Web Analytics: no cookies, only on Vercel production (docs/architektur.md). */}
+        {process.env.VERCEL_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

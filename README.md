@@ -29,6 +29,7 @@ Ohne Konten für Resend, Vercel Blob oder Anthropic läuft alles lokal: Mails la
 | `npm run check` | Lint, Typecheck, Tests und Build, wie in CI |
 | `npm test` | alle Tests (braucht `npm run db:up`) |
 | `npm run import:dev` | Testdaten von der öffentlichen Website laden ([docs/migration.md](docs/migration.md)) |
+| `npm run check:redirects` | alle alten URLs prüfen (vor dem Livegang) |
 | `npm run generate:types` | Payload-Typen nach Schemaänderungen |
 
 ## Deploy

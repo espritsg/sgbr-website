@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { uploadsDir } from '@/lib/storage/uploadsDir'
+
 import { applicationFileAccess } from '@/access/permissions'
 
 import { formsGroup } from '../shared'
@@ -22,7 +24,7 @@ export const ApplicationFiles: CollectionConfig = {
     defaultColumns: ['filename', 'filesize', 'createdAt'],
   },
   upload: {
-    staticDir: 'application-files',
+    staticDir: uploadsDir('application-files'),
     mimeTypes: ['application/pdf'],
     disableLocalStorage: false,
     // Never cache private files in shared caches.

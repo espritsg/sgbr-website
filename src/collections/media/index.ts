@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { uploadsDir } from '@/lib/storage/uploadsDir'
+
 import { mediaAccess } from '@/access/permissions'
 import { wpIdField } from '@/fields/wpId'
 
@@ -19,7 +21,7 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'alt', 'mimeType', 'updatedAt'],
   },
   upload: {
-    staticDir: 'media',
+    staticDir: uploadsDir('media'),
     mimeTypes: ['image/*', 'application/pdf'],
     focalPoint: true,
     imageSizes: [

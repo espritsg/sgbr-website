@@ -11,3 +11,5 @@ delete process.env.RESEND_API_KEY
 // Mails of tests go to a temporary folder, not to .mail-preview/.
 process.env.MAIL_PREVIEW_DIR ||= `${process.env.TMPDIR || '/tmp'}/sgbr-test-mails`
 process.env.CRON_SECRET = ''
+// Uploads of tests go to a temporary folder, not to media/.
+process.env.UPLOADS_DIR ||= `${process.env.TMPDIR || '/tmp'}/sgbr-test-uploads`
