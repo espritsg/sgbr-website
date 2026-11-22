@@ -6,6 +6,7 @@ import { slugField } from '@/fields/slug'
 import { defaultEditor } from '@/lib/richtext/editors'
 
 import { newsletterGroup } from '../shared'
+import { newsletterAdminEndpoints } from './endpoints'
 import { computeArchiveVisibleFrom } from './hooks'
 
 const onlySenders: FieldAccess = ({ req }) => canSendNewsletter(req.user)
@@ -28,6 +29,7 @@ export const Newsletters: CollectionConfig = {
   },
   defaultSort: '-createdAt',
   versions: { maxPerDoc: 30 },
+  endpoints: newsletterAdminEndpoints,
   hooks: {
     beforeChange: [computeArchiveVisibleFrom],
   },
@@ -225,5 +227,13 @@ export const Newsletters: CollectionConfig = {
       ],
     },
     slugField(),
+    {
+      name: 'sendingActions',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/components/admin/NewsletterActions#NewsletterActions' },
+      },
+    },
   ],
 }

@@ -36,7 +36,9 @@ export function shorten(text: string, max = MAX_SUMMARY_LENGTH): string {
   if (clean.length <= max) return clean
   // Split only where punctuation is followed by a space and a capital letter, so
   // abbreviations like "J.P. Morgan" or "Dr." inside a sentence stay intact.
-  const sentences = clean.split(/(?<=[.!?…])\s+(?=[A-ZÄÖÜ„"«(])/)
+  const sentences = clean.split(
+    /(?<=[.!?…])(?<!\b(?:St|Dr|Mr|Mrs|Ms|Prof|Nr|No|bzw|ca|vs|Hr|Fr|Mio|Mrd)\.)\s+(?=[A-ZÄÖÜ„"«(])/,
+  )
   let result = ''
   for (const sentence of sentences) {
     const next = result ? `${result} ${sentence}` : sentence

@@ -289,3 +289,32 @@ export async function getForm(id: number) {
     return null
   }
 }
+
+/** Newsletter archive: the access rules show only sent newsletters after their delay. */
+export async function getNewsletterArchive(locale: AppLocale) {
+  const { payload, options } = await client(locale)
+  const result = await payload.find({
+    collection: 'newsletters',
+    locale,
+    overrideAccess: options.overrideAccess,
+    where: { status: { equals: 'sent' } },
+    sort: '-sentAt',
+    limit: 100,
+    depth: 0,
+    select: { title: true, slug: true, intro: true, sentAt: true },
+  })
+  return result.docs
+}
+
+export async function getNewsletter(locale: AppLocale, slug: string) {
+  const { payload, options } = await client(locale)
+  const result = await payload.find({
+    collection: 'newsletters',
+    locale,
+    overrideAccess: options.overrideAccess,
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 2,
+  })
+  return result.docs[0] ?? null
+}

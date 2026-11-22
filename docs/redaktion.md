@@ -33,3 +33,13 @@ Details: [rollen.md](rollen.md).
 - **Artikelbild:** erscheint im Artikel, auf der Startseite und auf allen Karten.
 - **Bild für die Ausgabenseite:** optional, freigestelltes Porträt, nur auf der Seite der Ausgabe.
 - Immer einen Alternativtext eintragen (kurz beschreiben, was zu sehen ist).
+
+## Newsletter
+
+1. **Newsletter → Neu**: Titel, Betreff, Vorschautext, Einleitung, Text (z. B. Gastbeitrag) und empfohlene Artikel eintragen. Zielgruppe wählen: monatlicher Newsletter oder Event-Einladungen.
+2. Speichern, dann rechts **Testversand an mich**. Die Mail kommt an die eigene Adresse, mit „[TEST]“ im Betreff. Das dürfen auch Editors.
+3. **Senden** (nur Admin und Editorial Board): Der Dialog zeigt die Anzahl der Empfänger. Nach dem Bestätigen geht der Versand sofort los und läuft von selbst weiter, auch wenn man die Seite schliesst.
+4. Statt sofort zu senden, lässt sich unter „Versand“ ein **geplanter Versand** (Tag) eintragen. Er startet am Morgen dieses Tages.
+5. Im Archiv auf der Website erscheint der Newsletter standardmässig **30 Tage** nach dem Versand (einstellbar unter „Archiv“, 0 = sofort, oder ganz ausblenden).
+
+Abonnenten melden sich selbst an und bestätigen per Mail. Abgemeldete bleiben in der Liste (Status „Abgemeldet“), damit sie nicht wieder angeschrieben werden. Die Liste sehen nur Admin und Editorial Board, Export über **Exportieren** in der Liste.

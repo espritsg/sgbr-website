@@ -2,6 +2,7 @@ import { ApplicationFiles } from './application-files'
 import { Events } from './events'
 import { Issues } from './issues'
 import { Media } from './media'
+import { NewsletterDeliveries } from './newsletter-deliveries'
 import { Newsletters } from './newsletters'
 import { Pages } from './pages'
 import { People } from './people'
@@ -24,6 +25,7 @@ export const collections = [
   Media,
   Newsletters,
   Subscribers,
+  NewsletterDeliveries,
   ApplicationFiles,
   RateLimits,
   Users,

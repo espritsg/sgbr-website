@@ -52,3 +52,37 @@ Entschieden 2026-11-22: **Variante A.** Payload ist die einzige Datenquelle. Res
 
 - Versendete Newsletter erscheinen **verzögert** im Archiv, Standard 30 Tage nach Versand. Pro Newsletter einstellbar (`archiveDelayDays`, 0 = sofort) oder ganz ausblendbar.
 - So haben Abonnenten einen Vorsprung, ohne dass es ein Login für Leser braucht.
+
+## Umsetzung
+
+| Teil | Datei |
+| --- | --- |
+| Anmeldung, Bestätigen, Einstellungen, Abmelden, Löschen nach 7 Tagen | `src/lib/newsletter/subscriptions.ts` |
+| Versand (Schnappschuss, Pakete, Fortsetzen, Testversand, Planung) | `src/lib/newsletter/sending.ts` |
+| Öffentliche Endpunkte `/api/newsletter/…` | `src/endpoints/newsletter.ts` |
+| Admin-Endpunkte `/api/newsletters/:id/recipients`, `/test`, `/send` | `src/collections/newsletters/endpoints.ts` |
+| Buttons im Admin (Seitenleiste des Newsletters) | `src/components/admin/NewsletterActions.tsx` |
+| Mail-Vorlagen (HTML und Text, immer hell) | `src/emails/` |
+| Resend bzw. lokale Vorschau | `src/lib/email/` |
+| Seiten `/newsletter`, `/newsletter/{slug}`, `/confirm`, `/preferences` | `src/app/(frontend)/[locale]/newsletter/` |
+
+### Endpunkte
+
+| Endpunkt | Wofür |
+| --- | --- |
+| `POST /api/newsletter/subscribe` | Anmeldung. Honeypot `website`, max. 10 Anfragen pro IP in 10 Minuten. Antwortet immer gleich. |
+| `POST /api/newsletter/preferences` | Interessen ändern (`token`, `interests`) oder abmelden (`unsubscribe: true`) |
+| `POST /api/newsletter/unsubscribe?token=` | Abmelden mit einem Klick aus dem Mailprogramm (Header `List-Unsubscribe`, `List-Unsubscribe-Post`) |
+| `POST /api/newsletter/webhook` | Resend: `email.bounced` → `bounced`, `email.complained` → `complained`. Signatur (Svix) mit `RESEND_WEBHOOK_SECRET` geprüft. |
+| `POST /api/newsletter/continue` | Setzt einen Versand fort, nur mit `Authorization: Bearer $CRON_SECRET` |
+
+### Ablauf beim Senden
+
+1. **Senden** (Admin, Board) zeigt die Empfängerzahl im Bestätigungsdialog.
+2. Beim Start entsteht für jeden Empfänger ein Eintrag in der versteckten Collection `newsletter-deliveries`, nummeriert in Paketen à 100. Wer sich danach abmeldet, wird übersprungen.
+3. Pakete gehen einzeln an die Batch-API von Resend, mit Idempotency-Key `newsletter-{id}-batch-{n}`. Erst nach Erfolg wird das Paket als gesendet markiert. Bricht der Lauf ab, schickt der nächste Lauf dasselbe Paket mit demselben Schlüssel, Resend verschickt es nicht doppelt.
+4. Läuft die Zeit einer Funktion ab (Budget ~40 s), ruft sich der Versand über `/api/newsletter/continue` selbst wieder auf ([ADR 0017](entscheidungen/0017-newsletter-selbstaufruf.md)). Der tägliche Cron setzt abgebrochene Versände fort.
+5. Fehler 429/5xx: Abbruch, später erneut. Nach 3 Versuchen oder bei anderen Fehlern werden die Empfänger des Pakets als fehlgeschlagen markiert. Status am Ende `sent` (oder `failed`, wenn niemand erreicht wurde).
+6. Sprache: Jeder Empfänger bekommt den Newsletter in seiner Sprache (`locale`), leere Felder fallen auf die andere Sprache zurück.
+
+Lokal ohne `RESEND_API_KEY` landen alle Mails in `.mail-preview/` und unter `/admin/mail-preview` (nur Admin).

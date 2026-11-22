@@ -78,6 +78,7 @@ export interface Config {
     media: Media;
     newsletters: Newsletter;
     subscribers: Subscriber;
+    'newsletter-deliveries': NewsletterDelivery;
     'application-files': ApplicationFile;
     'rate-limits': RateLimit;
     users: User;
@@ -117,6 +118,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     newsletters: NewslettersSelect<false> | NewslettersSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
+    'newsletter-deliveries': NewsletterDeliveriesSelect<false> | NewsletterDeliveriesSelect<true>;
     'application-files': ApplicationFilesSelect<false> | ApplicationFilesSelect<true>;
     'rate-limits': RateLimitsSelect<false> | RateLimitsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -926,6 +928,22 @@ export interface Subscriber {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-deliveries".
+ */
+export interface NewsletterDelivery {
+  id: number;
+  newsletter: number | Newsletter;
+  subscriber: number | Subscriber;
+  batch: number;
+  status: 'pending' | 'sent' | 'failed';
+  attempts?: number | null;
+  messageId?: string | null;
+  error?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "application-files".
  */
 export interface ApplicationFile {
@@ -1404,6 +1422,10 @@ export interface PayloadLockedDocument {
         value: number | Subscriber;
       } | null)
     | ({
+        relationTo: 'newsletter-deliveries';
+        value: number | NewsletterDelivery;
+      } | null)
+    | ({
         relationTo: 'application-files';
         value: number | ApplicationFile;
       } | null)
@@ -1822,6 +1844,21 @@ export interface SubscribersSelect<T extends boolean = true> {
   source?: T;
   confirmToken?: T;
   preferencesToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-deliveries_select".
+ */
+export interface NewsletterDeliveriesSelect<T extends boolean = true> {
+  newsletter?: T;
+  subscriber?: T;
+  batch?: T;
+  status?: T;
+  attempts?: T;
+  messageId?: T;
+  error?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2459,6 +2496,7 @@ export interface TaskCreateCollectionExport {
       | 'media'
       | 'newsletters'
       | 'subscribers'
+      | 'newsletter-deliveries'
       | 'application-files'
       | 'rate-limits'
       | 'users'

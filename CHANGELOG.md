@@ -15,4 +15,6 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 - Gemeinsame Zuordnungslogik für Dev-Import und finale Migration, Kategorien-Zuordnung als Vorschlag.
 - Frontend: Startseite nach HBR-Vorbild, Artikel, Themen, Ausgaben, Events, Personen, Seiten, Suche, 404; Hell/Dunkel; EN/DE-Umschalter.
 - Live Preview, Admin-Leiste, Vorschau für Entwürfe; Datei-Route `/files/…` und Weiterleitung alter Upload-Links.
+- Newsletter: Double-Opt-in, Einstellungen und Abmeldung ohne Login, One-Click-Abmeldung, Resend-Webhook, Versand in Paketen mit Idempotency-Keys und Fortsetzen, Testversand, geplanter Versand, verzögertes Archiv.
+- Lokale Mail-Vorschau unter `/admin/mail-preview`.
 - Doku in `docs/`, Regeln für Agents in `AGENTS.md`, CI mit Lint, Typecheck, Tests und Build.

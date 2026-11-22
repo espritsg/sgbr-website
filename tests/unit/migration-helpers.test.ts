@@ -73,6 +73,12 @@ describe('summaries without API key', () => {
     )
   })
 
+  it('does not end a sentence after St. or Dr.', () => {
+    expect(
+      shorten('It started in the 80s. St. Gallen was small then. More text follows here.', 60),
+    ).toBe('It started in the 80s. St. Gallen was small then.')
+  })
+
   it('shortens at sentence boundaries without breaking abbreviations', () => {
     const text = 'Dr. Weimer joined KKR. '.repeat(30)
     const short = shorten(text, 60)

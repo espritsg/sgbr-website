@@ -8,9 +8,11 @@ import { fileURLToPath } from 'url'
 
 import { canRunJobs } from './access/permissions'
 import { collections } from './collections'
+import { newsletterEndpoints } from './endpoints/newsletter'
 import { Users } from './collections/users'
 import { globals } from './globals'
 import { previewUrl } from './lib/preview'
+import { emailAdapter } from './lib/email/adapter'
 import { defaultEditor } from './lib/richtext/editors'
 import { plugins } from './plugins'
 
@@ -28,6 +30,15 @@ export default buildConfig({
       titleSuffix: ' – SGBR Admin',
     },
     dateFormat: 'dd.MM.yyyy HH:mm',
+    components: {
+      afterNavLinks: ['@/components/admin/MailPreviewLink#MailPreviewLink'],
+      views: {
+        mailPreview: {
+          Component: '@/components/admin/MailPreviewView#MailPreviewView',
+          path: '/mail-preview',
+        },
+      },
+    },
     // Live Preview: the page next to the editor, per language (docs/architektur.md).
     livePreview: {
       collections: ['posts', 'issues', 'events', 'people', 'pages'],
@@ -61,6 +72,8 @@ export default buildConfig({
   },
   collections,
   globals,
+  endpoints: newsletterEndpoints,
+  email: emailAdapter(),
   editor: defaultEditor,
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

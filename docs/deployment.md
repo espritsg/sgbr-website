@@ -16,6 +16,11 @@ Alle Variablen stehen mit Kommentar in [`.env.example`](../.env.example). In Ver
 | `DATABASE_URL` | ja | Postgres-Verbindung (Neon setzt sie über die Marketplace-Integration) |
 | `PAYLOAD_SECRET` | ja | Schlüssel für Payload (Sessions, Tokens), zufällig, mind. 32 Zeichen |
 | `NEXT_PUBLIC_SERVER_URL` | ja | öffentliche Adresse ohne `/` am Ende, z. B. `https://stgallenbusinessreview.com` |
+| `RESEND_API_KEY` | für Mails | Resend; ohne Key gehen keine Mails raus |
+| `RESEND_WEBHOOK_SECRET` | für Bounces | Webhook in Resend auf `https://…/api/newsletter/webhook`, Ereignisse `email.bounced`, `email.complained` |
+| `EMAIL_FROM` | nein | Absender normaler Mails |
+| `NEWSLETTER_FROM`, `NEWSLETTER_REPLY_TO` | nein | Absender und Antwortadresse des Newsletters |
+| `CRON_SECRET` | ja | schützt Cron und Selbstaufruf des Newsletter-Versands |
 
 ## Checkliste vor dem Livegang
 
