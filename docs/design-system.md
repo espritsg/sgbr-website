@@ -71,3 +71,25 @@ Details: call-2026-11-21.md.
 
 - **Marktleiste:** die Zeile ganz oben mit S&P 500, DAX, Nikkei 225, Hang Seng und EUR/USD. Sie holt Kurse über einen eigenen Endpunkt und zeigt heute nur „–“, weil der Endpunkt einen Fehler liefert. Für ein Interview-Magazin ohne Mehrwert, braucht aber einen Kurs-Datendienst.
 - **Instagram-Feed:** Plugin „Smash Balloon Instagram Feed“ ist installiert, auf den geprüften Seiten wird aber kein Feed angezeigt. Ein Link aufs Instagram-Profil reicht.
+
+## Umsetzung
+
+- Tokens in `src/app/(frontend)/globals.css` (`@theme`). Markenfarben (`navy`, `petrol`, …) plus semantische Tokens `bg`, `surface`, `band`, `text`, `muted`, `line`, `accent`, `accent-hover`, `on-accent`. Komponenten nutzen nur die semantischen Tokens, die Werte für Dunkel stehen unter `.dark`.
+- Breiten als Utilities: `container-page` (1440px) und `container-reading` (920px Lesebreite für Artikel).
+- Schriften über `next/font` in `src/lib/fonts.ts` (Inter, Cormorant Garamond).
+- Dark Mode: `src/components/layout/ThemeScript.tsx` setzt die Klasse `dark` vor dem ersten Zeichnen, wenn `localStorage['sgbr-theme'] === 'dark'`. Ohne gespeicherte Wahl bleibt es hell, auch bei dunklem System. Umschalter im Kopf und im Menü-Drawer.
+- Logos von Firmen und das Newsletter-Formular im Footer liegen auf einer weissen Fläche, damit sie in beiden Modi gleich aussehen.
+- Muted hell ist `#6B6B6B` statt `#7A7A7A` (Kontrast AA, [ADR 0010](entscheidungen/0010-design-werte.md)).
+
+## Komponenten im Code
+
+| Komponente | Datei |
+| --- | --- |
+| Kopf, Sprache, Hell/Dunkel, Suche, Drawer | `src/components/layout/` |
+| Artikel-, Ausgaben-, Eventkarten | `src/components/cards/`, `src/components/events/` |
+| Byline „Interview with …“ | `src/components/ui/Byline.tsx` |
+| Lexical-Text mit Frage/Antwort, Zitat, Embed, PDF | `src/components/richtext/` |
+| Seitenblöcke (Text, Team, Formular, Bild+Text, CTA) | `src/components/blocks/RenderBlocks.tsx` |
+| Formulare aus dem Form Builder | `src/components/forms/` |
+| Newsletter-Anmeldung und Popup | `src/components/newsletter/` |
+| Admin-Leiste, Live Preview | `src/components/preview/` |

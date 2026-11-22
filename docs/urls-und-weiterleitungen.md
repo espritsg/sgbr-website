@@ -54,6 +54,11 @@ Alle mit Status 308 (permanent). Ziel ist immer `/en`, weil die alte Oberfläche
 
 ## Umsetzung
 
+- Seiten: `src/app/(frontend)/[locale]/…`. Statische Seiten (About, Contact, Imprint, Privacy) über `[locale]/[page]` aus der Collection `pages`.
+- `/files/{dateiname}`: `src/app/(frontend)/files/[filename]/route.ts` sucht die Datei (auch generierte Bildgrössen) und leitet mit 302 auf den Speicher weiter.
+- `/wp-content/uploads/{pfad}`: `src/app/(frontend)/wp-content/uploads/[...path]/route.ts` sucht über `legacyPath` (auch verkleinerte Varianten wie `-300x200.jpg`) und leitet mit 308 auf `/files/…` weiter.
+- Vorschau: `/next/preview?path=…` schaltet für eingeloggte Benutzer den Entwurfsmodus ein, `/next/exit-preview` aus.
+
 - Feste Regeln (Tabelle oben) in `next.config.ts` unter `redirects()`. Kosten nichts, brauchen keine Datenbank.
 - Artikel: eine Regel für alle einstufigen Pfade, die keine bekannte Route sind (`/{slug}/` → `/en/article/{slug}`). Muss vor der `next-intl`-Middleware greifen.
 - Kategorien, die beim Aufräumen zusammengelegt werden: Zuordnung alt → neu als Liste im Migrationsskript, daraus Redirects erzeugen.

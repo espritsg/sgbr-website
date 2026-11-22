@@ -10,6 +10,7 @@ import { canRunJobs } from './access/permissions'
 import { collections } from './collections'
 import { Users } from './collections/users'
 import { globals } from './globals'
+import { previewUrl } from './lib/preview'
 import { defaultEditor } from './lib/richtext/editors'
 import { plugins } from './plugins'
 
@@ -27,6 +28,21 @@ export default buildConfig({
       titleSuffix: ' – SGBR Admin',
     },
     dateFormat: 'dd.MM.yyyy HH:mm',
+    // Live Preview: the page next to the editor, per language (docs/architektur.md).
+    livePreview: {
+      collections: ['posts', 'issues', 'events', 'people', 'pages'],
+      url: ({ data, collectionConfig, locale }) =>
+        previewUrl(
+          collectionConfig?.slug ?? '',
+          data?.slug as string | undefined,
+          locale?.code ?? 'en',
+        ) ?? '',
+      breakpoints: [
+        { label: 'Mobile', name: 'mobile', width: 390, height: 844 },
+        { label: 'Tablet', name: 'tablet', width: 820, height: 1180 },
+        { label: 'Desktop', name: 'desktop', width: 1440, height: 900 },
+      ],
+    },
   },
   // Admin UI in German by default, users can switch to English in their account.
   i18n: {

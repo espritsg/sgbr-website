@@ -13,4 +13,6 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 - Vier Rollen mit zentralen Zugriffsregeln und Tests; Editors sehen keinen Veröffentlichen-Button.
 - Dev-Import von der öffentlichen Website (`npm run import:dev`) mit Testdaten und je einem Benutzer pro Rolle.
 - Gemeinsame Zuordnungslogik für Dev-Import und finale Migration, Kategorien-Zuordnung als Vorschlag.
+- Frontend: Startseite nach HBR-Vorbild, Artikel, Themen, Ausgaben, Events, Personen, Seiten, Suche, 404; Hell/Dunkel; EN/DE-Umschalter.
+- Live Preview, Admin-Leiste, Vorschau für Entwürfe; Datei-Route `/files/…` und Weiterleitung alter Upload-Links.
 - Doku in `docs/`, Regeln für Agents in `AGENTS.md`, CI mit Lint, Typecheck, Tests und Build.

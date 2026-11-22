@@ -70,6 +70,12 @@ Alles Zeitgesteuerte läuft über die Payload Jobs Queue, ausgelöst von **einem
 - Endpunkt `/api/cron/run-jobs`, geschützt mit `CRON_SECRET`.
 - Lokal laufen die Jobs im Dev-Server automatisch oder per `npm run jobs`.
 
+## Website
+
+- Seiten rendern bei jedem Aufruf ([ADR 0016](entscheidungen/0016-rendering.md)). Alle Lesezugriffe stehen in `src/lib/data/queries.ts`.
+- Live Preview: Payload öffnet `/next/preview?path=…` im Admin neben dem Editor. Beim Speichern lädt `RefreshRouteOnSave` die Seite neu (pro Sprache).
+- Admin-Leiste (`@payloadcms/admin-bar`) erscheint nur für eingeloggte Benutzer, mit „Bearbeiten“ für das aktuelle Dokument.
+
 ## Lokal ohne Konten
 
 Siehe [ADR 0007](entscheidungen/0007-lokal-ohne-konten.md). Pflicht für den Start sind nur `DATABASE_URL`, `PAYLOAD_SECRET` und `NEXT_PUBLIC_SERVER_URL`.
