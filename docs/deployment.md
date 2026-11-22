@@ -1,41 +1,94 @@
 ---
-description: Hosting auf Vercel: Konten, Umgebungsvariablen, DNS, Resend-Domain, Cron und Checkliste für den Livegang
+description: Hosting auf Vercel: Konten, Umgebungsvariablen, erster Deploy, DNS, Resend-Domain, Cron, finale Migration und Checkliste für den Livegang
 aktualisiert: 2026-11-22
 ---
 
 # Deployment
 
-Gehostet auf Vercel, Konto von ESPRIT. Postgres bei Neon (Vercel Marketplace), Dateien in Vercel Blob, Mails über Resend.
+Gehostet auf Vercel (Konto von ESPRIT). Postgres bei Neon über den Vercel Marketplace, Dateien in Vercel Blob, Mails über Resend. Der Code liegt in einem GitHub-Repo der ESPRIT-Organisation.
 
 ## Umgebungsvariablen
 
-Alle Variablen stehen mit Kommentar in [`.env.example`](../.env.example). In Vercel unter Project → Settings → Environment Variables setzen (Production und Preview).
+Alle Variablen stehen mit Kommentar in [`.env.example`](../.env.example). In Vercel unter Project → Settings → Environment Variables setzen, für **Production** und **Preview**.
 
-| Variable | Pflicht | Wofür |
+| Variable | Pflicht | Wofür, woher |
 | --- | --- | --- |
-| `DATABASE_URL` | ja | Postgres-Verbindung (Neon setzt sie über die Marketplace-Integration) |
-| `PAYLOAD_SECRET` | ja | Schlüssel für Payload (Sessions, Tokens), zufällig, mind. 32 Zeichen |
-| `NEXT_PUBLIC_SERVER_URL` | ja | öffentliche Adresse ohne `/` am Ende, z. B. `https://stgallenbusinessreview.com` |
-| `RESEND_API_KEY` | für Mails | Resend; ohne Key gehen keine Mails raus |
-| `RESEND_WEBHOOK_SECRET` | für Bounces | Webhook in Resend auf `https://…/api/newsletter/webhook`, Ereignisse `email.bounced`, `email.complained` |
-| `EMAIL_FROM` | nein | Absender normaler Mails |
-| `NEWSLETTER_FROM`, `NEWSLETTER_REPLY_TO` | nein | Absender und Antwortadresse des Newsletters |
-| `CRON_SECRET` | ja | schützt Cron und Selbstaufruf des Newsletter-Versands |
-| `BLOB_READ_WRITE_TOKEN` | ja | Vercel Blob (setzt Vercel beim Verbinden des Blob-Stores) |
+| `DATABASE_URL` | ja | Postgres. Setzt die Neon-Integration automatisch (bei Neon heisst sie ggf. `POSTGRES_URL`, dann als `DATABASE_URL` übernehmen). Für Previews eigener Neon-Branch. |
+| `PAYLOAD_SECRET` | ja | Schlüssel für Payload, zufällig, mind. 32 Zeichen: `openssl rand -hex 32`. Nie ändern, sonst sind alle angemeldet ab. |
+| `NEXT_PUBLIC_SERVER_URL` | ja | öffentliche Adresse ohne `/` am Ende: `https://stgallenbusinessreview.com` (Preview: Vorschau-URL) |
+| `CRON_SECRET` | ja | zufällig. Vercel schickt es beim Cron als `Authorization: Bearer …`, der Newsletter-Versand nutzt es für den Selbstaufruf. |
+| `BLOB_READ_WRITE_TOKEN` | ja | setzt Vercel beim Verbinden eines Blob-Stores |
+| `RESEND_API_KEY` | für Mails | Resend; ohne Key gehen keine Mails raus (nur Log) |
+| `RESEND_WEBHOOK_SECRET` | für Bounces | Signatur-Secret des Webhooks in Resend |
+| `EMAIL_FROM` | nein | Absender normaler Mails, Standard `St. Gallen Business Review <editorial@stgallenbusinessreview.com>` |
+| `NEWSLETTER_FROM` | nein | Absender Newsletter, Standard `…<newsletter@news.stgallenbusinessreview.com>` |
+| `NEWSLETTER_REPLY_TO` | nein | Antwortadresse Newsletter |
 | `MCP_ENABLED` | nein | `true` schaltet `/api/mcp` ein, Standard aus |
+| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | nein | nur für Import- und Migrationsskript (lokal), nicht in Vercel nötig |
+
+Nur lokal: `DATABASE_URL_TEST`, `DEV_SEED_PASSWORD`, `UPLOADS_DIR`, `MAIL_PREVIEW_DIR`, `IMPORT_LIMIT`, `DEV_IMPORT_SOURCE`, `MIGRATION_*`, `CHECK_*`.
+
+## Erster Deploy
+
+1. **GitHub:** Repo in die ESPRIT-Organisation pushen (macht eine Person mit Zugang, nicht automatisch).
+2. **Vercel:** New Project → Repo importieren. Framework Next.js wird erkannt. Build-Befehl kommt aus `vercel.json`: `npm run build:vercel` (`payload migrate`, dann `next build`). Node-Version aus `package.json` (`engines`, 24).
+3. **Neon:** Vercel → Storage → Neon verbinden (Region Frankfurt `eu-central-1`). Für Preview-Deployments Neon-Branching einschalten, damit Vorschauen nicht auf die Produktionsdaten schreiben.
+4. **Blob:** Vercel → Storage → Blob-Store anlegen (Region Frankfurt), mit dem Projekt verbinden. Lebensläufe werden mit `access: 'private'` gespeichert ([ADR 0012](entscheidungen/0012-bewerbungsdateien.md)).
+5. **Variablen** aus der Tabelle oben setzen.
+6. **Deploy.** Beim ersten Build legt `payload migrate` alle Tabellen an.
+7. **Ersten Benutzer anlegen:** `https://…/admin` öffnen, „Ersten Benutzer erstellen“. Er wird automatisch Admin. Weitere Benutzer legt der Admin an.
+8. **Cron prüfen:** Vercel → Settings → Cron Jobs zeigt `/api/cron/run-jobs` täglich 05:00 UTC. „Run“ klicken, danach im Admin unter Einstellungen → Hintergrund-Jobs den Eintrag „Tägliche Wartung“ ansehen.
+9. **Laufzeit:** `vercel.json` erlaubt der Payload-API bis 300 Sekunden (`maxDuration`), für Newsletter-Versand und Migration. Auf Vercel Hobby prüfen, ob das Limit gilt.
+
+## Resend (Mails und Newsletter)
+
+1. Konto bei Resend (ESPRIT), zwei Domains anlegen:
+   - `stgallenbusinessreview.com` für normale Mails (Absender `editorial@…`)
+   - `news.stgallenbusinessreview.com` für den Newsletter (eigene Subdomain, damit Newsletter-Probleme die normalen Mails nicht treffen)
+2. Die DNS-Einträge, die Resend anzeigt (SPF, DKIM, ggf. DMARC, Return-Path), bei **All-Inkl** eintragen. **Die MX-Einträge für Microsoft 365 nicht anfassen.**
+3. API-Key erzeugen (Sending access) → `RESEND_API_KEY`.
+4. Webhook anlegen: URL `https://stgallenbusinessreview.com/api/newsletter/webhook`, Ereignisse `email.bounced` und `email.complained`, Signatur-Secret → `RESEND_WEBHOOK_SECRET`.
+5. Testen: Im Admin einen Newsletter anlegen, **Testversand an mich**.
+
+## DNS und Livegang
+
+- Hosting und DNS liegen bei All-Inkl. Für den Livegang nur die Einträge für die Website umstellen: `A` für `stgallenbusinessreview.com` und `CNAME` für `www` auf die Werte, die Vercel unter Domains anzeigt. **MX (Microsoft 365) und alle Mail-Einträge bleiben unverändert.**
+- In Vercel die Domain hinzufügen, `www` auf die Hauptdomain weiterleiten.
+- WordPress noch einige Wochen offline als Backup behalten.
+
+## Finale Migration
+
+Ablauf und Befehle in [migration.md](migration.md), Phase 2. Kurz:
+
+1. In WordPress nichts mehr ändern. Exporte ziehen: WXR („Alle Inhalte“), MailPoet (nur bestätigte), Redirection, `wp-content/uploads` per FTP.
+2. Lokal gegen die Produktionsdatenbank: `DATABASE_URL=<Neon> BLOB_READ_WRITE_TOKEN=<…> MIGRATION_DIR=… npm run migrate:wp`.
+3. Bericht durchgehen, Exporte mit Personendaten danach löschen.
+4. `CHECK_TARGET=https://<vorschau> npm run check:redirects` muss 0 Fehler melden.
 
 ## Checkliste vor dem Livegang
 
 Offene Punkte aus den Specs (blockieren den Bau nicht):
 
 - [ ] Wer pflegt die Seite technisch nach der aktuellen Betreuung?
-- [ ] Budget für Vercel (Hobby oder Pro), Neon und Resend klären, Preise vorher prüfen. Vercel Hobby ist laut Vercel nur für nicht-kommerzielle Nutzung. Mit Pro kann der Cron häufiger laufen.
+- [ ] Budget für Vercel (Hobby oder Pro), Neon und Resend klären, Preise vorher prüfen. Vercel Hobby ist laut Vercel nur für nicht-kommerzielle Nutzung. Mit Pro kann der Cron häufiger laufen (`vercel.json`, z. B. alle 5 Minuten).
 - [ ] Deadline festlegen (z. B. nächste Ausgabe).
 - [ ] GitHub-Organisation von ESPRIT: vorhanden? Wer ist Owner? Wer hat Zugang zu All-Inkl (Hosting/DNS)?
 - [ ] Code des Child-Themes (laut Call von Thierry) beschaffen, falls noch Details fehlen.
 - [ ] Rolle von Jannis (ESPRIT) klären.
-- [ ] Datenschutzerklärung rechtlich prüfen lassen (Entwurfsabschnitte zu Newsletter, Formularen mit Lebenslauf, Vercel Analytics).
-- [ ] Imprint-Text prüfen.
+- [ ] Datenschutzerklärung rechtlich prüfen lassen. Die Abschnitte mit „[Draft]“ (Hosting, Statistik, Newsletter, Formulare) sind Entwürfe.
+- [ ] Imprint-Text prüfen (Vorstand, Adresse).
+- [ ] Preise und Limits von Resend prüfen, Absender-Domains verifiziert.
+- [ ] Erster Newsletter im Dezember 2026 noch über MailPoet. WordPress erst abschalten, wenn der neue Versand läuft.
+
+Aus dem Bau:
+
 - [ ] Design-Tokens einmal im Browser mit den berechneten Styles der alten Seite abgleichen ([ADR 0010](entscheidungen/0010-design-werte.md)).
 - [ ] Kategorien-Zuordnung alt → neu von der Redaktion bestätigen lassen ([migration.md](migration.md)).
-- [ ] Nach dem Livegang prüfen, dass das Plugin auf espritsg.ch die neuen Feeds liest (WP-Rocket-Cache leeren).
+- [ ] Artikel ohne Haupt-Thema (Bericht der Migration) zuordnen, Zusammenfassungen prüfen (Liste „Zusammenfassung prüfen“).
+- [ ] Bewerbung mit PDF auf der Vorschau testen und prüfen, dass die Blob-URL der Datei ohne Login nicht abrufbar ist.
+- [ ] Newsletter-Testversand und echte Anmeldung (Double-Opt-in) auf der Vorschau testen, Abmelden per Link und per Mailprogramm (One-Click).
+- [ ] `npm run check:redirects` gegen die Vorschau: 0 Fehler.
+- [ ] Feeds prüfen: `https://<vorschau>/issues/?sgbr_feed=1` und `/category/speaker-events/?sgbr_feed=1` liefern JSON.
+- [ ] Nach dem Livegang prüfen, dass das Plugin auf espritsg.ch die neuen Feeds liest (WP-Rocket-Cache auf espritsg.ch leeren).
+- [ ] Benutzer für die Redaktion anlegen (Rollen nach [rollen.md](rollen.md)), Testbenutzer gibt es in Produktion nicht.
+- [ ] Vercel Web Analytics im Projekt aktivieren (Analytics → Enable).

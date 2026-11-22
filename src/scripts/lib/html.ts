@@ -76,11 +76,32 @@ export function findImages(html: string): InlineImage[] {
   })
 }
 
+const VALID_HREF = /^(https?:\/\/[^\s/]+\.[^\s]+|mailto:[^\s]+|tel:[^\s]+|\/[^\s]*|#[^\s]+)$/i
+
+/**
+ * Cleans links: empty anchors are unwrapped, links copied from Apple apps
+ * ("applewebdata://…#_ftn1") become in-page anchors, invalid hrefs are removed.
+ */
+export function sanitizeLinks(html: string): string {
+  return html.replace(
+    /<a\b([^>]*)>([\s\S]*?)<\/a>/gi,
+    (whole, attributes: string, inner: string) => {
+      const href = attributes.match(/\shref="([^"]*)"/i)?.[1]?.trim()
+      if (!href) return inner
+      const fixed = href.startsWith('applewebdata://')
+        ? href.replace(/^[^#]*/, '')
+        : href.replace(/ /g, '%20')
+      if (!fixed || !VALID_HREF.test(fixed)) return inner
+      return `<a href="${fixed}"${/target="_blank"/i.test(attributes) ? ' target="_blank" rel="noopener noreferrer"' : ''}>${inner}</a>`
+    },
+  )
+}
+
 /**
  * Prepares WordPress HTML for convertHTMLToLexical:
  * - removes shortcodes and links that only wrap an image
  * - turns images into Payload upload nodes (via data attributes), or drops them
- * - removes empty paragraphs and figure captions become paragraphs
+ * - removes empty paragraphs, figure captions become paragraphs, links are cleaned
  */
 export function prepareHtmlForLexical(
   html: string,
@@ -98,5 +119,5 @@ export function prepareHtmlForLexical(
   result = result.replace(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/gi, '<p><em>$1</em></p>')
   result = result.replace(/<\/?(figure|div|section)\b[^>]*>/gi, '')
   result = result.replace(/<p\b[^>]*>\s*(&nbsp;|\s)*<\/p>/gi, '')
-  return result
+  return sanitizeLinks(result)
 }

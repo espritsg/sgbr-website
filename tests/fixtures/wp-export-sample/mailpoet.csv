@@ -1,0 +1,4 @@
+"Email","First name","Last name","Status","Subscribed on"
+"reader@example.com","Eve","Example","subscribed","2025-11-01 10:00:00"
+"pending@example.com","Finn","Example","unconfirmed","2025-11-02 10:00:00"
+"gone@example.com","Gil","Example","unsubscribed","2025-01-02 10:00:00"

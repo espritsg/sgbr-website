@@ -13,7 +13,7 @@ Dieses Repo ist die Website der St. Gallen Business Review (SGBR): Next.js 16 (A
 
 ## Datenbank und Payload
 
-- Schema nur über Payload-Migrationen ändern: `npm run payload migrate:create <name>`. In Produktion nie `push`.
+- Schema nur über Payload-Migrationen ändern: nach der Änderung `npm run migrate:create <name>` und die Datei in `src/migrations/` committen. In Produktion nie `push`; der Vercel-Build führt `payload migrate` aus ([docs/wartung.md](docs/wartung.md)).
 - Nach Schemaänderungen `npm run generate:types` und `npm run generate:importmap`, Ergebnis committen.
 - Zugriffsregeln stehen **nur** in `src/access/`. Jede Änderung dort braucht einen passenden Test in `tests/int/access*.test.ts`.
 - Lokalisierte Felder nur für Inhalte, die wirklich pro Sprache gepflegt werden (siehe [docs/sprachen.md](docs/sprachen.md)). Slugs sind nie lokalisiert.

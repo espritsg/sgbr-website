@@ -8,7 +8,9 @@ import { fileURLToPath } from 'url'
 
 import { canRunJobs } from './access/permissions'
 import { collections } from './collections'
+import { cronEndpoint } from './endpoints/cron'
 import { newsletterEndpoints } from './endpoints/newsletter'
+import { dailyMaintenanceTask } from './jobs/dailyMaintenance'
 import { Users } from './collections/users'
 import { globals } from './globals'
 import { previewUrl } from './lib/preview'
@@ -72,7 +74,7 @@ export default buildConfig({
   },
   collections,
   globals,
-  endpoints: newsletterEndpoints,
+  endpoints: [...newsletterEndpoints, cronEndpoint],
   email: emailAdapter(),
   editor: defaultEditor,
   secret: process.env.PAYLOAD_SECRET || '',
@@ -90,7 +92,27 @@ export default buildConfig({
     access: {
       run: canRunJobs,
     },
-    tasks: [],
+    tasks: [dailyMaintenanceTask],
+    // Keep finished jobs as a log; the daily job deletes entries older than 90 days.
+    deleteJobOnComplete: false,
+    // Locally, due jobs (e.g. scheduled publishing) run every 5 minutes in the dev server.
+    // On Vercel the daily cron runs them (vercel.json, /api/cron/run-jobs).
+    autoRun:
+      process.env.NODE_ENV === 'development'
+        ? [{ cron: '*/5 * * * *', allQueues: true, limit: 50 }]
+        : [],
+    jobsCollectionOverrides: ({ defaultJobsCollection }) => ({
+      ...defaultJobsCollection,
+      labels: {
+        singular: { de: 'Hintergrund-Job', en: 'Background job' },
+        plural: { de: 'Hintergrund-Jobs', en: 'Background jobs' },
+      },
+      admin: {
+        ...defaultJobsCollection.admin,
+        hidden: ({ user }) => (user as { role?: string } | null)?.role !== 'admin',
+        group: { de: 'Einstellungen', en: 'Settings' },
+      },
+    }),
   },
   sharp,
   plugins: plugins(),

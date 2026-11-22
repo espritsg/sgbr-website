@@ -76,6 +76,19 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 - Anwendungspasswort oder FTP-Zugang nur in `.env` oder 1Password, nie in Dateien.
 - Exporte enthalten Personendaten (Abonnenten). Nicht ins Repo legen, nur lokal und nach der Migration löschen lassen.
 
+### Ablauf
+
+```bash
+# Ordner mit den Exporten (nie ins Repo legen, nach der Migration löschen):
+#   export.xml  mailpoet.csv  redirection.json  uploads/  (optional: feeds/issues.json, feeds/events.json, about.html)
+DATABASE_URL=<Produktions-DB> BLOB_READ_WRITE_TOKEN=<Token> ANTHROPIC_API_KEY=<optional> \
+  MIGRATION_DIR=/pfad/zu/wp-export npm run migrate:wp
+```
+
+- Ohne `feeds/` und `about.html` holt das Skript Feeds und About-Seite von der alten Seite (nur lesend). `MIGRATION_OFFLINE=1` verbietet jeden Netzzugriff.
+- Dateien kommen aus `uploads/`, fehlen sie dort, werden sie über die URL aus dem Export geladen.
+- Beispiel mit erfundenen Daten: `tests/fixtures/wp-export-sample/`, getestet in `tests/int/migration.test.ts`.
+
 ### Skript
 
 - Liegt im Repo unter `src/scripts/migrate.ts`, läuft mit `npm run migrate:wp` (`payload run`). Nutzt die Local API von Payload (`payload.create`, `payload.update`), also mit allen Validierungen und Hooks.
@@ -83,10 +96,15 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 - Reihenfolge: Medien → Topics → Personen → Ausgaben → Artikel → Weiterleitungen.
 - Artikeltext: HTML aus dem Export mit `convertHTMLToLexical` (`@payloadcms/richtext-lexical`) umwandeln. WPBakery-Shortcodes vorher entfernen, die 8 betroffenen Artikel von Hand prüfen.
 - Sprache: pro Artikel erkennen und Titel, Zusammenfassung und Text in die Locale der Originalsprache schreiben (`locale: 'de'` oder `'en'`). Liste der unsicheren Fälle ausgeben.
-- Personen: aus den WP-Autoren (`dc:creator`) die Collection `people` füllen.
+- Personen: aus den WP-Autoren (`dc:creator`) die Collection `people` füllen. Slug, Biografie und Foto aus der öffentlichen REST-API, wenn erreichbar (der WXR-Export enthält sie nicht).
 - Kategorien: Zuordnung alt → neu als Tabelle im Skript, daraus auch die Weiterleitungen.
 - Medien: alter Pfad unter `wp-content/uploads/` landet in `legacyPath`.
-- Am Ende ein Bericht: Anzahl je Collection, fehlende Bilder, Artikel ohne Haupt-Topic, Artikel ohne Zusammenfassung.
+- Am Ende ein Bericht: Anzahl je Collection, fehlende Bilder, Artikel ohne Haupt-Topic, Artikel ohne Zusammenfassung, unsichere Sprache, entfernte Shortcodes, übersprungene Weiterleitungen (Regex).
+- Zuerst alle Dateien (`attachment`), damit alte Links auf `/wp-content/uploads/…` weiter funktionieren. Artikel im Papierkorb und automatische Entwürfe werden ausgelassen, Entwürfe bleiben Entwürfe.
+- Rank-Math-Titel mit Variablen (`%title% %sep%`) werden nicht übernommen, dann gilt der Artikeltitel.
+- MailPoet: nur Status „subscribed“, Datum als Zürcher Zeit gelesen, Sprache `en`, Interesse `newsletter`, Quelle `mailpoet-import`. Bereits vorhandene Adressen bleiben unverändert.
+- Weiterleitungen aus „Redirection“ landen in der Collection `redirects` (ohne Regex-Regeln, die stehen im Bericht).
+- Code: `src/scripts/migrate.ts`, `src/scripts/lib/migration.ts`, Parser in `wxr.ts`, `csv.ts`, `redirection.ts`.
 
 ## Kurzzusammenfassungen (entschieden 2026-11-22)
 

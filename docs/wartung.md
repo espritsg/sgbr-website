@@ -16,6 +16,26 @@ aktualisiert: 2026-11-22
 
 Node.js: Version steht in `.nvmrc` und `package.json` (`engines`). Bei einem Wechsel beide anpassen und in Vercel unter Settings → General → Node.js Version.
 
+## Datenbank-Migrationen
+
+- Lokal synchronisiert Payload das Schema im Dev-Server automatisch (`push`). Für Produktion braucht jede Schemaänderung eine Migration:
+  1. Config ändern (z. B. neues Feld), Dev-Server testen.
+  2. `npm run migrate:create kurzer-name` erzeugt `src/migrations/<datum>_kurzer-name.ts`.
+  3. `npm run generate:types && npm run generate:importmap`, alles committen.
+  4. Beim Deploy führt `npm run build:vercel` die offenen Migrationen aus.
+- Prüfen gegen eine leere Datenbank: `createdb` (oder Docker), dann `NODE_ENV=production DATABASE_URL=… npm run migrate`.
+
+## Backups
+
+- Neon macht Point-in-Time-Backups (je nach Plan einige Tage). Vor grösseren Änderungen in Neon einen Branch als Sicherung anlegen.
+- Export als Backup im Admin: in den Listen (Artikel, Personen, Ausgaben, Events, Themen, Team, Abonnenten, Einsendungen) **Exportieren** als CSV oder JSON.
+- Dateien liegen in Vercel Blob. Für eine Kopie: `vercel blob list` bzw. ein kleines Skript mit `@vercel/blob` `list()`.
+
+## Hintergrund-Jobs
+
+- Unter Einstellungen → **Hintergrund-Jobs** (nur Admin) steht jeder Lauf mit Ergebnis (z. B. wie viele Einsendungen gelöscht wurden). Einträge älter als 90 Tage löscht die tägliche Wartung.
+- Von Hand ausführen: lokal `npm run jobs`, in Produktion in Vercel unter Cron Jobs auf **Run**.
+
 ## Semesterwechsel
 
 - [ ] Ausscheidende in Payload unter **Benutzer** von `board` bzw. `editor` auf `advisory` setzen (nur Admin).

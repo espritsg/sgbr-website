@@ -1,3 +1,4 @@
+import fs from 'fs/promises'
 import path from 'path'
 import type { Payload, Where } from 'payload'
 
@@ -30,6 +31,8 @@ const MIME: Record<string, string> = {
 export type MediaSource = {
   /** Where to download from. */
   url: string
+  /** Tried if `url` is not available (e.g. a resized copy when the original is missing). */
+  fallbackUrl?: string
   /** Optional local file instead of downloading (final migration with uploads folder). */
   readLocal?: (legacyPath: string) => Promise<Buffer | null>
   alt?: string
@@ -47,7 +50,18 @@ export type MediaImporter = {
  * Downloads files once per run and reuses existing media by legacyPath or wpId,
  * so repeated imports do not duplicate files.
  */
-export function createMediaImporter(payload: Payload, userAgent: string): MediaImporter {
+export type MediaImporterOptions = {
+  /** Folder with the WordPress uploads (wp-content/uploads), used before downloading. */
+  uploadsDir?: string
+  /** Never download (tests, migration without internet). */
+  offline?: boolean
+}
+
+export function createMediaImporter(
+  payload: Payload,
+  userAgent: string,
+  options: MediaImporterOptions = {},
+): MediaImporter {
   const byKey = new Map<string, number>()
   const missing: string[] = []
 
@@ -77,7 +91,10 @@ export function createMediaImporter(payload: Payload, userAgent: string): MediaI
 
     let data: Buffer | null = null
     if (legacyPath && source.readLocal) data = await source.readLocal(legacyPath)
-    if (!data) {
+    if (!data && legacyPath && options.uploadsDir) {
+      data = await fs.readFile(path.join(options.uploadsDir, legacyPath)).catch(() => null)
+    }
+    if (!data && !options.offline) {
       try {
         const response = await fetch(source.url, { headers: { 'User-Agent': userAgent } })
         if (response.ok) data = Buffer.from(await response.arrayBuffer())
@@ -86,6 +103,9 @@ export function createMediaImporter(payload: Payload, userAgent: string): MediaI
       }
     }
     if (!data) {
+      if (source.fallbackUrl && source.fallbackUrl !== source.url) {
+        return get({ ...source, url: source.fallbackUrl, fallbackUrl: undefined })
+      }
       missing.push(source.url)
       return null
     }

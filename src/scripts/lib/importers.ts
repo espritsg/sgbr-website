@@ -31,6 +31,7 @@ export type ImportReport = {
   postsWithFallbackSummary: string[]
   uncertainLanguage: string[]
   shortcodeArticles: string[]
+  failedPosts: string[]
   notes: string[]
 }
 
@@ -41,6 +42,7 @@ export function createReport(): ImportReport {
     postsWithFallbackSummary: [],
     uncertainLanguage: [],
     shortcodeArticles: [],
+    failedPosts: [],
     notes: [],
   }
 }
@@ -65,6 +67,7 @@ export function printReport(report: ImportReport, media: MediaImporter) {
   list('Artikel mit Zusammenfassung aus dem ersten Absatz', report.postsWithFallbackSummary)
   list('Sprache unsicher (bitte prüfen)', report.uncertainLanguage)
   list('Artikel mit entfernten Shortcodes (von Hand prüfen)', report.shortcodeArticles)
+  list('Artikel mit Fehler, nicht übernommen (bitte prüfen)', report.failedPosts)
   list('Hinweise', report.notes)
 }
 
@@ -126,6 +129,8 @@ export type PersonInput = {
   slug?: string
   bio?: string
   photoUrl?: string
+  /** Used if photoUrl does not exist. */
+  photoFallbackUrl?: string
   role?: string
   organization?: string
   organizationLogoUrl?: string
@@ -144,7 +149,9 @@ export async function importPerson(
         .replace(/\n{3,}/g, '\n\n')
         .trim()
     : undefined
-  const photo = input.photoUrl ? await media.get({ url: input.photoUrl, alt: input.name }) : null
+  const photo = input.photoUrl
+    ? await media.get({ url: input.photoUrl, fallbackUrl: input.photoFallbackUrl, alt: input.name })
+    : null
   const logo = input.organizationLogoUrl
     ? await media.get({ url: input.organizationLogoUrl, alt: input.organization ?? input.name })
     : null
@@ -242,6 +249,27 @@ function resolveCategories(slugs: string[], topicIds: TopicIds, issueIds: IssueI
 /** Interviews have several bold paragraphs (the questions); guest articles do not. */
 export function guessPostType(html: string): 'interview' | 'guest-article' {
   return paragraphs(html).filter((p) => p.bold).length >= 3 ? 'interview' : 'guest-article'
+}
+
+/** Like importPost, but a broken article is reported instead of stopping the whole run. */
+export async function importPostSafely(
+  payload: Payload,
+  media: MediaImporter,
+  report: ImportReport,
+  context: { topicIds: TopicIds; issueIds: IssueIds },
+  input: PostInput,
+): Promise<Id | null> {
+  try {
+    return await importPost(payload, media, report, context, input)
+  } catch (error) {
+    const details = (error as { data?: { errors?: Array<{ message?: string; path?: string }> } })
+      .data?.errors
+    const reason = details?.length
+      ? details.map((e) => `${e.path}: ${e.message}`).join('; ')
+      : (error as Error).message
+    report.failedPosts.push(`${input.slug} (${reason})`)
+    return null
+  }
 }
 
 export async function importPost(

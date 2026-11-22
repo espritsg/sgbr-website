@@ -1,0 +1,1 @@
+{"redirects":[{"url":"/old-campaign/","action_data":{"url":"https://stgallenbusinessreview.com/newsletter/"},"action_code":301,"regex":false},{"url":"^/2014/(.*)$","action_data":{"url":"/$1"},"action_code":301,"regex":true}]}

@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import { categoryMap, categoryRedirectTarget } from '@/lib/categoryMap'
 import { parseFeedDate, zurichToDate } from '@/lib/dates'
-import { findImages, paragraphs, prepareHtmlForLexical, stripShortcodes } from '@/scripts/lib/html'
+import {
+  findImages,
+  paragraphs,
+  prepareHtmlForLexical,
+  sanitizeLinks,
+  stripShortcodes,
+} from '@/scripts/lib/html'
 import { guessPostType, parseAboutTeam, parseIssuePage } from '@/scripts/lib/importers'
 import { detectLanguage } from '@/scripts/lib/language'
 import { legacyPathFromUrl, originalImageUrl } from '@/scripts/lib/media'
@@ -31,6 +37,20 @@ describe('html clean-up', () => {
     expect(result).toContain('data-lexical-upload-id="42"')
     expect(result).not.toContain('b.png')
     expect(result).not.toContain('<figure')
+  })
+
+  it('cleans links that Lexical would reject', () => {
+    expect(sanitizeLinks('<a>text</a>')).toBe('text')
+    expect(sanitizeLinks('<a href="applewebdata://84-AB#_ftn1">1</a>')).toBe(
+      '<a href="#_ftn1">1</a>',
+    )
+    expect(sanitizeLinks('<a href="javascript:alert(1)">x</a>')).toBe('x')
+    expect(sanitizeLinks('<a href="https://example.com/a b">x</a>')).toBe(
+      '<a href="https://example.com/a%20b">x</a>',
+    )
+    expect(sanitizeLinks('<a href="https://hsg.ch" target="_blank">HSG</a>')).toBe(
+      '<a href="https://hsg.ch" target="_blank" rel="noopener noreferrer">HSG</a>',
+    )
   })
 
   it('detects bold question paragraphs', () => {

@@ -8,6 +8,7 @@ import { Byline } from '@/components/ui/Byline'
 import { MediaImage } from '@/components/ui/MediaImage'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
+import { redirectFromCms } from '@/lib/data/cmsRedirects'
 import { getAdjacentPosts, getPost } from '@/lib/data/queries'
 import { formatDate, joinNames } from '@/lib/format'
 import { mainTopicOf, topicsOf } from '@/lib/posts'
@@ -39,7 +40,11 @@ export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const post = await getPost(locale, slug)
-  if (!post) notFound()
+  if (!post) {
+    // Old single-segment URLs land here; editors may have a redirect for them.
+    await redirectFromCms([`/${slug}`, `/${locale}/article/${slug}`], locale)
+    notFound()
+  }
 
   const t = await getTranslations('article')
   const tLanguage = await getTranslations('language')

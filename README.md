@@ -29,12 +29,15 @@ Ohne Konten für Resend, Vercel Blob oder Anthropic läuft alles lokal: Mails la
 | `npm run check` | Lint, Typecheck, Tests und Build, wie in CI |
 | `npm test` | alle Tests (braucht `npm run db:up`) |
 | `npm run import:dev` | Testdaten von der öffentlichen Website laden ([docs/migration.md](docs/migration.md)) |
+| `npm run jobs` | tägliche Hintergrund-Jobs einmal ausführen |
+| `npm run migrate:create <name>` | Datenbank-Migration nach Schemaänderung |
+| `npm run migrate:wp` | finale Migration aus den WordPress-Exporten ([docs/migration.md](docs/migration.md)) |
 | `npm run check:redirects` | alle alten URLs prüfen (vor dem Livegang) |
 | `npm run generate:types` | Payload-Typen nach Schemaänderungen |
 
 ## Deploy
 
-Auf Vercel, Ablauf und Variablen in [docs/deployment.md](docs/deployment.md). Es wird nicht automatisch aus diesem Repo deployt, bevor das Vercel-Projekt eingerichtet ist.
+Auf Vercel mit Neon (Postgres), Vercel Blob und Resend. Alle Variablen stehen in `.env.example`, Schritte und Checkliste für den Livegang in [docs/deployment.md](docs/deployment.md). Der Build auf Vercel (`npm run build:vercel`) führt zuerst die Datenbank-Migrationen aus, der tägliche Cron steht in `vercel.json`.
 
 ## Wegweiser
 

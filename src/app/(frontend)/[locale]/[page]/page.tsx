@@ -6,6 +6,7 @@ import { RenderBlocks } from '@/components/blocks/RenderBlocks'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
 import { PageTitle } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
+import { redirectFromCms } from '@/lib/data/cmsRedirects'
 import { getPage } from '@/lib/data/queries'
 import { buildMetadata } from '@/lib/seo'
 
@@ -25,7 +26,10 @@ export default async function StaticPage({ params }: Props) {
   const { locale, page: slug } = await params
   setRequestLocale(locale)
   const page = await getPage(locale, slug)
-  if (!page) notFound()
+  if (!page) {
+    await redirectFromCms([`/${locale}/${slug}`, `/${slug}`], locale)
+    notFound()
+  }
   return (
     <>
       <AdminBarDocument collection="pages" id={page.id} label={page.title} />

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:wp="http://wordpress.org/export/1.2/">
+<channel><title>SGBR (synthetic sample)</title><link>https://stgallenbusinessreview.com</link><wp:wxr_version>1.2</wp:wxr_version><wp:base_site_url>https://stgallenbusinessreview.com</wp:base_site_url>
+<wp:author><wp:author_id>11</wp:author_id><wp:author_login><![CDATA[ada-muster]]></wp:author_login><wp:author_email><![CDATA[ada@example.com]]></wp:author_email><wp:author_display_name><![CDATA[Ada Muster]]></wp:author_display_name></wp:author>
+<wp:author><wp:author_id>12</wp:author_id><wp:author_login><![CDATA[bo-beispiel]]></wp:author_login><wp:author_email><![CDATA[bo@example.com]]></wp:author_email><wp:author_display_name><![CDATA[Bo Beispiel]]></wp:author_display_name></wp:author>
+<item><title><![CDATA[portrait]]></title><link>https://stgallenbusinessreview.com/portrait/</link><dc:creator><![CDATA[]]></dc:creator>
+<content:encoded><![CDATA[]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>101</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[portrait]]></wp:post_name>
+<wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[attachment]]></wp:post_type>
+<wp:attachment_url><![CDATA[https://stgallenbusinessreview.com/wp-content/uploads/2026/01/portrait.png]]></wp:attachment_url><wp:postmeta><wp:meta_key><![CDATA[_wp_attachment_image_alt]]></wp:meta_key><wp:meta_value><![CDATA[Portrait of Ada Muster]]></wp:meta_value></wp:postmeta></item><item><title><![CDATA[chart]]></title><link>https://stgallenbusinessreview.com/chart/</link><dc:creator><![CDATA[]]></dc:creator>
+<content:encoded><![CDATA[]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>102</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[chart]]></wp:post_name>
+<wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[attachment]]></wp:post_type>
+<wp:attachment_url><![CDATA[https://stgallenbusinessreview.com/wp-content/uploads/2026/01/chart.png]]></wp:attachment_url><wp:postmeta><wp:meta_key><![CDATA[_wp_attachment_image_alt]]></wp:meta_key><wp:meta_value><![CDATA[Chart]]></wp:meta_value></wp:postmeta></item><item><title><![CDATA[Archive 2020]]></title><link>https://stgallenbusinessreview.com/archive-2020/</link><dc:creator><![CDATA[]]></dc:creator>
+<content:encoded><![CDATA[]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>103</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[archive-2020]]></wp:post_name>
+<wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[attachment]]></wp:post_type>
+<wp:attachment_url><![CDATA[https://stgallenbusinessreview.com/wp-content/uploads/2020/05/Archive-2020.pdf]]></wp:attachment_url></item><item><title><![CDATA[Ada Muster on Curiosity &amp; Leadership]]></title><link>https://stgallenbusinessreview.com/ada-muster-on-curiosity/</link><dc:creator><![CDATA[ada-muster]]></dc:creator>
+<content:encoded><![CDATA[<p><strong>Ms. Muster, what drives you?</strong></p><p>Curiosity drives me. I have worked in banking for twenty years and still learn something every day.</p><figure class="wp-block-image"><img class="wp-image-102" src="https://stgallenbusinessreview.com/wp-content/uploads/2026/01/chart-1024x600.png" alt="Chart"></figure><p><strong>What is next?</strong></p><p>We will see what the future of the industry brings for all of us.</p><p><strong>Thank you?</strong></p><p>Thank you.</p>]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>1</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[ada-muster-on-curiosity]]></wp:post_name>
+<wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[post]]></wp:post_type>
+<category domain="category" nicename="business"><![CDATA[Business]]></category><category domain="category" nicename="leadership"><![CDATA[Leadership]]></category><wp:postmeta><wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key><wp:meta_value><![CDATA[101]]></wp:meta_value></wp:postmeta><wp:postmeta><wp:meta_key><![CDATA[rank_math_title]]></wp:meta_key><wp:meta_value><![CDATA[Ada Muster on Curiosity]]></wp:meta_value></wp:postmeta><wp:postmeta><wp:meta_key><![CDATA[rank_math_description]]></wp:meta_key><wp:meta_value><![CDATA[An interview about curiosity.]]></wp:meta_value></wp:postmeta></item><item><title><![CDATA[Über die Zukunft der Schweiz]]></title><link>https://stgallenbusinessreview.com/ueber-die-zukunft-der-schweiz/</link><dc:creator><![CDATA[bo-beispiel]]></dc:creator>
+<content:encoded><![CDATA[[vc_row][vc_column]<p>Wir sind der Meinung, dass die Wirtschaft und die Politik nicht mit einer Stimme sprechen. Das ist auch für die Zukunft der Schweiz wichtig, und wir sehen das so.</p><p>Es gibt viel zu tun, und wir haben dafür die richtigen Leute an der Universität.</p>[/vc_column][/vc_row]]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>2</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[ueber-die-zukunft-der-schweiz]]></wp:post_name>
+<wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[post]]></wp:post_type>
+<category domain="category" nicename="uncategorized"><![CDATA[Uncategorized]]></category><wp:postmeta><wp:meta_key><![CDATA[rank_math_title]]></wp:meta_key><wp:meta_value><![CDATA[%title% %sep% %sitename%]]></wp:meta_value></wp:postmeta></item><item><title><![CDATA[A draft]]></title><link>https://stgallenbusinessreview.com/a-draft/</link><dc:creator><![CDATA[ada-muster]]></dc:creator>
+<content:encoded><![CDATA[<p>Draft text that is long enough to be a paragraph of its own for the summary.</p>]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>3</wp:post_id><wp:post_date_gmt><![CDATA[0000-00-00 00:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[a-draft]]></wp:post_name>
+<wp:status><![CDATA[draft]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[post]]></wp:post_type>
+<category domain="category" nicename="politics"><![CDATA[Politics]]></category></item><item><title><![CDATA[Trashed]]></title><link>https://stgallenbusinessreview.com/trashed/</link><dc:creator><![CDATA[ada-muster]]></dc:creator>
+<content:encoded><![CDATA[<p>x</p>]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>4</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[trashed]]></wp:post_name>
+<wp:status><![CDATA[trash]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[post]]></wp:post_type>
+</item><item><title><![CDATA[Imprint]]></title><link>https://stgallenbusinessreview.com/impressum/</link><dc:creator><![CDATA[]]></dc:creator>
+<content:encoded><![CDATA[<div class="sgbr-legal"><h1>Imprint</h1><div class="sgbr-legal__row" id="publisher"><div class="sgbr-legal__label">Publisher</div><div><p>St. Gallen Business Review (example)</p></div></div><div class="sgbr-legal__row" id="privacy"><div class="sgbr-legal__label">Data Protection</div><div><p>Example privacy text.</p></div></div></div>]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>50</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[impressum]]></wp:post_name>
+<wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[page]]></wp:post_type>
+</item><item><title><![CDATA[Contact]]></title><link>https://stgallenbusinessreview.com/contact/</link><dc:creator><![CDATA[]]></dc:creator>
+<content:encoded><![CDATA[<div class="sgbr-contact"><div class="sgbr-contact__intro"><p>Example contact intro.</p></div></div>]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<wp:post_id>51</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[contact]]></wp:post_name>
+<wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[page]]></wp:post_type>
+</item>
+</channel></rss>

@@ -22,7 +22,12 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "import:dev": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/import-dev.ts",
-    "check:redirects": "tsx src/scripts/check-redirects.ts"
+    "check:redirects": "tsx src/scripts/check-redirects.ts",
+    "jobs": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/run-jobs.ts",
+    "build:vercel": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && npm run build",
+    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "migrate:wp": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/migrate.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.12.0",
@@ -46,6 +51,7 @@
     "@vercel/blob": "2.3.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.7",
+    "fast-xml-parser": "5.11.2",
     "graphql": "16.15.0",
     "next": "16.4.6",
     "next-intl": "4.15.3",

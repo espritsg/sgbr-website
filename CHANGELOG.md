@@ -21,4 +21,9 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 - Weiterleitungen aller alten WordPress-URLs (308), Prüfskript `npm run check:redirects`.
 - JSON-Feeds für espritsg.ch im alten Format mit Vertragstest.
 - Sitemap, robots.txt, RSS pro Sprache, hreflang und canonical; Vercel Web Analytics; MCP (standardmässig aus).
+- Hintergrund-Jobs: tägliche Wartung und geplantes Veröffentlichen über einen Vercel Cron, Protokoll im Admin, `npm run jobs`.
+- Basis-Migration der Datenbank, Build für Vercel mit `payload migrate`, `vercel.json`.
+- Finale Migration aus WordPress-Exporten (`npm run migrate:wp`): WXR, MailPoet, Redirection, Uploads; getestet mit synthetischer Beispieldatei.
+- Weiterleitungen aus dem Admin (Plugin redirects) greifen für unbekannte Pfade.
+- Dev-Import: Links werden bereinigt, fehlerhafte Artikel landen im Bericht statt den Lauf abzubrechen; alle 198 Artikel importierbar, alle 210 alten URLs der Sitemap enden bei 200.
 - Doku in `docs/`, Regeln für Agents in `AGENTS.md`, CI mit Lint, Typecheck, Tests und Build.

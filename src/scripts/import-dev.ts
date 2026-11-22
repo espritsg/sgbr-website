@@ -15,7 +15,7 @@ import {
   importEvents,
   importIssues,
   importPerson,
-  importPost,
+  importPostSafely,
   importTeam,
   importTopics,
   parseAboutTeam,
@@ -81,8 +81,9 @@ async function getText(url: string): Promise<string | null> {
 
 async function fetchPosts(limit: number): Promise<WpPost[]> {
   const posts: WpPost[] = []
+  // The page size must stay the same on every page, otherwise WordPress offsets shift.
+  const perPage = Math.min(100, limit)
   for (let page = 1; posts.length < limit; page++) {
-    const perPage = Math.min(100, limit - posts.length)
     const batch = await getJson<WpPost[]>(
       `/wp-json/wp/v2/posts?per_page=${perPage}&page=${page}&_embed=author,wp:featuredmedia`,
     )
@@ -141,6 +142,7 @@ async function main(limit: number) {
           slug: author.slug,
           bio: author.description,
           photoUrl: avatar?.includes('/wp-content/uploads/') ? originalImageUrl(avatar) : undefined,
+          photoFallbackUrl: avatar?.includes('/wp-content/uploads/') ? avatar : undefined,
         }),
       )
       personNames.push(author.name)
@@ -160,7 +162,7 @@ async function main(limit: number) {
     }
     const featured = post._embedded?.['wp:featuredmedia']?.[0]
 
-    await importPost(
+    await importPostSafely(
       payload,
       media,
       report,

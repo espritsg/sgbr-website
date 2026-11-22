@@ -68,7 +68,9 @@ Alles Zeitgesteuerte läuft über die Payload Jobs Queue, ausgelöst von **einem
 - Cron: einmal täglich um 05:00 UTC (06:00 Winterzeit Zürich, 07:00 Sommerzeit), Takt nur in `vercel.json`. Mit Vercel Pro kann der Takt erhöht werden, sonst ändert sich nichts.
 - Geplantes Veröffentlichen geht deshalb am Morgen des geplanten Tages live, nicht auf die Minute.
 - Endpunkt `/api/cron/run-jobs`, geschützt mit `CRON_SECRET`.
-- Lokal laufen die Jobs im Dev-Server automatisch oder per `npm run jobs`.
+- Umsetzung: Task `dailyMaintenance` (`src/jobs/dailyMaintenance.ts`) erledigt Newsletter, Abonnenten, Einsendungen und Rate-Limits und schreibt die Zahlen ins Job-Protokoll. `runDailyJobs` (`src/jobs/runJobs.ts`) reiht ihn ein und führt alle fälligen Jobs aus, auch `schedulePublish` von Payload. Aufgerufen von `GET /api/cron/run-jobs` (Vercel Cron) und `npm run jobs`.
+- Lokal führt der Dev-Server fällige Jobs alle 5 Minuten aus (`jobs.autoRun`, nur im Dev-Modus), also auch geplantes Veröffentlichen. Die tägliche Wartung lokal mit `npm run jobs`.
+- Erledigte Jobs bleiben als Protokoll 90 Tage stehen (`deleteJobOnComplete: false`), sichtbar für den Admin unter Einstellungen → Hintergrund-Jobs.
 
 ## Website
 

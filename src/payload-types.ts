@@ -158,6 +158,7 @@ export interface Config {
   user: User | PayloadMcpApiKey;
   jobs: {
     tasks: {
+      dailyMaintenance: TaskDailyMaintenance;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
       schedulePublish: TaskSchedulePublish;
@@ -1334,7 +1335,8 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'createCollectionExport' | 'createCollectionImport' | 'schedulePublish';
+        taskSlug:
+          'inline' | 'dailyMaintenance' | 'createCollectionExport' | 'createCollectionImport' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1367,7 +1369,8 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'createCollectionExport' | 'createCollectionImport' | 'schedulePublish') | null;
+  taskSlug?:
+    ('inline' | 'dailyMaintenance' | 'createCollectionExport' | 'createCollectionImport' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -2475,6 +2478,22 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskDailyMaintenance".
+ */
+export interface TaskDailyMaintenance {
+  input?: unknown;
+  output: {
+    newslettersStarted?: number | null;
+    newslettersContinued?: number | null;
+    unconfirmedSubscribersDeleted?: number | null;
+    submissionsDeleted?: number | null;
+    applicationFilesDeleted?: number | null;
+    rateLimitEntriesDeleted?: number | null;
+    oldJobsDeleted?: number | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
