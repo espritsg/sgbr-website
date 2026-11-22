@@ -11,11 +11,14 @@ function toId(value: TopicValue): number | string | null {
 /**
  * Every article needs at least one main topic (a topic without parent).
  * Payload skips validation for drafts, so this only applies when publishing.
+ * The migration bypasses it (context.import) so old URLs keep working; its report
+ * lists the affected articles for the editorial team.
  */
 export const validateMainTopic: Validate<unknown, unknown, unknown, object> = async (
   value,
   { req },
 ) => {
+  if (req.context?.import === true) return true
   const ids = (Array.isArray(value) ? (value as TopicValue[]) : [])
     .map(toId)
     .filter((id) => id !== null)

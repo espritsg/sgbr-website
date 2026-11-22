@@ -8,13 +8,14 @@ Die Website der [St. Gallen Business Review](https://stgallenbusinessreview.com)
 
 ## Lokal starten
 
-Voraussetzungen: [nvm](https://github.com/nvm-sh/nvm), Docker Desktop.
+Voraussetzungen: [nvm](https://github.com/nvm-sh/nvm), Docker Desktop. Anmelden im Admin mit `admin@sgbr.local` und dem Passwort aus `DEV_SEED_PASSWORD`.
 
 ```bash
 nvm install && nvm use          # Node-Version aus .nvmrc
 npm install
 cp .env.example .env            # dann PAYLOAD_SECRET und DEV_SEED_PASSWORD setzen
 npm run db:up                   # Postgres in Docker (Port 5433)
+npm run import:dev              # Inhalte von der öffentlichen Seite + Testdaten
 npm run dev                     # http://localhost:3000, Admin unter /admin
 ```
 
@@ -27,6 +28,7 @@ Ohne Konten für Resend, Vercel Blob oder Anthropic läuft alles lokal: Mails la
 | `npm run dev` | Entwicklungsserver |
 | `npm run check` | Lint, Typecheck, Tests und Build, wie in CI |
 | `npm test` | alle Tests (braucht `npm run db:up`) |
+| `npm run import:dev` | Testdaten von der öffentlichen Website laden ([docs/migration.md](docs/migration.md)) |
 | `npm run generate:types` | Payload-Typen nach Schemaänderungen |
 
 ## Deploy

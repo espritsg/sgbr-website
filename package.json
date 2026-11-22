@@ -20,7 +20,8 @@
     "db:down": "docker compose down",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "import:dev": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/import-dev.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.12.0",
@@ -58,6 +59,7 @@
     "@tailwindcss/postcss": "4.3.5",
     "@tailwindcss/typography": "0.5.20",
     "@testing-library/react": "16.3.0",
+    "@types/jsdom": "30.0.0",
     "@types/node": "22.19.9",
     "@types/pg": "8.20.0",
     "@types/react": "19.2.14",

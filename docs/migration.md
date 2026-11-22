@@ -9,12 +9,52 @@ Zwei Phasen, entschieden 2026-11-22. Beide nutzen dieselbe Zuordnungslogik (ein 
 
 ## Phase 1: Dev-Import während der Entwicklung
 
-- Skript `src/scripts/import-dev.ts`, läuft mit `payload run`. Holt Daten von der öffentlichen Website, kein Login nötig:
-  - Artikel, Bilder, Kategorien und Autoren über die öffentliche REST-API (`/wp-json/wp/v2/posts`, `media`, `categories`, `users`).
-  - Ausgaben und Speaker Events aus den JSON-Feeds `/issues/?sgbr_feed=1` und `/category/speaker-events/?sgbr_feed=1` ([esprit-feed.md](esprit-feed.md)), Logos, Cover und PDFs über die URLs darin. Vorworte und Interviews der Ausgabenseiten aus dem HTML. Team aus `/about/` (HTML auslesen).
-- Einstellbar, wie viele Artikel (z. B. `--limit 40`), damit es schnell geht. Beliebig oft wiederholbar, auch auf leerer Datenbank.
-- Testdaten für neue Teile, die es heute nicht gibt: ein Newsletter, ein Bewerbungsformular mit Datei-Upload, je ein Benutzer pro Rolle (Passwörter nur aus `.env`).
+```bash
+npm run db:up
+npm run import:dev            # 40 neueste Artikel
+npm run import:dev -- 198     # alle Artikel (oder IMPORT_LIMIT=198)
+```
+
+- Skript `src/scripts/import-dev.ts`, läuft mit `payload run`. Liest nur, kein Login nötig:
+  - Artikel, Bilder (Beitragsbild und Bilder im Text), Kategorien und Autoren über die öffentliche REST-API (`/wp-json/wp/v2/posts`, `media`, `categories`, eingebettete `author`).
+  - Ausgaben und Speaker Events aus den Feeds `/issues/?sgbr_feed=1` und `/category/speaker-events/?sgbr_feed=1` ([esprit-feed.md](esprit-feed.md)), Logos, Cover und PDFs über die URLs darin. Vorwort, Unterzeile und Redaktion aus dem HTML der digitalen Ausgaben (`sgbr-tfof-*`).
+  - Team, Mission und Teamfoto aus `/about/` (`sgbr-about-*`). Imprint und Datenschutz aus der Seite `impressum`, Kontakttext aus `contact`.
+- Beliebig oft wiederholbar, auch auf leerer Datenbank: Artikel über `wpId`, alles andere über `slug`, Dateien über `legacyPath`.
+- Testdaten für neue Teile: Kontaktformular, Bewerbungsformular mit PDF-Upload (am nächsten kommenden Event, Bewerbung ab sofort offen), ein Newsletter-Entwurf, ein versendeter Beispiel-Newsletter im Archiv, drei bestätigte Test-Abonnenten (`@example.com`), Globals, je ein Benutzer pro Rolle (`admin@sgbr.local`, `board@…`, `editor@…`, `advisory@…`, Passwort nur aus `DEV_SEED_PASSWORD`).
 - Fehlt öffentlich: Entwürfe, SEO-Felder, Weiterleitungen, Abonnenten. Für die Entwicklung egal.
+- Quelle änderbar mit `DEV_IMPORT_SOURCE` (Standard `https://stgallenbusinessreview.com`).
+
+### Gemeinsame Zuordnungslogik
+
+| Datei | Inhalt |
+| --- | --- |
+| `src/scripts/lib/importers.ts` | Themen, Personen, Artikel, Ausgaben, Events, Team nach Payload; Bericht |
+| `src/scripts/lib/html.ts` | Shortcodes entfernen, Bilder in Upload-Knoten umwandeln, Absätze lesen |
+| `src/scripts/lib/lexical.ts` | HTML → Lexical (`convertHTMLToLexical`) |
+| `src/scripts/lib/language.ts` | Sprache erkennen (Häufigkeit von Funktionswörtern) |
+| `src/scripts/lib/summary.ts` | Kurzzusammenfassung mit Claude oder aus dem ersten Absatz |
+| `src/scripts/lib/media.ts` | Dateien einmal laden, über `legacyPath` wiederverwenden |
+| `src/scripts/lib/seed.ts` | Seiten, Formulare, Globals, Testdaten |
+| `src/lib/categoryMap.ts` | Zuordnung alte Kategorien → Themen, auch für Weiterleitungen |
+
+- **Art des Artikels:** Interview, wenn der Text mindestens drei fett gesetzte Absätze (die Fragen) hat, sonst Gastbeitrag.
+- **Personen:** WordPress-Autor = Interviewpartner. Name, Slug, Biografie, Foto aus dem Avatar (Original statt 150×150).
+- **Artikel ohne Haupt-Thema** werden trotzdem veröffentlicht, damit ihre alten URLs funktionieren, und stehen im Bericht ([ADR 0015](entscheidungen/0015-kategorien.md)).
+
+## Zuordnung der Kategorien (Vorschlag, von der Redaktion zu bestätigen)
+
+| Alte Kategorie | Neu |
+| --- | --- |
+| business, entrepreneurship, finance-economics, politics | Haupt-Thema gleichen Namens |
+| leadership, strategy, technology, digitalization, data, performance, network, sustainability, tradition | Unter-Thema von **Business** |
+| role-models, change, individualism, harmony, art | Unter-Thema von **Entrepreneurship** |
+| capital, regulation | Unter-Thema von **Finance & Economics** |
+| security, education, health, science, nature, freedom, philosophy, philanthropy | Unter-Thema von **Politics** |
+| the-future-of-finance, vc-pe-family-offices | Ausgabe gleichen Namens, Artikel bekommen zusätzlich **Finance & Economics** |
+| speaker-events | Seite `/events` |
+| featured, world, uncategorized, unkategorisiert-* (en, it, fr, es) | entfällt, Weiterleitung auf `/topics` |
+
+Ein Unter-Thema bringt sein Haupt-Thema mit: Ein Artikel in „Leadership“ steht auch unter „Business“. Die Tabelle ist in `src/lib/categoryMap.ts` die einzige Quelle; Änderungen dort wirken auf Import, Migration und Weiterleitungen.
 
 ## Phase 2: Finale Migration ganz am Ende
 
@@ -38,7 +78,7 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 
 ### Skript
 
-- Liegt im Repo unter `src/scripts/migrate.ts`, läuft mit `payload run src/scripts/migrate.ts`. Nutzt die Local API von Payload (`payload.create`, `payload.update`), also mit allen Validierungen und Hooks.
+- Liegt im Repo unter `src/scripts/migrate.ts`, läuft mit `npm run migrate:wp` (`payload run`). Nutzt die Local API von Payload (`payload.create`, `payload.update`), also mit allen Validierungen und Hooks.
 - Wiederholbar: jedes Dokument bekommt `wpId`, bei erneutem Lauf wird aktualisiert statt doppelt angelegt.
 - Reihenfolge: Medien → Topics → Personen → Ausgaben → Artikel → Weiterleitungen.
 - Artikeltext: HTML aus dem Export mit `convertHTMLToLexical` (`@payloadcms/richtext-lexical`) umwandeln. WPBakery-Shortcodes vorher entfernen, die 8 betroffenen Artikel von Hand prüfen.
@@ -50,7 +90,7 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 
 ## Kurzzusammenfassungen (entschieden 2026-11-22)
 
-- Das Skript lässt Claude pro Artikel 1–2 Sätze in der Originalsprache schreiben (Anthropic-API, `ANTHROPIC_API_KEY`, Modell per `ANTHROPIC_MODEL`).
+- Das Skript lässt Claude pro Artikel 1–2 Sätze in der Originalsprache schreiben (Anthropic-API, `ANTHROPIC_API_KEY`, Modell per `ANTHROPIC_MODEL`, Standard `claude-sonnet-5-5`, Aufwand `low`). Lehnt das Modell ab, springt serverseitig ein anderes Modell ein (`fallbacks: "default"`); scheitert auch das, gilt der erste Absatz.
 - Vorgabe an Claude: worum es geht und wer spricht, keine Anrede, kein Werbeton, keine erfundenen Fakten.
 - Jeder Artikel bekommt `summaryNeedsReview = true`. Im Admin eine Liste „Zusammenfassung prüfen“ für die Redaktion.
 - Schon vorhandene Zusammenfassungen nie überschreiben, damit wiederholte Läufe nichts zerstören.

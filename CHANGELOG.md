@@ -11,4 +11,6 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 - Datenmodell: Artikel, Personen, Themen, Ausgaben, Events, Team, Seiten, Medien, Newsletter, Abonnenten, Bewerbungsdateien, Globals (Startseite, Kopf, Fuss, Einstellungen).
 - Plugins: SEO, Weiterleitungen, Suche, Form Builder (mit Datei-Upload und Aufbewahrungsfrist), Import/Export, MCP (standardmässig aus), Vercel Blob (öffentlich und privat).
 - Vier Rollen mit zentralen Zugriffsregeln und Tests; Editors sehen keinen Veröffentlichen-Button.
+- Dev-Import von der öffentlichen Website (`npm run import:dev`) mit Testdaten und je einem Benutzer pro Rolle.
+- Gemeinsame Zuordnungslogik für Dev-Import und finale Migration, Kategorien-Zuordnung als Vorschlag.
 - Doku in `docs/`, Regeln für Agents in `AGENTS.md`, CI mit Lint, Typecheck, Tests und Build.
