@@ -1,0 +1,159 @@
+{
+  "site": {
+    "name": "St. Gallen Business Review",
+    "shortName": "SGBR",
+    "tagline": "Interviews mit Persönlichkeiten aus Wirtschaft, Finanzen und Politik"
+  },
+  "nav": {
+    "issues": "Ausgaben",
+    "topics": "Themen",
+    "events": "Speaker Events",
+    "newsletter": "Newsletter",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "search": "Suche",
+    "menu": "Menü",
+    "close": "Schliessen",
+    "skipToContent": "Zum Inhalt springen"
+  },
+  "theme": {
+    "toggle": "Dunkelmodus umschalten",
+    "light": "Hell",
+    "dark": "Dunkel"
+  },
+  "language": {
+    "switch": "Sprache",
+    "en": "English",
+    "de": "Deutsch",
+    "onlyAvailableIn": "Dieser Artikel ist nur auf {language} verfügbar.",
+    "languageNames": {
+      "en": "Englisch",
+      "de": "Deutsch"
+    }
+  },
+  "home": {
+    "currentIssue": "Aktuelle Ausgabe",
+    "latest": "Neueste Interviews",
+    "upcomingEvents": "Kommende Speaker Events",
+    "pastEvents": "Vergangene Events",
+    "magazine": "Das Magazin",
+    "archive": "Archiv",
+    "byTopic": "Aus unseren Themen",
+    "allEvents": "Alle Speaker Events",
+    "allIssues": "Alle Ausgaben"
+  },
+  "article": {
+    "interviewWith": "Interview mit {names}",
+    "by": "Von {names}",
+    "interviewedBy": "Interview geführt von {names}",
+    "previous": "Vorheriger Artikel",
+    "next": "Nächster Artikel",
+    "readMore": "Lesen",
+    "question": "Frage",
+    "answer": "Antwort",
+    "download": "PDF herunterladen",
+    "types": {
+      "interview": "Interview",
+      "guest-article": "Gastbeitrag"
+    }
+  },
+  "topics": {
+    "title": "Themen",
+    "all": "Alle",
+    "filter": "Nach Unterthema filtern",
+    "empty": "Zu diesem Thema gibt es noch keine Artikel."
+  },
+  "issues": {
+    "title": "Ausgaben",
+    "digital": "Digitale Ausgaben",
+    "archive": "PDF-Archiv",
+    "readIssue": "Zur Ausgabe",
+    "downloadPdf": "PDF herunterladen",
+    "foreword": "Vorwort",
+    "inThisIssue": "In dieser Ausgabe",
+    "editors": "Redaktion"
+  },
+  "events": {
+    "title": "Speaker Events",
+    "upcoming": "Demnächst",
+    "past": "Vergangene Events",
+    "none": "Zurzeit sind keine Events geplant.",
+    "recap": "Zum Rückblick",
+    "apply": "Bewerben",
+    "applicationClosed": "Die Bewerbung ist geschlossen.",
+    "applicationOpens": "Die Bewerbung öffnet am {date}.",
+    "applicationDeadline": "Bewerbung bis {date}.",
+    "language": "Vortrag auf {language}",
+    "gallery": "Fotos"
+  },
+  "people": {
+    "interviews": "Interviews",
+    "events": "Speaker Events"
+  },
+  "newsletter": {
+    "title": "Newsletter",
+    "intro": "Monatlich: neue Interviews, Gastbeiträge und Einladungen zu unseren Speaker Events.",
+    "email": "E-Mail-Adresse",
+    "firstName": "Vorname (optional)",
+    "interests": "Ich interessiere mich für",
+    "interestNewsletter": "Monatlicher Newsletter",
+    "interestEvents": "Einladungen zu Speaker Events",
+    "consent": "Ich bin einverstanden, dass die SGBR meine Daten speichert, um mir E-Mails zu schicken. Abmelden ist jederzeit möglich. Siehe <link>Datenschutzerklärung</link>.",
+    "submit": "Anmelden",
+    "submitting": "Wird gesendet …",
+    "success": "Fast geschafft: Bitte bestätigen Sie die Anmeldung über den Link in Ihrem Posteingang.",
+    "error": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später noch einmal.",
+    "archive": "Archiv",
+    "archiveEmpty": "Noch keine Newsletter im Archiv.",
+    "confirmTitle": "Anmeldung bestätigt",
+    "confirmText": "Danke! Sie erhalten ab jetzt unsere E-Mails.",
+    "confirmInvalid": "Dieser Link ist ungültig oder abgelaufen.",
+    "preferencesTitle": "Ihre E-Mail-Einstellungen",
+    "save": "Einstellungen speichern",
+    "saved": "Ihre Einstellungen sind gespeichert.",
+    "unsubscribe": "Von allen E-Mails abmelden",
+    "unsubscribed": "Sie sind abgemeldet. Wir schreiben Ihnen nicht mehr.",
+    "popupTitle": "Auf dem Laufenden bleiben",
+    "popupClose": "Nein, danke",
+    "sentOn": "Versendet am {date}"
+  },
+  "forms": {
+    "submit": "Absenden",
+    "submitting": "Wird gesendet …",
+    "required": "Pflichtfeld",
+    "fileHint": "PDF, max. 5 MB",
+    "fileTooLarge": "Die Datei ist grösser als 5 MB.",
+    "fileWrongType": "Bitte laden Sie eine PDF-Datei hoch.",
+    "privacy": "Wir verarbeiten Ihre Daten nur, um Ihre Einsendung zu bearbeiten. Siehe <link>Datenschutzerklärung</link>.",
+    "error": "Die Einsendung konnte nicht gesendet werden. Bitte prüfen Sie die Felder und versuchen Sie es erneut.",
+    "tooManyRequests": "Zu viele Anfragen. Bitte versuchen Sie es später noch einmal.",
+    "success": "Danke, wir haben Ihre Einsendung erhalten."
+  },
+  "search": {
+    "title": "Suche",
+    "placeholder": "Interviews, Personen, Ausgaben suchen …",
+    "results": "{count, plural, =0 {Keine Treffer} one {# Treffer} other {# Treffer}} für „{query}“",
+    "empty": "Geben Sie einen Suchbegriff ein.",
+    "types": {
+      "posts": "Artikel",
+      "issues": "Ausgabe",
+      "events": "Event",
+      "people": "Person"
+    }
+  },
+  "footer": {
+    "esprit": "Die St. Gallen Business Review ist ein Projekt von ESPRIT St. Gallen.",
+    "rights": "© {year} St. Gallen Business Review"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "text": "Die Seite gibt es nicht oder sie ist umgezogen.",
+    "home": "Zur Startseite"
+  },
+  "preview": {
+    "draft": "Vorschau",
+    "exit": "Vorschau beenden"
+  }
+}

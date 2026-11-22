@@ -1,0 +1,103 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Dark mode is toggled with a class on <html> (docs/design-system.md). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Brand tokens, taken from the old child theme (fox-child-theme/style.css, 2026-11-22). */
+@theme {
+  --color-navy: #0b3c6d;
+  --color-navy-dark: #082c52;
+  --color-petrol: #152e3a;
+  --color-ink: #1a1a1a;
+  --color-band-light: #f4f6f9;
+
+  /* Semantic tokens. Components only use these, so dark mode works everywhere. */
+  --color-bg: var(--sgbr-bg);
+  --color-surface: var(--sgbr-surface);
+  --color-band: var(--sgbr-band);
+  --color-text: var(--sgbr-text);
+  --color-muted: var(--sgbr-muted);
+  --color-line: var(--sgbr-line);
+  --color-accent: var(--sgbr-accent);
+  --color-accent-hover: var(--sgbr-accent-hover);
+  --color-on-accent: var(--sgbr-on-accent);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+
+  --radius-card: 16px;
+
+  --container-page: 1440px;
+  --container-reading: 920px;
+}
+
+:root {
+  --sgbr-bg: #ffffff;
+  --sgbr-surface: #ffffff;
+  --sgbr-band: #f4f6f9;
+  --sgbr-text: #1a1a1a;
+  --sgbr-muted: #6b6b6b; /* #7A7A7A from the old theme fails WCAG AA on white for small text */
+  --sgbr-line: #e3e7ed;
+  --sgbr-accent: #0b3c6d;
+  --sgbr-accent-hover: #082c52;
+  --sgbr-on-accent: #ffffff;
+  color-scheme: light;
+}
+
+.dark {
+  --sgbr-bg: #0e1a21;
+  --sgbr-surface: #152e3a;
+  --sgbr-band: #12232c;
+  --sgbr-text: #e8ecf1;
+  --sgbr-muted: #9aa4af;
+  --sgbr-line: rgba(255, 255, 255, 0.12);
+  --sgbr-accent: #6fa3d8;
+  --sgbr-accent-hover: #92bbe4;
+  --sgbr-on-accent: #0e1a21;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif;
+  }
+
+  a {
+    text-underline-offset: 0.15em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: 1.25rem;
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+@utility container-reading {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-reading);
+  padding-inline: 1.25rem;
+}
