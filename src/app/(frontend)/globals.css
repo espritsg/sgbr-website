@@ -4,68 +4,102 @@
 /* Dark mode is toggled with a class on <html> (docs/design-system.md). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Brand tokens, taken from the old child theme (fox-child-theme/style.css, 2026-11-22). */
+/*
+ * Design system (docs/design-system.md, ADR 0018):
+ * square corners, hairline rules like a newspaper, Source Serif 4 for headlines,
+ * Inter for everything else. Components use only the semantic tokens below.
+ */
 @theme {
-  --color-navy: #0b3c6d;
-  --color-navy-dark: #082c52;
-  --color-petrol: #152e3a;
-  --color-ink: #1a1a1a;
-  --color-band-light: #f4f6f9;
+  --color-navy: #17415b;
+  --color-navy-dark: #0f2f43;
+  --color-petrol: #10232d;
+  --color-ink: #121212;
 
-  /* Semantic tokens. Components only use these, so dark mode works everywhere. */
   --color-bg: var(--sgbr-bg);
   --color-surface: var(--sgbr-surface);
   --color-band: var(--sgbr-band);
   --color-text: var(--sgbr-text);
   --color-muted: var(--sgbr-muted);
   --color-line: var(--sgbr-line);
+  --color-rule: var(--sgbr-rule);
   --color-accent: var(--sgbr-accent);
   --color-accent-hover: var(--sgbr-accent-hover);
   --color-on-accent: var(--sgbr-on-accent);
+  --color-danger: var(--sgbr-danger);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-serif: var(--font-serif-headline), ui-serif, Georgia, serif;
 
-  --radius-card: 16px;
+  /* No rounded corners anywhere. */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-full: 0;
 
-  --container-page: 1440px;
-  --container-reading: 920px;
+  --container-page: 1280px;
+  --container-reading: 720px;
+  --container-wide: 1040px;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root {
   --sgbr-bg: #ffffff;
   --sgbr-surface: #ffffff;
-  --sgbr-band: #f4f6f9;
-  --sgbr-text: #1a1a1a;
-  --sgbr-muted: #6b6b6b; /* #7A7A7A from the old theme fails WCAG AA on white for small text */
-  --sgbr-line: #e3e7ed;
-  --sgbr-accent: #0b3c6d;
-  --sgbr-accent-hover: #082c52;
+  --sgbr-band: #f4f5f6;
+  --sgbr-text: #121212;
+  --sgbr-muted: #5e6670;
+  --sgbr-line: #dfe2e6;
+  --sgbr-rule: #121212;
+  --sgbr-accent: #17415b;
+  --sgbr-accent-hover: #0f2f43;
   --sgbr-on-accent: #ffffff;
+  --sgbr-danger: #b42318;
   color-scheme: light;
 }
 
 .dark {
-  --sgbr-bg: #0e1a21;
-  --sgbr-surface: #152e3a;
-  --sgbr-band: #12232c;
-  --sgbr-text: #e8ecf1;
-  --sgbr-muted: #9aa4af;
-  --sgbr-line: rgba(255, 255, 255, 0.12);
-  --sgbr-accent: #6fa3d8;
-  --sgbr-accent-hover: #92bbe4;
-  --sgbr-on-accent: #0e1a21;
+  --sgbr-bg: #0f1417;
+  --sgbr-surface: #151c21;
+  --sgbr-band: #182229;
+  --sgbr-text: #e9edf0;
+  --sgbr-muted: #9aa5ae;
+  --sgbr-line: #2a343b;
+  --sgbr-rule: #e9edf0;
+  --sgbr-accent: #8fb8d6;
+  --sgbr-accent-hover: #b4d0e5;
+  --sgbr-on-accent: #0f1417;
+  --sgbr-danger: #f0877f;
   color-scheme: dark;
+
+  /* Re-declared so nested .dark areas (e.g. the footer) resolve the dark values too. */
+  --color-bg: var(--sgbr-bg);
+  --color-surface: var(--sgbr-surface);
+  --color-band: var(--sgbr-band);
+  --color-text: var(--sgbr-text);
+  --color-muted: var(--sgbr-muted);
+  --color-line: var(--sgbr-line);
+  --color-rule: var(--sgbr-rule);
+  --color-accent: var(--sgbr-accent);
+  --color-accent-hover: var(--sgbr-accent-hover);
+  --color-on-accent: var(--sgbr-on-accent);
+  --color-danger: var(--sgbr-danger);
 }
 
 @layer base {
   html {
     background-color: var(--color-bg);
     color: var(--color-text);
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     @apply bg-bg text-text font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
   }
 
   h1,
@@ -73,24 +107,34 @@
   h3,
   h4 {
     @apply font-serif;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
   }
 
   a {
-    text-underline-offset: 0.15em;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
   }
 
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
 }
 
+/* Layout widths */
 @utility container-page {
   margin-inline: auto;
   width: 100%;
-  max-width: var(--container-page);
+  max-width: calc(var(--container-page) + 2.5rem);
   padding-inline: 1.25rem;
   @media (width >= 48rem) {
+    max-width: calc(var(--container-page) + 5rem);
     padding-inline: 2.5rem;
   }
 }
@@ -98,6 +142,156 @@
 @utility container-reading {
   margin-inline: auto;
   width: 100%;
-  max-width: var(--container-reading);
+  max-width: calc(var(--container-reading) + 2.5rem);
   padding-inline: 1.25rem;
+}
+
+@utility container-wide {
+  margin-inline: auto;
+  width: 100%;
+  max-width: calc(var(--container-wide) + 2.5rem);
+  padding-inline: 1.25rem;
+}
+
+/* Type scale */
+@utility display {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+@utility headline-lg {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(1.625rem, 1.35rem + 1.1vw, 2.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+@utility headline-md {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+@utility headline-sm {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.1875rem;
+  line-height: 1.2;
+}
+@utility kicker {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+@utility meta {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+@utility lead {
+  font-family: var(--font-sans);
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+/* Rules like a newspaper */
+@utility rule-top {
+  border-top: 2px solid var(--color-rule);
+}
+@utility hairline-top {
+  border-top: 1px solid var(--color-line);
+}
+
+/* Links in headlines: underline on hover, nothing else moves. */
+@utility link-headline {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 200ms var(--ease-out-soft);
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* Image hover inside a .group: subtle zoom */
+@utility img-zoom {
+  transition:
+    transform 700ms var(--ease-out-soft),
+    opacity 300ms;
+  :where(.group):hover & {
+    transform: scale(1.03);
+  }
+}
+
+/* Motion: sections fade in when they scroll into view (Reveal component). */
+@layer components {
+  /* Only hidden when JavaScript runs (class set by ThemeScript), so content never disappears. */
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 700ms var(--ease-out-soft),
+      transform 700ms var(--ease-out-soft);
+  }
+  .js [data-reveal='visible'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  dialog[open] {
+    animation: sgbr-fade-in 220ms var(--ease-out-soft);
+  }
+  dialog::backdrop {
+    background: rgb(0 0 0 / 0.45);
+    animation: sgbr-fade 220ms ease-out;
+  }
+
+  .sgbr-drawer[open] {
+    animation: sgbr-slide-in 280ms var(--ease-out-soft);
+  }
+}
+
+@keyframes sgbr-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sgbr-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes sgbr-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes sgbr-check {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
 }

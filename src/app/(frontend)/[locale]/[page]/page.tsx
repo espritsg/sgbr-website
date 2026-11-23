@@ -33,7 +33,7 @@ export default async function StaticPage({ params }: Props) {
   return (
     <>
       <AdminBarDocument collection="pages" id={page.id} label={page.title} />
-      <PageTitle title={page.title} />
+      <PageTitle title={page.title} narrow />
       <RenderBlocks blocks={page.layout} />
     </>
   )

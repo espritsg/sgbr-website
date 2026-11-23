@@ -28,7 +28,10 @@
     "en": "English",
     "de": "Deutsch",
     "onlyAvailableIn": "This article is only available in {language}.",
-    "languageNames": { "en": "English", "de": "German" }
+    "languageNames": {
+      "en": "English",
+      "de": "German"
+    }
   },
   "home": {
     "currentIssue": "Current issue",
@@ -39,7 +42,8 @@
     "archive": "Archive",
     "byTopic": "From our topics",
     "allEvents": "All speaker events",
-    "allIssues": "All issues"
+    "allIssues": "All issues",
+    "allTopics": "All topics"
   },
   "article": {
     "interviewWith": "Interview with {names}",
@@ -51,7 +55,11 @@
     "question": "Question",
     "answer": "Answer",
     "download": "Download PDF",
-    "types": { "interview": "Interview", "guest-article": "Guest article" }
+    "types": {
+      "interview": "Interview",
+      "guest-article": "Guest article"
+    },
+    "readMoreTitle": "Read more"
   },
   "topics": {
     "title": "Topics",
@@ -67,7 +75,8 @@
     "downloadPdf": "Download PDF",
     "foreword": "Foreword",
     "inThisIssue": "In this issue",
-    "editors": "Editors"
+    "editors": "Editors",
+    "intro": "Every issue of the St. Gallen Business Review since 2004: digital issues and the PDF archive."
   },
   "events": {
     "title": "Speaker Events",
@@ -80,11 +89,19 @@
     "applicationOpens": "Applications open on {date}.",
     "applicationDeadline": "Apply by {date}.",
     "language": "Talk in {language}",
-    "gallery": "Photos"
+    "gallery": "Photos",
+    "time": "Time",
+    "place": "Place",
+    "date": "Date",
+    "languageLabel": "Language",
+    "speaker": "Speaker",
+    "applyIntro": "Students of the University of St. Gallen can apply for a seat.",
+    "intro": "Leaders from business, finance and politics at the University of St. Gallen, in conversation with students."
   },
   "people": {
     "interviews": "Interviews",
-    "events": "Speaker events"
+    "events": "Speaker events",
+    "kicker": "Person"
   },
   "newsletter": {
     "title": "Newsletter",
@@ -111,30 +128,54 @@
     "unsubscribed": "You have been unsubscribed. We will not email you again.",
     "popupTitle": "Stay informed",
     "popupClose": "No, thanks",
-    "sentOn": "Sent on {date}"
+    "sentOn": "Sent on {date}",
+    "interestNewsletterText": "Once a month: new interviews and guest articles.",
+    "interestEventsText": "Invitations to our speaker events in St. Gallen.",
+    "benefits": [
+      "Monthly, never more",
+      "Guest articles before they appear online",
+      "Invitations to speaker events"
+    ],
+    "benefitsTitle": "What you get"
   },
   "forms": {
     "submit": "Submit",
     "submitting": "Sending…",
     "required": "Required",
-    "fileHint": "PDF, max. 5 MB",
-    "fileTooLarge": "The file is larger than 5 MB.",
+    "fileHint": "PDF, max. 4 MB",
+    "fileTooLarge": "The file is larger than 4 MB.",
     "fileWrongType": "Please upload a PDF file.",
     "privacy": "We process your data only to handle your submission. See our <link>privacy policy</link>.",
     "error": "Your submission could not be sent. Please check the fields and try again.",
     "tooManyRequests": "Too many requests. Please try again later.",
-    "success": "Thank you, we have received your submission."
+    "success": "Thank you, we have received your submission.",
+    "chooseFile": "Choose a PDF",
+    "dropFile": "or drag it here",
+    "removeFile": "Remove",
+    "choose": "Please choose"
   },
   "search": {
     "title": "Search",
     "placeholder": "Search interviews, people, issues…",
     "results": "{count, plural, =0 {No results} one {# result} other {# results}} for “{query}”",
     "empty": "Enter a search term.",
-    "types": { "posts": "Article", "issues": "Issue", "events": "Event", "people": "Person" }
+    "types": {
+      "posts": "Article",
+      "issues": "Issue",
+      "events": "Event",
+      "people": "Person"
+    },
+    "allResults": "Show all results",
+    "filterAll": "All",
+    "noResults": "Nothing found. Try another word or browse the topics.",
+    "suggestions": "Popular topics"
   },
   "footer": {
     "esprit": "The St. Gallen Business Review is a project of ESPRIT St. Gallen.",
-    "rights": "© {year} St. Gallen Business Review"
+    "rights": "© {year} St. Gallen Business Review",
+    "sections": "Sections",
+    "about": "About",
+    "follow": "Follow"
   },
   "notFound": {
     "title": "Page not found",
@@ -144,5 +185,9 @@
   "preview": {
     "draft": "Preview mode",
     "exit": "Exit preview"
+  },
+  "contact": {
+    "address": "Address",
+    "email": "Email"
   }
 }

@@ -3,7 +3,10 @@ import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
 import type { Topic } from '@/payload-types'
 
-/** Main topics as tabs, sub-topics of the active main topic as filters (docs/design-system.md). */
+const parentId = (topic: Topic) =>
+  typeof topic.parent === 'object' ? topic.parent?.id : topic.parent
+
+/** Main topics as a text tab bar, sub-topics as text links (docs/design-system.md). */
 export async function TopicTabs({
   topics,
   activeMain,
@@ -15,22 +18,19 @@ export async function TopicTabs({
 }) {
   const t = await getTranslations('topics')
   const mains = topics.filter((topic) => !topic.parent)
-  const subs = activeMain
-    ? topics.filter(
-        (topic) =>
-          (typeof topic.parent === 'object' ? topic.parent?.id : topic.parent) === activeMain.id,
-      )
-    : []
+  const subs = activeMain ? topics.filter((topic) => parentId(topic) === activeMain.id) : []
+  const tab = (active: boolean) =>
+    `shrink-0 border-b-2 pb-3 pt-1 text-[0.8125rem] font-semibold uppercase tracking-[0.1em] transition-colors ${active ? 'border-accent text-text' : 'border-transparent text-muted hover:text-text'}`
   return (
     <div className="container-page">
       <nav
         aria-label={t('title')}
-        className="flex gap-6 overflow-x-auto border-b border-line text-sm font-semibold uppercase tracking-wider"
+        className="-mb-px flex gap-8 overflow-x-auto border-b border-line"
       >
         <Link
           href="/topics"
           aria-current={!activeMain ? 'page' : undefined}
-          className={`shrink-0 border-b-2 py-3 ${!activeMain ? 'border-accent text-accent' : 'border-transparent hover:text-accent'}`}
+          className={tab(!activeMain)}
         >
           {t('all')}
         </Link>
@@ -39,18 +39,25 @@ export async function TopicTabs({
             key={topic.id}
             href={`/topics/${topic.slug}`}
             aria-current={activeMain?.id === topic.id ? 'page' : undefined}
-            className={`shrink-0 border-b-2 py-3 ${activeMain?.id === topic.id ? 'border-accent text-accent' : 'border-transparent hover:text-accent'}`}
+            className={tab(activeMain?.id === topic.id)}
           >
             {topic.title}
           </Link>
         ))}
       </nav>
       {subs.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-2" aria-label={t('filter')}>
-          <span className="mr-2 text-xs text-muted">{t('filter')}:</span>
+        <div
+          className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-b border-line py-4 text-sm"
+          aria-label={t('filter')}
+        >
+          <span className="kicker text-muted!">{t('filter')}</span>
           <Link
             href={`/topics/${activeMain!.slug}`}
-            className={`rounded-full border px-3 py-1 text-xs ${!activeSub ? 'border-accent bg-accent text-on-accent' : 'border-line hover:border-accent'}`}
+            className={
+              !activeSub
+                ? 'font-semibold text-text underline underline-offset-4'
+                : 'text-muted hover:text-text'
+            }
           >
             {t('all')}
           </Link>
@@ -58,7 +65,11 @@ export async function TopicTabs({
             <Link
               key={topic.id}
               href={`/topics/${topic.slug}`}
-              className={`rounded-full border px-3 py-1 text-xs ${activeSub?.id === topic.id ? 'border-accent bg-accent text-on-accent' : 'border-line hover:border-accent'}`}
+              className={
+                activeSub?.id === topic.id
+                  ? 'font-semibold text-text underline underline-offset-4'
+                  : 'text-muted hover:text-text'
+              }
             >
               {topic.title}
             </Link>

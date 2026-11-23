@@ -36,7 +36,7 @@ export function Embed({ url, caption }: { url: string; caption?: string | null }
         <iframe
           src={src}
           title={caption || 'Embedded media'}
-          className="size-full rounded-card border-0"
+          className="size-full border-0"
           loading="lazy"
           allow="encrypted-media; picture-in-picture; fullscreen"
           allowFullScreen

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup'
-import { PageTitle, Section } from '@/components/ui/Section'
+import { PageTitle, SectionHeader } from '@/components/ui/Section'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import { getNewsletterArchive } from '@/lib/data/queries'
@@ -24,39 +24,58 @@ export default async function NewsletterPage({ params }: Props) {
   setRequestLocale(locale)
   const t = await getTranslations('newsletter')
   const archive = await getNewsletterArchive(locale)
+  const benefits = t.raw('benefits') as string[]
   return (
     <>
-      <PageTitle title={t('title')} intro={t('intro')} />
-      <div className="container-page">
-        <div className="max-w-2xl rounded-card border border-line bg-surface p-6 md:p-8">
-          <NewsletterSignup source="newsletter-page" />
+      <PageTitle kicker={t('title')} title={t('popupTitle')} intro={t('intro')} />
+      <section className="container-page">
+        <div className="grid gap-12 md:grid-cols-[1fr_1.5fr] md:gap-16">
+          <div>
+            <p className="kicker text-muted!">{t('benefitsTitle')}</p>
+            <ol className="mt-4 divide-y divide-line border-y border-line">
+              {benefits.map((benefit, index) => (
+                <li key={benefit} className="flex items-baseline gap-4 py-4">
+                  <span className="font-serif text-2xl font-semibold text-accent">{index + 1}</span>
+                  <span className="text-[0.9375rem]">{benefit}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="border-t-2 border-rule pt-6">
+            <NewsletterSignup source="newsletter-page" variant="full" />
+          </div>
         </div>
-      </div>
-      <Section title={t('archive')}>
+      </section>
+      <section className="container-page mt-16">
+        <SectionHeader title={t('archive')} />
         {archive.length ? (
-          <ul className="divide-y divide-line">
+          <ul className="border-t border-line">
             {archive.map((newsletter) => (
-              <li key={newsletter.id} className="py-5">
-                <p className="text-xs text-muted">
-                  {newsletter.sentAt &&
-                    t('sentOn', { date: formatDate(newsletter.sentAt, locale) })}
-                </p>
-                <Link
-                  href={`/newsletter/${newsletter.slug}`}
-                  className="font-serif text-2xl hover:text-accent"
-                >
-                  {newsletter.title}
-                </Link>
-                {newsletter.intro && (
-                  <p className="mt-1 line-clamp-2 text-sm text-muted">{newsletter.intro}</p>
-                )}
+              <li
+                key={newsletter.id}
+                className="grid gap-2 border-b border-line py-5 sm:grid-cols-[10rem_1fr]"
+              >
+                <p className="meta">{newsletter.sentAt && formatDate(newsletter.sentAt, locale)}</p>
+                <div>
+                  <Link
+                    href={`/newsletter/${newsletter.slug}`}
+                    className="headline-md link-headline"
+                  >
+                    {newsletter.title}
+                  </Link>
+                  {newsletter.intro && (
+                    <p className="mt-1 line-clamp-2 text-[0.9375rem] text-muted">
+                      {newsletter.intro}
+                    </p>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-muted">{t('archiveEmpty')}</p>
+          <p className="meta">{t('archiveEmpty')}</p>
         )}
-      </Section>
+      </section>
     </>
   )
 }

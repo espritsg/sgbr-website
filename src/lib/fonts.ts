@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Inter } from 'next/font/google'
+import { Inter, Source_Serif_4 } from 'next/font/google'
 
 // The only two typefaces of the site (docs/design-system.md). Self-hosted by next/font.
 export const inter = Inter({
@@ -8,9 +8,11 @@ export const inter = Inter({
   display: 'swap',
 })
 
-export const cormorant = Cormorant_Garamond({
+/** Headlines only; body text stays Inter (decided 2026-11-23). */
+export const sourceSerif = Source_Serif_4({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-cormorant',
+  weight: ['400', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-serif-headline',
   display: 'swap',
 })

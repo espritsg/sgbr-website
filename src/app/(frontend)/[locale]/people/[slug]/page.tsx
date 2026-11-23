@@ -3,11 +3,13 @@ import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { ArticleCard } from '@/components/cards/ArticleCard'
-import { EventCard } from '@/components/events/EventCard'
+import { EventRow } from '@/components/events/EventRow'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
 import { MediaImage } from '@/components/ui/MediaImage'
+import { SectionHeader } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
 import { getEventsByIds, getPerson, getPostsByIds } from '@/lib/data/queries'
+import { isMedia } from '@/lib/media'
 import { buildMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -41,49 +43,55 @@ export default async function PersonPage({ params }: Props) {
     getPostsByIds(locale, idsOf(person.articles?.docs as never)),
     getEventsByIds(locale, idsOf(person.events?.docs as never)),
   ])
+  const hasPhoto = isMedia(person.photo)
   return (
     <>
       <AdminBarDocument collection="people" id={person.id} label={person.name} />
-      <section className="container-page grid gap-10 pb-8 pt-12 md:grid-cols-[280px_1fr]">
-        <div className="relative aspect-square overflow-hidden rounded-card bg-band">
-          {person.photo && (
-            <MediaImage
-              media={person.photo}
-              size="card"
-              fill
-              sizes="280px"
-              className="object-cover"
-            />
+      <header className="container-page pt-10 md:pt-14">
+        <div
+          className={`grid gap-8 border-b border-rule pb-10 ${hasPhoto ? 'md:grid-cols-[14rem_1fr] md:gap-12' : ''}`}
+        >
+          {hasPhoto && (
+            <div className="relative aspect-[4/5] w-40 overflow-hidden bg-band md:w-auto">
+              <MediaImage
+                media={person.photo}
+                size="card"
+                fill
+                sizes="224px"
+                className="object-cover"
+              />
+            </div>
           )}
+          <div className="self-end">
+            <p className="kicker">{t('kicker')}</p>
+            <h1 className="display mt-3">{person.name}</h1>
+            {(person.role || person.organization) && (
+              <p className="lead mt-2">
+                {[person.role, person.organization].filter(Boolean).join(', ')}
+              </p>
+            )}
+            {person.bio && (
+              <p className="mt-5 max-w-2xl whitespace-pre-line leading-relaxed text-muted">
+                {person.bio}
+              </p>
+            )}
+            {person.linkedin && (
+              <a
+                href={person.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="meta mt-4 inline-block font-semibold text-text! underline underline-offset-4"
+              >
+                LinkedIn →
+              </a>
+            )}
+          </div>
         </div>
-        <div>
-          <h1 className="font-serif text-5xl leading-tight">{person.name}</h1>
-          {(person.role || person.organization) && (
-            <p className="mt-2 text-lg text-muted">
-              {[person.role, person.organization].filter(Boolean).join(', ')}
-            </p>
-          )}
-          {person.bio && (
-            <p className="mt-6 max-w-3xl whitespace-pre-line text-text">{person.bio}</p>
-          )}
-          {person.linkedin && (
-            <a
-              href={person.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-block text-sm font-semibold text-accent hover:underline"
-            >
-              LinkedIn →
-            </a>
-          )}
-        </div>
-      </section>
+      </header>
       {articles.length > 0 && (
-        <section className="container-page py-10">
-          <h2 className="mb-8 border-t-2 border-text pt-3 font-serif text-3xl">
-            {t('interviews')}
-          </h2>
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="container-page mt-12">
+          <SectionHeader title={t('interviews')} />
+          <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((post) => (
               <ArticleCard key={post.id} post={post} />
             ))}
@@ -91,11 +99,11 @@ export default async function PersonPage({ params }: Props) {
         </section>
       )}
       {events.length > 0 && (
-        <section className="container-page py-10">
-          <h2 className="mb-8 border-t-2 border-text pt-3 font-serif text-3xl">{t('events')}</h2>
-          <div className="grid gap-6 md:grid-cols-3">
+        <section className="container-page mt-16">
+          <SectionHeader title={t('events')} />
+          <div className="border-t border-line">
             {events.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventRow key={event.id} event={event} showYear />
             ))}
           </div>
         </section>

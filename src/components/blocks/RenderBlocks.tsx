@@ -1,4 +1,4 @@
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 import type { AppLocale } from '@/i18n/routing'
 import { getForm, getGlobals, getTeam } from '@/lib/data/queries'
@@ -6,8 +6,10 @@ import type { Page } from '@/payload-types'
 
 import { FormRenderer } from '../forms/FormRenderer'
 import { RichText } from '../richtext/RichText'
-import { AppLink } from '../ui/AppLink'
+import { ButtonLink } from '../ui/Button'
 import { MediaImage } from '../ui/MediaImage'
+import { Reveal } from '../ui/Reveal'
+import { SectionHeader } from '../ui/Section'
 
 type Block = NonNullable<Page['layout']>[number]
 
@@ -18,28 +20,61 @@ const groupLabels: Record<string, string> = {
 }
 
 const prose =
-  'prose prose-lg max-w-none text-text dark:prose-invert prose-headings:font-serif prose-a:text-accent'
+  'prose prose-lg max-w-none text-text dark:prose-invert prose-headings:font-serif prose-headings:tracking-tight prose-p:leading-[1.75] prose-a:text-accent'
 
-/** Page layout blocks (About, Contact, Imprint, Privacy). */
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+}
+
+/** Page layout blocks (About, Contact, Imprint, Privacy). One vertical rhythm: mt-14 between blocks. */
 export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
   const locale = (await getLocale()) as AppLocale
+  const t = await getTranslations('contact')
   return (
-    <>
-      {(blocks ?? []).map(async (block: Block) => {
+    <div className="space-y-14 pt-2">
+      {(blocks ?? []).map(async (block: Block, index) => {
         switch (block.blockType) {
           case 'richText':
             return (
-              <div key={block.id} className="container-reading py-6">
-                <RichText data={block.content} locale={locale} className={prose} />
+              <div key={block.id} className="container-reading">
+                <RichText
+                  data={block.content}
+                  locale={locale}
+                  className={`${prose} ${index === 0 ? '[&>p:first-of-type]:text-xl [&>p:first-of-type]:leading-relaxed [&>p:first-of-type]:text-text' : ''}`}
+                />
               </div>
             )
           case 'imageText':
+            if (block.imagePosition === 'full') {
+              return (
+                <Reveal key={block.id}>
+                  <figure className="container-wide">
+                    <div className="relative aspect-[16/9] overflow-hidden bg-band">
+                      <MediaImage
+                        media={block.image}
+                        size="hero"
+                        fill
+                        sizes="(min-width: 1080px) 1040px, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <figcaption className="meta mt-3 max-w-3xl">
+                      <RichText data={block.content} locale={locale} />
+                    </figcaption>
+                  </figure>
+                </Reveal>
+              )
+            }
             return (
-              <div key={block.id} className="container-page py-8">
+              <Reveal key={block.id} className="container-page">
                 <div
-                  className={`grid items-center gap-8 md:grid-cols-2 ${block.imagePosition === 'right' ? 'md:[&>*:first-child]:order-2' : ''}`}
+                  className={`grid items-center gap-10 md:grid-cols-2 ${block.imagePosition === 'right' ? 'md:[&>*:first-child]:order-2' : ''}`}
                 >
-                  <div className="relative aspect-[3/2] overflow-hidden rounded-card bg-band">
+                  <div className="relative aspect-[3/2] overflow-hidden bg-band">
                     <MediaImage
                       media={block.image}
                       size="hero"
@@ -48,13 +83,9 @@ export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
                       className="object-cover"
                     />
                   </div>
-                  <RichText
-                    data={block.content}
-                    locale={locale}
-                    className="prose max-w-none text-muted dark:prose-invert"
-                  />
+                  <RichText data={block.content} locale={locale} className={prose} />
                 </div>
-              </div>
+              </Reveal>
             )
           case 'teamGrid': {
             const groups = block.groups?.length
@@ -62,101 +93,108 @@ export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
               : ['editorial-board', 'editors', 'advisory']
             const team = await getTeam(locale, groups)
             return (
-              <div key={block.id} className="container-page py-8">
-                {block.heading && (
-                  <h2 className="mb-8 border-t-2 border-text pt-3 font-serif text-3xl">
-                    {block.heading}
-                  </h2>
-                )}
+              <section key={block.id} className="container-page space-y-14">
                 {groups.map((group) => {
                   const members = team.filter((member) => member.group === group)
                   if (!members.length) return null
+                  const large = group === 'editorial-board'
                   return (
-                    <div key={group} className="mb-12">
-                      <h3 className="mb-6 text-xs font-semibold uppercase tracking-widest text-accent">
-                        {groupLabels[group]}
-                      </h3>
+                    <Reveal key={group}>
+                      <SectionHeader title={groupLabels[group]} />
                       <ul
-                        className={`grid gap-8 ${group === 'editorial-board' ? 'sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'}`}
+                        className={`grid gap-x-6 gap-y-10 ${large ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'}`}
                       >
                         {members.map((member) => (
                           <li key={member.id}>
-                            <div className="relative aspect-square overflow-hidden rounded-card bg-band">
-                              {member.photo && (
+                            <div className="relative aspect-[4/5] overflow-hidden bg-band">
+                              {member.photo ? (
                                 <MediaImage
                                   media={member.photo}
                                   size="card"
                                   fill
-                                  sizes="25vw"
+                                  sizes={large ? '30vw' : '20vw'}
                                   className="object-cover"
                                 />
+                              ) : (
+                                <span
+                                  aria-hidden
+                                  className="flex size-full items-center justify-center font-serif text-4xl font-semibold text-muted"
+                                >
+                                  {initials(member.name)}
+                                </span>
                               )}
                             </div>
-                            {member.position && (
-                              <p className="mt-3 text-xs uppercase tracking-wider text-muted">
-                                {member.position}
-                              </p>
-                            )}
-                            <p className="font-serif text-xl">{member.name}</p>
-                            <p className="text-sm text-muted">
+                            {member.position && <p className="kicker mt-3">{member.position}</p>}
+                            <p className={`mt-1 ${large ? 'headline-md' : 'headline-sm'}`}>
+                              {member.name}
+                            </p>
+                            <p className="meta mt-1">
                               {[member.study, member.university].filter(Boolean).join(' · ')}
                             </p>
                           </li>
                         ))}
                       </ul>
-                    </div>
+                    </Reveal>
                   )
                 })}
-              </div>
+              </section>
             )
           }
           case 'contactForm': {
             const formId = typeof block.form === 'object' ? block.form.id : block.form
             const [form, { settings }] = await Promise.all([getForm(formId), getGlobals(locale)])
             return (
-              <div
-                key={block.id}
-                className="container-page grid gap-10 py-8 md:grid-cols-[1fr_1.4fr]"
-              >
-                <div>
-                  {block.heading && <h2 className="font-serif text-3xl">{block.heading}</h2>}
-                  {block.showAddress && settings.address && (
-                    <p className="mt-4 whitespace-pre-line text-muted">{settings.address}</p>
-                  )}
-                  {settings.contactEmail && (
-                    <a
-                      href={`mailto:${settings.contactEmail}`}
-                      className="mt-4 inline-block text-accent hover:underline"
-                    >
-                      {settings.contactEmail}
-                    </a>
-                  )}
+              <section key={block.id} className="container-page">
+                <div className="grid gap-12 border-t-2 border-rule pt-8 md:grid-cols-[1fr_1.6fr] md:gap-16">
+                  <div>
+                    {block.heading && <h2 className="headline-lg">{block.heading}</h2>}
+                    <dl className="mt-6 space-y-5 text-sm">
+                      {block.showAddress && settings.address && (
+                        <div>
+                          <dt className="kicker text-muted!">{t('address')}</dt>
+                          <dd className="mt-1 whitespace-pre-line leading-relaxed">
+                            {settings.address}
+                          </dd>
+                        </div>
+                      )}
+                      {settings.contactEmail && (
+                        <div>
+                          <dt className="kicker text-muted!">{t('email')}</dt>
+                          <dd className="mt-1">
+                            <a
+                              href={`mailto:${settings.contactEmail}`}
+                              className="underline underline-offset-4 hover:text-accent"
+                            >
+                              {settings.contactEmail}
+                            </a>
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                  {form && <FormRenderer form={form} />}
                 </div>
-                {form && <FormRenderer form={form} />}
-              </div>
+              </section>
             )
           }
           case 'cta':
             return (
-              <div key={block.id} className="container-page py-8">
-                <div className="rounded-card bg-band p-8 md:p-12">
-                  <h2 className="font-serif text-3xl">{block.heading}</h2>
-                  {block.text && <p className="mt-2 max-w-2xl text-muted">{block.text}</p>}
+              <section key={block.id} className="container-page">
+                <div className="grid gap-6 border-y-2 border-rule py-10 md:grid-cols-[1fr_auto] md:items-center">
+                  <div>
+                    <h2 className="headline-lg">{block.heading}</h2>
+                    {block.text && <p className="mt-2 max-w-2xl text-muted">{block.text}</p>}
+                  </div>
                   {block.linkUrl && (
-                    <AppLink
-                      href={block.linkUrl}
-                      className="mt-6 inline-block rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
-                    >
-                      {block.linkLabel || block.linkUrl}
-                    </AppLink>
+                    <ButtonLink href={block.linkUrl}>{block.linkLabel || block.linkUrl}</ButtonLink>
                   )}
                 </div>
-              </div>
+              </section>
             )
           default:
             return null
         }
       })}
-    </>
+    </div>
   )
 }

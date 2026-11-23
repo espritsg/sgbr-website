@@ -29,6 +29,7 @@ Ohne Konten für Resend, Vercel Blob oder Anthropic läuft alles lokal: Mails la
 | `npm run check` | Lint, Typecheck, Tests und Build, wie in CI |
 | `npm test` | alle Tests (braucht `npm run db:up`) |
 | `npm run import:dev` | Testdaten von der öffentlichen Website laden ([docs/migration.md](docs/migration.md)) |
+| `npm run seed:forms` | Kontakt- und Bewerbungsformular in der Dev-Datenbank neu anlegen |
 | `npm run jobs` | tägliche Hintergrund-Jobs einmal ausführen |
 | `npm run migrate:create <name>` | Datenbank-Migration nach Schemaänderung |
 | `npm run migrate:wp` | finale Migration aus den WordPress-Exporten ([docs/migration.md](docs/migration.md)) |

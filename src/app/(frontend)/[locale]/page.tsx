@@ -1,11 +1,11 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { ArticleCard } from '@/components/cards/ArticleCard'
-import { IssueCard } from '@/components/cards/IssueCard'
-import { EventCard } from '@/components/events/EventCard'
+import { IssueCard, IssueCover } from '@/components/cards/IssueCard'
+import { EventRow } from '@/components/events/EventRow'
 import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup'
-import { MediaImage } from '@/components/ui/MediaImage'
-import { Section } from '@/components/ui/Section'
+import { Reveal } from '@/components/ui/Reveal'
+import { SectionHeader } from '@/components/ui/Section'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import {
@@ -17,18 +17,19 @@ import {
   getPostsByTopic,
   getTopics,
 } from '@/lib/data/queries'
-import { isMedia } from '@/lib/media'
 import type { Issue, Post } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ locale: AppLocale }> }
 
-/** Homepage after the HBR model (docs/design-system.md, call 2026-11-21). */
+/** Homepage: newspaper grid with column rules (docs/design-system.md). */
 export default async function HomePage({ params }: Props) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations('home')
+  const tIssues = await getTranslations('issues')
+  const tNewsletter = await getTranslations('newsletter')
 
   const homepage = await getHomepage(locale)
   const currentIssue =
@@ -39,157 +40,149 @@ export default async function HomePage({ params }: Props) {
   )
   const latest = await getLatestPosts(
     locale,
-    Math.max(0, 5 - pinned.length),
+    9,
     pinned.map((p) => p.id),
   )
-  const sidePosts = [...pinned, ...latest].slice(0, 5)
+  const stories = [...pinned, ...latest]
+  const [leadStory, ...rest] = stories
+  const secondary = rest.slice(0, 2)
+  const ranked = rest.slice(2, 7)
 
-  const [upcoming, past, issues, topics] = await Promise.all([
-    getEvents(locale, 'upcoming', 3),
-    getEvents(locale, 'past', 8),
+  const [upcoming, issues, topics] = await Promise.all([
+    getEvents(locale, 'upcoming', 4),
     getIssues(locale),
     homepage.showTopicSection ? getTopics(locale) : Promise.resolve([]),
   ])
-  const pastPhotos = past
-    .flatMap((event) => (event.gallery ?? []).filter(isMedia).slice(0, 1))
-    .slice(0, 4)
   const archive = issues.filter((issue) => issue.id !== currentIssue?.id).slice(0, 6)
 
-  const mainTopics = topics.filter((topic) => !topic.parent)
-  // Latest article per main topic, without repeating articles shown above or in another topic.
-  const shown = new Set(sidePosts.map((post) => post.id))
-  const topicPosts: Array<{ topic: (typeof mainTopics)[number]; post: Post | null }> = []
-  for (const topic of mainTopics) {
+  const shown = new Set(stories.slice(0, 7).map((post) => post.id))
+  const topicPosts: Array<{ topic: (typeof topics)[number]; posts: Post[] }> = []
+  for (const topic of topics.filter((item) => !item.parent)) {
     const candidates = (await getPostsByTopic(locale, [topic.id], 1, 8)).docs
-    const post = candidates.find((candidate) => !shown.has(candidate.id)) ?? null
-    if (post) shown.add(post.id)
-    topicPosts.push({ topic, post })
+      .filter((post) => !shown.has(post.id))
+      .slice(0, 2)
+    candidates.forEach((post) => shown.add(post.id))
+    topicPosts.push({ topic, posts: candidates })
   }
 
   return (
     <>
-      {/* 1. Current issue large, latest articles beside it */}
-      <section className="container-page grid gap-10 py-10 lg:grid-cols-[1.4fr_1fr]">
-        {currentIssue ? (
-          <div className="flex flex-col">
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">
-              {t('currentIssue')}
-            </p>
-            <Link href={`/issues/${currentIssue.slug}`} className="group mt-3 block">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-navy">
-                {currentIssue.cover ? (
-                  <MediaImage
-                    media={currentIssue.cover}
-                    size="hero"
-                    fill
-                    priority
-                    sizes="(min-width: 1024px) 55vw, 100vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex size-full items-end p-8 text-[#e8ecf1] md:p-12">
-                    <span className="font-serif text-5xl leading-none md:text-7xl">
-                      {currentIssue.title}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <h1 className="mt-5 font-serif text-4xl leading-tight group-hover:text-accent md:text-5xl">
-                {currentIssue.title}
-              </h1>
-            </Link>
-            {currentIssue.tagline && (
-              <p className="mt-2 font-serif text-2xl italic text-muted">{currentIssue.tagline}</p>
-            )}
-            {currentIssue.description && (
-              <p className="mt-3 max-w-2xl text-muted">{currentIssue.description}</p>
-            )}
+      {/* 1. Front: current issue | lead story | latest list */}
+      <section className="container-page pt-8">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.55fr)_minmax(0,1fr)] lg:gap-0 lg:divide-x lg:divide-line">
+          {currentIssue && (
+            <div className="lg:pr-8">
+              <p className="kicker mb-3">{t('currentIssue')}</p>
+              <Link href={`/issues/${currentIssue.slug}`} className="group block">
+                <div className="mx-auto max-w-[16rem] lg:max-w-none">
+                  <IssueCover issue={currentIssue} sizes="(min-width: 1024px) 22vw, 60vw" />
+                </div>
+                <h2 className="headline-md mt-4 link-headline">{currentIssue.title}</h2>
+              </Link>
+              {currentIssue.tagline && (
+                <p className="mt-1 font-serif text-lg italic text-muted">{currentIssue.tagline}</p>
+              )}
+              <Link
+                href={`/issues/${currentIssue.slug}`}
+                className="meta mt-3 inline-block font-semibold text-text! underline underline-offset-4"
+              >
+                {tIssues('readIssue')} →
+              </Link>
+            </div>
+          )}
+          <div className="order-first lg:order-none lg:px-8">
+            {leadStory && <ArticleCard post={leadStory} variant="lead" priority />}
+            <div className="mt-6 grid gap-6 border-t border-line pt-6 sm:grid-cols-2">
+              {secondary.map((post) => (
+                <ArticleCard key={post.id} post={post} variant="compact" />
+              ))}
+            </div>
           </div>
-        ) : (
-          <div />
-        )}
-        <div>
-          <h2 className="border-t-2 border-text pt-3 font-serif text-2xl">{t('latest')}</h2>
-          <div>
-            {sidePosts.map((post) => (
-              <ArticleCard key={post.id} post={post} variant="list" />
-            ))}
+          <div className="lg:pl-8">
+            <p className="kicker mb-1">{t('latest')}</p>
+            <div className="divide-y divide-line">
+              {ranked.map((post, index) => (
+                <ArticleCard
+                  key={post.id}
+                  post={post}
+                  variant="compact"
+                  rank={index + 1}
+                  showSummary={false}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* 2. Speaker events */}
-      <Section title={t('upcomingEvents')} link={{ href: '/events', label: t('allEvents') }} band>
+      <Reveal as="section" className="container-page mt-16">
+        <SectionHeader
+          title={t('upcomingEvents')}
+          link={{ href: '/events', label: t('allEvents') }}
+        />
         {upcoming.length ? (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="border-t border-line">
             {upcoming.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventRow key={event.id} event={event} />
             ))}
           </div>
         ) : (
-          <p className="text-muted">—</p>
+          <p className="meta">—</p>
         )}
-        {pastPhotos.length > 0 && (
-          <>
-            <h3 className="mt-12 font-serif text-2xl">{t('pastEvents')}</h3>
-            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-              {pastPhotos.map((photo) => (
-                <div key={photo.id} className="relative aspect-[4/3] overflow-hidden rounded-card">
-                  <MediaImage
-                    media={photo}
-                    size="card"
-                    fill
-                    sizes="25vw"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </Section>
+      </Reveal>
 
-      {/* 3. The Magazine: current issue plus archive covers */}
-      <Section title={t('magazine')} link={{ href: '/issues', label: t('allIssues') }}>
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-7">
-          {currentIssue && (
-            <div className="col-span-2 sm:col-span-1 lg:col-span-1">
-              <IssueCard issue={currentIssue} compact />
-            </div>
-          )}
-          {archive.map((issue) => (
-            <IssueCard key={issue.id} issue={issue} compact />
-          ))}
+      {/* 3. The Magazine: cover strip */}
+      <Reveal as="section" className="mt-16 bg-band py-12">
+        <div className="container-page">
+          <SectionHeader title={t('magazine')} link={{ href: '/issues', label: t('allIssues') }} />
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+            {archive.map((issue) => (
+              <IssueCard key={issue.id} issue={issue} />
+            ))}
+          </div>
         </div>
-      </Section>
+      </Reveal>
 
-      {/* 4. Latest article per main topic */}
-      {topicPosts.some((entry) => entry.post) && (
-        <Section title={t('byTopic')} link={{ href: '/topics', label: t('byTopic') }}>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {topicPosts.map(({ topic, post }) =>
-              post ? (
-                <div key={topic.id}>
+      {/* 4. Main topics with column rules */}
+      {topicPosts.some((entry) => entry.posts.length) && (
+        <Reveal as="section" className="container-page mt-16">
+          <SectionHeader title={t('byTopic')} link={{ href: '/topics', label: t('allTopics') }} />
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-line">
+            {topicPosts.map(({ topic, posts }) =>
+              posts.length ? (
+                <div key={topic.id} className="lg:px-6 lg:first:pl-0 lg:last:pr-0">
                   <Link
                     href={`/topics/${topic.slug}`}
-                    className="mb-3 block text-sm font-semibold uppercase tracking-wider hover:text-accent"
+                    className="mb-4 flex items-center justify-between border-b border-rule pb-2 text-xs font-bold uppercase tracking-[0.12em] hover:text-accent"
                   >
                     {topic.title}
+                    <span aria-hidden>→</span>
                   </Link>
-                  <ArticleCard post={post} />
+                  <ArticleCard post={posts[0]} />
+                  {posts[1] && (
+                    <div className="mt-4 border-t border-line">
+                      <ArticleCard post={posts[1]} variant="compact" showSummary={false} />
+                    </div>
+                  )}
                 </div>
               ) : null,
             )}
           </div>
-        </Section>
+        </Reveal>
       )}
 
-      {/* 5. Newsletter */}
-      <Section title="Newsletter" band>
-        <div className="max-w-2xl">
-          <NewsletterSignup source="newsletter-page" />
+      {/* 5. Newsletter band */}
+      <Reveal as="section" className="container-page mt-16">
+        <div className="grid gap-8 border-y-2 border-rule py-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
+          <div>
+            <p className="kicker mb-2">{tNewsletter('title')}</p>
+            <h2 className="headline-lg">{tNewsletter('popupTitle')}</h2>
+            <p className="mt-3 text-muted">{tNewsletter('intro')}</p>
+          </div>
+          <NewsletterSignup source="newsletter-page" variant="inline" />
         </div>
-      </Section>
+      </Reveal>
     </>
   )
 }

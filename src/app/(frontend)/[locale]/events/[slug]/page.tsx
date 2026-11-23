@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { speakerOf } from '@/components/events/EventCard'
+import { speakerOf } from '@/components/events/EventRow'
 import { FormRenderer } from '@/components/forms/FormRenderer'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
 import { RichText } from '@/components/richtext/RichText'
 import { MediaImage } from '@/components/ui/MediaImage'
+import { SectionHeader } from '@/components/ui/Section'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import { getEvent, getForm } from '@/lib/data/queries'
@@ -40,6 +41,7 @@ export default async function EventPage({ params }: Props) {
   const event = await getEvent(locale, slug)
   if (!event) notFound()
   const t = await getTranslations('events')
+  const tLanguage = await getTranslations('language')
   const speaker = speakerOf(event)
   const application = applicationState(event)
   const formId =
@@ -47,114 +49,142 @@ export default async function EventPage({ params }: Props) {
   const form = application.state === 'open' && formId ? await getForm(formId) : null
   const recap = typeof event.recap === 'object' ? (event.recap as Post | null) : null
   const gallery = (event.gallery ?? []).filter(isMedia)
+  const facts = [
+    { label: t('date'), value: formatDate(event.startsAt, locale) },
+    { label: t('time'), value: formatTime(event.startsAt, locale) },
+    { label: t('place'), value: event.location ?? '—' },
+    { label: t('languageLabel'), value: tLanguage(`languageNames.${event.language}`) },
+  ]
 
   return (
     <>
       <AdminBarDocument collection="events" id={event.id} label={t('title')} />
-      <section className="container-page grid gap-10 pb-8 pt-12 lg:grid-cols-[1.3fr_1fr]">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent">
-            {t('title')}
+      <header className="container-page pt-10 md:pt-14">
+        <Link href="/events" className="kicker hover:underline">
+          ← {t('title')}
+        </Link>
+        <h1 className="display mt-4 max-w-4xl">{event.title || speaker?.name}</h1>
+        {speaker && (
+          <p className="lead mt-3">
+            {[event.title ? speaker.name : null, speaker.role, speaker.organization]
+              .filter(Boolean)
+              .join(' · ')}
           </p>
-          <h1 className="mt-2 font-serif text-5xl leading-tight md:text-6xl">
-            {event.title || speaker?.name}
-          </h1>
-          {speaker && (
-            <p className="mt-3 text-lg">
-              <Link href={`/people/${speaker.slug}`} className="font-semibold hover:text-accent">
-                {speaker.name}
-              </Link>
-              {[speaker.role, speaker.organization].filter(Boolean).length > 0 &&
-                `, ${[speaker.role, speaker.organization].filter(Boolean).join(', ')}`}
-            </p>
-          )}
-          <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-            <dt className="text-muted">{formatDate(event.startsAt, locale)}</dt>
-            <dd>{formatTime(event.startsAt, locale)}</dd>
-            {event.location && (
-              <>
-                <dt className="text-muted">📍</dt>
-                <dd>{event.location}</dd>
-              </>
-            )}
-          </dl>
+        )}
+        <dl className="mt-8 grid grid-cols-2 border-y border-rule md:grid-cols-4">
+          {facts.map((fact, index) => (
+            <div
+              key={fact.label}
+              className={`py-4 pr-4 ${index > 0 ? 'md:border-l md:border-line md:pl-5' : ''} ${index % 2 === 1 ? 'border-l border-line pl-5 md:pl-5' : ''} ${index >= 2 ? 'border-t border-line md:border-t-0' : ''}`}
+            >
+              <dt className="kicker text-muted!">{fact.label}</dt>
+              <dd className="mt-1 text-[0.9375rem] font-semibold">{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </header>
+
+      <section className="container-page mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div>
           {event.description && (
             <RichText
               data={event.description}
               locale={locale}
-              className="prose mt-8 max-w-none text-text dark:prose-invert"
+              className="prose prose-lg max-w-none text-text dark:prose-invert"
             />
           )}
           {recap && (
             <Link
               href={`/article/${recap.slug}`}
-              className="mt-6 inline-block font-semibold text-accent hover:underline"
+              className="mt-6 inline-block font-semibold underline underline-offset-4"
             >
               {t('recap')} →
             </Link>
           )}
+
+          {application.state !== 'none' && (
+            <div id="apply" className="mt-4 scroll-mt-20">
+              <SectionHeader title={t('apply')} />
+              {application.state === 'open' && form && (
+                <>
+                  <p className="text-muted">{t('applyIntro')}</p>
+                  {application.deadline && (
+                    <p className="meta mt-1">
+                      {t('applicationDeadline', { date: formatDate(application.deadline, locale) })}
+                    </p>
+                  )}
+                  <div className="mt-8">
+                    <FormRenderer form={form} eventId={event.id} />
+                  </div>
+                </>
+              )}
+              {application.state === 'notYetOpen' && (
+                <p className="text-muted">
+                  {t('applicationOpens', { date: formatDate(application.opensAt, locale) })}
+                </p>
+              )}
+              {application.state === 'closed' && (
+                <p className="text-muted">{t('applicationClosed')}</p>
+              )}
+            </div>
+          )}
         </div>
-        <aside className="space-y-6">
-          {speaker?.photo && (
-            <div className="relative aspect-[4/5] overflow-hidden rounded-card bg-band">
-              <MediaImage
-                media={speaker.photo}
-                size="card"
-                fill
-                sizes="(min-width: 1024px) 35vw, 100vw"
-                className="object-cover"
-              />
-            </div>
-          )}
-          {speaker?.organizationLogo && (
-            <div className="relative h-20 rounded-card bg-[#ffffff] ring-1 ring-line">
-              <MediaImage
-                media={speaker.organizationLogo}
-                size="thumbnail"
-                fill
-                sizes="300px"
-                className="object-contain p-4"
-              />
-            </div>
-          )}
-        </aside>
+
+        {speaker && (
+          <aside className="self-start border-t-2 border-rule pt-4 lg:sticky lg:top-20">
+            <p className="kicker text-muted!">{t('speaker')}</p>
+            {speaker.photo && (
+              <div className="relative mt-3 aspect-[4/5] overflow-hidden bg-band">
+                <MediaImage
+                  media={speaker.photo}
+                  size="card"
+                  fill
+                  sizes="320px"
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <h2 className="headline-sm mt-3">
+              <Link href={`/people/${speaker.slug}`} className="link-headline">
+                {speaker.name}
+              </Link>
+            </h2>
+            <p className="meta mt-1">
+              {[speaker.role, speaker.organization].filter(Boolean).join(', ')}
+            </p>
+            {speaker.bio && (
+              <p className="mt-3 line-clamp-6 text-sm leading-relaxed text-muted">{speaker.bio}</p>
+            )}
+            {speaker.organizationLogo && (
+              <div className="mt-5 flex h-16 items-center justify-center border border-line bg-[#ffffff] px-6">
+                <div className="relative h-8 w-full">
+                  <MediaImage
+                    media={speaker.organizationLogo}
+                    size="thumbnail"
+                    fill
+                    sizes="240px"
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            )}
+          </aside>
+        )}
       </section>
 
-      {application.state !== 'none' && (
-        <section id="apply" className="bg-band py-12">
-          <div className="container-reading">
-            <h2 className="font-serif text-3xl">{t('apply')}</h2>
-            {application.state === 'open' && form && (
-              <>
-                {application.deadline && (
-                  <p className="mt-2 text-sm text-muted">
-                    {t('applicationDeadline', { date: formatDate(application.deadline, locale) })}
-                  </p>
-                )}
-                <div className="mt-6">
-                  <FormRenderer form={form} eventId={event.id} />
-                </div>
-              </>
-            )}
-            {application.state === 'notYetOpen' && (
-              <p className="mt-2 text-muted">
-                {t('applicationOpens', { date: formatDate(application.opensAt, locale) })}
-              </p>
-            )}
-            {application.state === 'closed' && (
-              <p className="mt-2 text-muted">{t('applicationClosed')}</p>
-            )}
-          </div>
-        </section>
-      )}
-
       {gallery.length > 0 && (
-        <section className="container-page py-12">
-          <h2 className="mb-6 font-serif text-3xl">{t('gallery')}</h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <section className="container-page mt-16">
+          <SectionHeader title={t('gallery')} />
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             {gallery.map((photo) => (
-              <div key={photo.id} className="relative aspect-[4/3] overflow-hidden rounded-card">
-                <MediaImage media={photo} size="card" fill sizes="33vw" className="object-cover" />
+              <div key={photo.id} className="group relative aspect-[4/3] overflow-hidden bg-band">
+                <MediaImage
+                  media={photo}
+                  size="card"
+                  fill
+                  sizes="33vw"
+                  className="img-zoom object-cover"
+                />
               </div>
             ))}
           </div>

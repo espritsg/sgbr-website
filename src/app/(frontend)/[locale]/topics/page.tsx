@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { ArticleCard } from '@/components/cards/ArticleCard'
+import { PostGrid } from '@/components/cards/PostGrid'
 import { PageTitle } from '@/components/ui/Section'
 import { Pagination } from '@/components/ui/Pagination'
 import { TopicTabs } from '@/components/ui/TopicTabs'
@@ -34,11 +34,7 @@ export default async function TopicsPage({ params, searchParams }: Props) {
     <>
       <PageTitle title={t('title')} />
       <TopicTabs topics={topics} />
-      <div className="container-page mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.docs.map((post) => (
-          <ArticleCard key={post.id} post={post} />
-        ))}
-      </div>
+      <PostGrid posts={posts.docs} />
       <Pagination page={page} totalPages={posts.totalPages} basePath="/topics" />
     </>
   )

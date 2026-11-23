@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { ArticleCard } from '@/components/cards/ArticleCard'
+import { PostGrid } from '@/components/cards/PostGrid'
 import { PageTitle } from '@/components/ui/Section'
 import { Pagination } from '@/components/ui/Pagination'
 import { TopicTabs } from '@/components/ui/TopicTabs'
@@ -64,13 +64,9 @@ export default async function TopicPage({ params, searchParams }: Props) {
       />
       <TopicTabs topics={topics} activeMain={activeMain} activeSub={activeSub} />
       {posts.docs.length ? (
-        <div className="container-page mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.docs.map((post) => (
-            <ArticleCard key={post.id} post={post} />
-          ))}
-        </div>
+        <PostGrid posts={posts.docs} />
       ) : (
-        <p className="container-page mt-10 text-muted">{t('empty')}</p>
+        <p className="container-page meta mt-10">{t('empty')}</p>
       )}
       <Pagination page={page} totalPages={posts.totalPages} basePath={`/topics/${slug}`} />
     </>

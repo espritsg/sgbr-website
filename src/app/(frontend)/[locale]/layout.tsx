@@ -14,7 +14,7 @@ import { AdminBar } from '@/components/preview/AdminBar'
 import { LivePreviewRefresh } from '@/components/preview/LivePreviewRefresh'
 import { routing, type AppLocale } from '@/i18n/routing'
 import { getGlobals } from '@/lib/data/queries'
-import { cormorant, inter } from '@/lib/fonts'
+import { inter, sourceSerif } from '@/lib/fonts'
 import { serverUrl } from '@/lib/media'
 
 import '../globals.css'
@@ -49,19 +49,21 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${cormorant.variable}`}
+      className={`${inter.variable} ${sourceSerif.variable}`}
       suppressHydrationWarning
     >
       <head>
         <ThemeScript />
       </head>
-      <body className="min-h-dvh">
+      <body className="flex min-h-dvh flex-col">
         <NextIntlClientProvider>
           <AdminBar preview={preview} serverUrl={serverUrl()} />
           {preview && <LivePreviewRefresh serverUrl={serverUrl()} />}
           <SiteHeader header={header} footer={footer} />
-          <main id="main">{children}</main>
-          <SiteFooter footer={footer} />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <SiteFooter footer={footer} header={header} />
           {popup?.enabled && <NewsletterPopup delaySeconds={popup.delaySeconds ?? 10} />}
         </NextIntlClientProvider>
         {/* Vercel Web Analytics: no cookies, only on Vercel production (docs/architektur.md). */}

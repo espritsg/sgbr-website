@@ -60,7 +60,7 @@ export function RichText({ data, locale = 'en', className, labels }: Props) {
           <MediaImage
             media={media}
             size="hero"
-            className="h-auto w-full rounded-card"
+            className="h-auto w-full"
             sizes="(min-width: 960px) 920px, 100vw"
           />
           {media.caption && (
@@ -71,22 +71,24 @@ export function RichText({ data, locale = 'en', className, labels }: Props) {
     },
     blocks: {
       qa: ({ node }: { node: { fields: QABlock } }) => (
-        <div className="not-prose my-8 border-l-2 border-accent pl-5">
-          <p className="font-semibold text-text">
+        <div className="not-prose my-8 border-t border-line pt-6">
+          <p className="text-[1.125rem] font-semibold leading-relaxed text-text">
             <span className="sr-only">{labels?.question ?? 'Question'}: </span>
             {node.fields.question}
           </p>
-          <div className="prose prose-lg mt-3 max-w-none text-text dark:prose-invert">
+          <div className="prose prose-lg mt-3 max-w-none text-text dark:prose-invert prose-p:leading-[1.75]">
             <RichText data={node.fields.answer} locale={locale} labels={labels} />
           </div>
         </div>
       ),
       quote: ({ node }: { node: { fields: QuoteBlock } }) => (
-        <blockquote className="not-prose my-10 border-y border-line py-6 text-center font-serif text-3xl leading-snug text-text">
-          «{node.fields.text}»
+        <blockquote className="not-prose my-12 border-l-2 border-accent pl-6">
+          <p className="font-serif text-[1.75rem] font-semibold leading-snug tracking-tight text-text">
+            {node.fields.text}
+          </p>
           {node.fields.attribution && (
-            <footer className="mt-3 font-sans text-sm text-muted">
-              — {node.fields.attribution}
+            <footer className="meta mt-3 uppercase tracking-wider">
+              {node.fields.attribution}
             </footer>
           )}
         </blockquote>
@@ -101,7 +103,7 @@ export function RichText({ data, locale = 'en', className, labels }: Props) {
           <p className="not-prose my-6">
             <a
               href={href}
-              className="inline-flex items-center gap-2 rounded-full border border-accent px-5 py-2 text-sm font-semibold text-accent hover:bg-accent hover:text-on-accent"
+              className="inline-flex items-center gap-2 border border-text px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-text hover:text-bg"
             >
               {node.fields.label || labels?.download || 'Download PDF'}
             </a>
