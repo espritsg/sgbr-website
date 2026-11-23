@@ -8,10 +8,8 @@ export function AdminLogo() {
   return <Logo className="sgbr-admin-logo" />
 }
 
+/** The favicon (src/app/icon.png), so browser tab and admin show the same mark. */
 export function AdminIcon() {
-  return (
-    <span className="sgbr-admin-icon" aria-hidden>
-      <Logo title="" />
-    </span>
-  )
+  // eslint-disable-next-line @next/next/no-img-element -- tiny static icon in the admin
+  return <img src="/icon.png" alt="" width={24} height={24} className="sgbr-admin-icon" />
 }

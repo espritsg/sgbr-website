@@ -8,7 +8,8 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 - Admin: SGBR-Logo auf der Anmeldeseite, SGBR-Zeichen im Menü und als Favicon; Mail-Vorschau zusätzlich als Karte im Dashboard.
 - Eine Mail-Vorlage im SGBR-Stil (Logo als PNG, eckig, Navy, dunkler Fuss) für Newsletter, Anmeldebestätigung und jetzt auch Formular-Mails.
-- Börsenkurse: bei wenig Platz langsame Laufschrift, an beiden Rändern ausgeblendet.
+- Börsenkurse: auf grossen Bildschirmen über die ganze Breite verteilt, bei wenig Platz langsame Laufschrift, immer weich ausgeblendet an beiden Rändern; Datum mit kurzem Wochentag.
+- Admin-Zeichen im Menü ist das Favicon und wird nicht mehr abgeschnitten.
 
 ### Geändert (2026-11-23, dritte Runde)
 

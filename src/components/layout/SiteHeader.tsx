@@ -44,7 +44,8 @@ export async function SiteHeader({ header, footer }: Props) {
   const locale = await getLocale()
   const today = new Intl.DateTimeFormat(locale === 'de' ? 'de-CH' : 'en-GB', {
     timeZone: 'Europe/Zurich',
-    weekday: 'long',
+    // Short weekday, so the market bar next to it fits in one line on large screens.
+    weekday: 'short',
     day: 'numeric',
     month: 'long',
     year: 'numeric',

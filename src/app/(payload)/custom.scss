@@ -11,18 +11,14 @@ html[data-theme='dark'] .sgbr-admin-logo {
 }
 
 .sgbr-admin-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 28px;
-  height: 28px;
-  padding: 4px;
-  background: #17415b;
-  color: #ffffff;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
 
-  svg {
-    width: 100%;
-    height: auto;
-  }
+// Payload's slot for the icon is 18 px; slightly larger so the square stays recognisable.
+.step-nav__home {
+  width: 24px;
+  height: 24px;
 }
