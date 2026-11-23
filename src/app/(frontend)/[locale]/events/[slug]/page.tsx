@@ -143,7 +143,7 @@ export default async function EventPage({ params }: Props) {
                   <p className="mt-3 max-w-2xl text-[0.9375rem] leading-relaxed text-muted">
                     {applyIntro}
                   </p>
-                  <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+                  <div className="mt-6 flex flex-col items-start gap-2.5">
                     <FormDialogButton dialogId="apply-form">
                       {applyIcon}
                       {applyLabel}

@@ -1,20 +1,36 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import type { MarketQuote } from '@/lib/market'
 
 const REFRESH_MS = 5 * 60 * 1000
 
 /**
- * Market snapshot between the date and the tools in the masthead (wide screens only).
+ * Market snapshot between the date and the tools in the masthead (from tablet width).
  * Loads after the page, refreshes every five minutes and stays empty if there is no data.
+ * Always one line: centred while it fits, otherwise left-aligned and faded out on the right.
  */
 export function MarketBar() {
   const t = useTranslations('market')
   const locale = useLocale()
   const [quotes, setQuotes] = useState<MarketQuote[]>([])
+  const [overflowing, setOverflowing] = useState(false)
+  const box = useRef<HTMLElement>(null)
+  const row = useRef<HTMLUListElement>(null)
+
+  useEffect(() => {
+    const container = box.current
+    if (!container || !('ResizeObserver' in window)) return
+    const measure = () =>
+      setOverflowing((row.current?.scrollWidth ?? 0) > container.clientWidth + 1)
+    const observer = new ResizeObserver(measure)
+    observer.observe(container)
+    if (row.current) observer.observe(row.current)
+    measure()
+    return () => observer.disconnect()
+  }, [quotes.length])
 
   useEffect(() => {
     let active = true
@@ -39,15 +55,23 @@ export function MarketBar() {
   const tag = locale === 'de' ? 'de-CH' : 'en-GB'
   return (
     <section
+      ref={box}
       aria-label={t('label')}
-      className="hidden min-w-0 flex-1 justify-center overflow-hidden lg:flex"
+      className={`hidden min-w-0 flex-1 overflow-hidden md:flex ${
+        overflowing
+          ? 'justify-start [mask-image:linear-gradient(to_right,#000_calc(100%-4rem),transparent)]'
+          : 'justify-center'
+      }`}
     >
       {quotes.length > 0 && (
-        <ul className="flex items-center gap-x-6 whitespace-nowrap text-xs tabular-nums [animation:sgbr-fade-in_300ms_var(--ease-out-soft)]">
+        <ul
+          ref={row}
+          className="flex w-max shrink-0 items-center gap-x-6 whitespace-nowrap text-xs tabular-nums [animation:sgbr-fade-in_300ms_var(--ease-out-soft)]"
+        >
           {quotes.map((quote) => {
             const up = quote.changePercent >= 0
             return (
-              <li key={quote.symbol} className="flex items-baseline gap-1.5">
+              <li key={quote.symbol} className="flex shrink-0 items-baseline gap-1.5">
                 <span className="font-semibold text-text">{quote.label}</span>
                 <span className="text-muted">
                   {quote.price.toLocaleString(tag, {

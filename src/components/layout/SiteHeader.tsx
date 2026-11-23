@@ -14,29 +14,18 @@ import { MenuDrawer } from './MenuDrawer'
 import { SearchOverlay } from './SearchOverlay'
 import { StickyHeader } from './StickyHeader'
 import { ThemeToggle } from './ThemeToggle'
-import { TopicsMenu, type TopicGroup } from './TopicsMenu'
+import { TopicsMenu, type TopicLink } from './TopicsMenu'
 
 type Props = { header: Header; footer: Footer }
 
 const TOPICS_HREF = '/topics'
 
-/** Main topics with their sub-topics, in the order set in the admin. */
-function topicGroups(topics: Topic[]): TopicGroup[] {
-  const parentOf = (topic: Topic) =>
-    typeof topic.parent === 'object' ? topic.parent?.id : topic.parent
-  return topics
-    .filter((topic) => !topic.parent)
-    .map((main) => ({
-      id: main.id,
-      title: main.title,
-      slug: main.slug,
-      children: topics
-        .filter((topic) => parentOf(topic) === main.id)
-        .map(({ id, title, slug }) => ({ id, title, slug })),
-    }))
+/** Main topics for the nav dropdown and the drawer, in the order set in the admin. */
+function mainTopics(topics: Topic[]): TopicLink[] {
+  return topics.filter((topic) => !topic.parent).map(({ id, title, slug }) => ({ id, title, slug }))
 }
 
-function Tools({ header, footer, groups }: Props & { groups: TopicGroup[] }) {
+function Tools({ header, footer, topics }: Props & { topics: TopicLink[] }) {
   return (
     <div className="flex items-center">
       <SearchOverlay />
@@ -44,7 +33,7 @@ function Tools({ header, footer, groups }: Props & { groups: TopicGroup[] }) {
         <LanguageSwitcher />
       </Suspense>
       <ThemeToggle />
-      <MenuDrawer navItems={header.navItems ?? []} footer={footer} topics={groups} />
+      <MenuDrawer navItems={header.navItems ?? []} footer={footer} topics={topics} />
     </div>
   )
 }
@@ -61,7 +50,7 @@ export async function SiteHeader({ header, footer }: Props) {
     year: 'numeric',
   }).format(new Date())
   const nav = header.navItems ?? []
-  const groups = topicGroups(await getTopics(locale as AppLocale))
+  const topics = mainTopics(await getTopics(locale as AppLocale))
 
   return (
     <>
@@ -77,7 +66,7 @@ export async function SiteHeader({ header, footer }: Props) {
             <span className="meta hidden shrink-0 capitalize sm:inline">{today}</span>
             <MarketBar />
             <div className="ml-auto shrink-0">
-              <Tools header={header} footer={footer} groups={groups} />
+              <Tools header={header} footer={footer} topics={topics} />
             </div>
           </div>
           <div className="flex justify-center pb-6 pt-2 md:pb-8 md:pt-4">
@@ -97,7 +86,7 @@ export async function SiteHeader({ header, footer }: Props) {
                   </AppLink>
                 )
                 return item.href === TOPICS_HREF ? (
-                  <TopicsMenu key={item.id ?? item.href} groups={groups}>
+                  <TopicsMenu key={item.id ?? item.href} topics={topics}>
                     {link}
                   </TopicsMenu>
                 ) : (
@@ -127,7 +116,7 @@ export async function SiteHeader({ header, footer }: Props) {
                 </AppLink>
               )
               return item.href === TOPICS_HREF ? (
-                <TopicsMenu key={item.id ?? item.href} groups={groups} compact>
+                <TopicsMenu key={item.id ?? item.href} topics={topics} compact>
                   {link}
                 </TopicsMenu>
               ) : (
@@ -135,7 +124,7 @@ export async function SiteHeader({ header, footer }: Props) {
               )
             })}
           </ul>
-          <Tools header={header} footer={footer} groups={groups} />
+          <Tools header={header} footer={footer} topics={topics} />
         </div>
       </StickyHeader>
     </>

@@ -10,13 +10,13 @@ import { iconButtonClass } from '../ui/Button'
 import { ArrowRight, List, X } from '../ui/icons'
 import { SocialLinks } from '../ui/SocialLinks'
 import { Logo } from './Logo'
-import type { TopicGroup } from './TopicsMenu'
+import type { TopicLink } from './TopicsMenu'
 
 type Props = {
   navItems: NonNullable<Header['navItems']>
   footer: Footer
   /** Main topics, listed under the "Topics" item. */
-  topics?: TopicGroup[]
+  topics?: TopicLink[]
 }
 
 export function MenuDrawer({ navItems, footer, topics = [] }: Props) {

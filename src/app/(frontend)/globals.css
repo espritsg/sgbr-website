@@ -60,7 +60,7 @@
   --sgbr-accent-hover: #0f2f43;
   --sgbr-on-accent: #ffffff;
   --sgbr-danger: #b42318;
-  --sgbr-success: #1a7f4b;
+  --sgbr-success: #15803d;
   color-scheme: light;
 }
 
@@ -76,7 +76,7 @@
   --sgbr-accent-hover: #b4d0e5;
   --sgbr-on-accent: #0f1417;
   --sgbr-danger: #f0877f;
-  --sgbr-success: #6fcf97;
+  --sgbr-success: #4ade80;
   color-scheme: dark;
 
   /* Re-declared so nested .dark areas (e.g. the footer) resolve the dark values too. */
@@ -143,6 +143,17 @@
   input[type='search']::-webkit-search-decoration {
     -webkit-appearance: none;
     appearance: none;
+  }
+
+  /* No browser spinners on number fields; all fields share one look. */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
   }
 
   ::selection {

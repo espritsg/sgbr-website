@@ -5,34 +5,31 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 
 import { Link } from '@/i18n/navigation'
 
-import { ArrowRight, CaretDown } from '../ui/icons'
+import { CaretDown } from '../ui/icons'
 
-export type TopicGroup = {
-  id: number
-  title: string
-  slug: string
-  children: Array<{ id: number; title: string; slug: string }>
-}
+export type TopicLink = { id: number; title: string; slug: string }
 
 type Props = {
-  groups: TopicGroup[]
+  /** Main topics only, in the order set in the admin. */
+  topics: TopicLink[]
   /** The nav link itself ("Topics"), rendered by the header. */
   children: ReactNode
-  /** compact: the sticky bar (smaller caret, no tab stop while hidden). */
+  /** Sticky bar: the caret is not a tab stop while the bar is hidden. */
   compact?: boolean
 }
 
 /**
- * Nav item with a full-width panel: one column per main topic, its sub-topics below.
- * Opens on hover (mouse) or with the caret button (touch, keyboard); Esc and a
- * click outside close it. The panel is positioned against the nearest positioned
- * ancestor, which is the masthead nav or the fixed sticky bar.
+ * "Topics" nav item with a small dropdown of the main topics, built like the
+ * language dropdown and set in the nav font. Opens on hover (mouse) or with the
+ * caret button (touch, keyboard: arrows, Esc); a click outside closes it.
  */
-export function TopicsMenu({ groups, children, compact = false }: Props) {
+export function TopicsMenu({ topics, children, compact = false }: Props) {
   const t = useTranslations('nav')
   const [open, setOpen] = useState(false)
-  const panelId = useId()
+  const menuId = useId()
   const root = useRef<HTMLLIElement>(null)
+  const caret = useRef<HTMLButtonElement>(null)
+  const items = useRef<Array<HTMLAnchorElement | null>>([])
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
@@ -40,48 +37,55 @@ export function TopicsMenu({ groups, children, compact = false }: Props) {
     const onPointer = (event: PointerEvent) => {
       if (!root.current?.contains(event.target as Node)) setOpen(false)
     }
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      setOpen(false)
-      root.current?.querySelector<HTMLButtonElement>('button[aria-controls]')?.focus()
-    }
     document.addEventListener('pointerdown', onPointer)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('pointerdown', onPointer)
-      document.removeEventListener('keydown', onKey)
-    }
+    return () => document.removeEventListener('pointerdown', onPointer)
   }, [open])
 
   useEffect(() => () => clearTimeout(closeTimer.current), [])
 
-  if (!groups.length) return <li>{children}</li>
+  if (!topics.length) return <li>{children}</li>
 
-  const onPointerEnter = (event: React.PointerEvent) => {
-    if (event.pointerType !== 'mouse') return
-    clearTimeout(closeTimer.current)
-    setOpen(true)
-  }
-  const onPointerLeave = (event: React.PointerEvent) => {
-    if (event.pointerType !== 'mouse') return
-    closeTimer.current = setTimeout(() => setOpen(false), 150)
+  function onKeyDown(event: React.KeyboardEvent) {
+    const index = items.current.findIndex((item) => item === document.activeElement)
+    if (event.key === 'Escape' && open) {
+      setOpen(false)
+      caret.current?.focus()
+    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (!open) setOpen(true)
+      const step = event.key === 'ArrowDown' ? 1 : -1
+      const next = index < 0 ? 0 : (index + step + topics.length) % topics.length
+      // Wait one frame so the list is visible before focusing.
+      requestAnimationFrame(() => items.current[next]?.focus())
+    }
   }
 
   return (
     <li
       ref={root}
-      className="flex items-center gap-1"
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
+      className="relative flex items-center gap-1"
+      onKeyDown={onKeyDown}
+      onPointerEnter={(event) => {
+        if (event.pointerType !== 'mouse') return
+        clearTimeout(closeTimer.current)
+        setOpen(true)
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType !== 'mouse') return
+        closeTimer.current = setTimeout(() => setOpen(false), 150)
+      }}
       onBlur={(event) => {
         if (!root.current?.contains(event.relatedTarget as Node)) setOpen(false)
       }}
     >
       {children}
       <button
+        ref={caret}
         type="button"
+        aria-haspopup="menu"
         aria-expanded={open}
-        aria-controls={panelId}
+        aria-controls={menuId}
         aria-label={t('topicsMenu')}
         tabIndex={compact ? -1 : undefined}
         onClick={() => setOpen((value) => !value)}
@@ -92,53 +96,29 @@ export function TopicsMenu({ groups, children, compact = false }: Props) {
           className={`size-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
-      <div
-        id={panelId}
-        hidden={!open}
-        // Any link click navigates away, so the panel closes with it.
-        onClick={(event) => (event.target as HTMLElement).closest('a') && setOpen(false)}
-        className="absolute inset-x-0 top-full z-50 border-y border-line bg-bg text-left normal-case tracking-normal shadow-[0_12px_32px_rgb(0_0_0/0.08)] [animation:sgbr-fade-in_160ms_var(--ease-out-soft)]"
-      >
-        <div className="container-page grid gap-8 py-8 sm:grid-cols-2 lg:grid-cols-4">
-          {groups.map((group) => (
-            <div key={group.id}>
+      {/* pt bridges the gap to the nav line, so the pointer can move down without closing. */}
+      <div hidden={!open} className="absolute left-0 top-full z-50 pt-3">
+        <ul
+          id={menuId}
+          role="menu"
+          className="w-60 border border-line bg-surface py-1 shadow-[0_8px_24px_rgb(0_0_0/0.08)] [animation:sgbr-fade-in_160ms_var(--ease-out-soft)]"
+        >
+          {topics.map((topic, index) => (
+            <li key={topic.id} role="none">
               <Link
-                href={`/topics/${group.slug}`}
-                className="font-serif text-lg font-semibold leading-snug text-text transition-colors hover:text-accent"
+                ref={(element) => {
+                  items.current[index] = element
+                }}
+                role="menuitem"
+                href={`/topics/${topic.slug}`}
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2.5 text-text transition-colors hover:bg-band hover:text-accent focus:bg-band focus:outline-none"
               >
-                {group.title}
+                {topic.title}
               </Link>
-              {group.children.length > 0 && (
-                <ul className="mt-3 space-y-2 border-t border-line pt-3">
-                  {group.children.map((child) => (
-                    <li key={child.id}>
-                      <Link
-                        href={`/topics/${child.slug}`}
-                        className="text-sm font-normal text-muted transition-colors hover:text-text"
-                      >
-                        {child.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            </li>
           ))}
-        </div>
-        <div className="container-page">
-          <div className="border-t border-line py-4">
-            <Link
-              href="/topics"
-              className="group inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-text transition-colors hover:text-accent"
-            >
-              {t('allTopics')}
-              <ArrowRight
-                aria-hidden
-                className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
-              />
-            </Link>
-          </div>
-        </div>
+        </ul>
       </div>
     </li>
   )

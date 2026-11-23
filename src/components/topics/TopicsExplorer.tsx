@@ -1,8 +1,9 @@
 import { getTranslations } from 'next-intl/server'
 
 import { ArticleCard } from '@/components/cards/ArticleCard'
+import { Listbox } from '@/components/forms/fields/Listbox'
 import { buttonClass } from '@/components/ui/Button'
-import { CaretDown, MagnifyingGlass, X } from '@/components/ui/icons'
+import { MagnifyingGlass, X } from '@/components/ui/icons'
 import { Pagination } from '@/components/ui/Pagination'
 import { PageTitle } from '@/components/ui/Section'
 import { Link } from '@/i18n/navigation'
@@ -108,28 +109,17 @@ export async function TopicsExplorer({
                 className="h-12 w-full border border-line bg-surface pl-11 pr-3.5 text-[0.9375rem] text-text transition-colors placeholder:text-muted hover:border-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
-            <label htmlFor="topics-type" className="sr-only">
-              {t('type')}
-            </label>
-            <div className="relative md:w-52">
-              <select
-                id="topics-type"
-                name="type"
-                defaultValue={type ?? ''}
-                className="h-12 w-full appearance-none border border-line bg-surface pl-3.5 pr-10 text-[0.9375rem] text-text transition-colors hover:border-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-              >
-                <option value="">{t('allTypes')}</option>
-                {postTypes.map((value) => (
-                  <option key={value} value={value}>
-                    {tArticle(`types.${value}`)}
-                  </option>
-                ))}
-              </select>
-              <CaretDown
-                aria-hidden
-                className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-muted"
-              />
-            </div>
+            <Listbox
+              id="topics-type"
+              name="type"
+              ariaLabel={t('type')}
+              defaultValue={type ?? ''}
+              options={[
+                { value: '', label: t('allTypes') },
+                ...postTypes.map((value) => ({ value, label: tArticle(`types.${value}`) })),
+              ]}
+              className="md:w-52"
+            />
             <button type="submit" className={buttonClass('primary', 'h-12 py-0 md:px-8')}>
               {t('submit')}
             </button>

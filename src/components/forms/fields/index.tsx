@@ -10,27 +10,32 @@ import {
   useState,
   type InputHTMLAttributes,
   type ReactNode,
-  type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from 'react'
 
-import { CaretDown, Check, FilePdf, UploadSimple } from '../../ui/icons'
+import { Check, FilePdf, UploadSimple } from '../../ui/icons'
+import { Listbox, type ListboxOption } from './Listbox'
+
+export { Listbox, type ListboxOption } from './Listbox'
 
 export const fieldClass =
   'block w-full border border-line bg-surface px-3.5 py-3 text-[0.9375rem] text-text transition-colors placeholder:text-muted hover:border-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent'
 
 export function Label({
   htmlFor,
+  id,
   children,
   required,
 }: {
   htmlFor?: string
+  id?: string
   children: ReactNode
   required?: boolean
 }) {
   return (
     <label
       htmlFor={htmlFor}
+      id={id}
       className="mb-1.5 block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-muted"
     >
       {children}
@@ -107,45 +112,35 @@ export function SelectField({
   error,
   className = '',
   id,
+  name,
+  required,
   options,
   placeholder,
-  ...props
-}: Base &
-  SelectHTMLAttributes<HTMLSelectElement> & {
-    options: Array<{ label: string; value: string }>
-    placeholder?: string
-  }) {
+}: Base & {
+  id?: string
+  name?: string
+  required?: boolean
+  options: ListboxOption[]
+  placeholder?: string
+}) {
   const fallback = useId()
   const inputId = id ?? fallback
   return (
     <div className={className}>
       {label && (
-        <Label htmlFor={inputId} required={props.required}>
+        <Label id={`${inputId}-label`} required={required}>
           {label}
         </Label>
       )}
-      <div className="relative">
-        <select
-          id={inputId}
-          className={`${fieldClass} appearance-none pr-10`}
-          defaultValue=""
-          aria-invalid={Boolean(error)}
-          {...props}
-        >
-          <option value="" disabled>
-            {placeholder ?? '—'}
-          </option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <CaretDown
-          aria-hidden
-          className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-muted"
-        />
-      </div>
+      <Listbox
+        id={inputId}
+        labelId={label ? `${inputId}-label` : undefined}
+        name={name}
+        required={required}
+        options={options}
+        placeholder={placeholder}
+        invalid={Boolean(error)}
+      />
       <FieldError>{error}</FieldError>
     </div>
   )

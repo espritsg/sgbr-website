@@ -61,7 +61,7 @@ Details: call-2026-11-21.md.
 - Artikelseite: Hero-Bild, Titel, Byline, Text in Lesebreite, Frage/Antwort-Block, Navigation vorher/nachher.
 - Topics-Seite: Übersicht und Themenseiten im selben Aufbau: Suche im Text, Filter nach Art, Themen und Unterthemen als gleiche Chips mit Anzahl, Artikelraster, Seitenzahlen.
 - Ausgaben: Raster mit Cover, Jahr, Tagline, „Read the issue“ oder PDF. Ausgabenseite mit Vorwort und Interview-Karten mit freigestellten Porträts.
-- Events: Zeilen mit Datumsblock, Name, Rolle, Firma, Zeit und Ort mit Icons, Firmenlogo; „Past Events“ mit Fotos und Recap-Link. Eventseite mit Logo im Kopf, Infozeile mit Icons; unter dem Text der Button „Fürs Dinner bewerben“ bzw. „Für den Talk bewerben“, solange die Bewerbung offen ist.
+- Events: Zeilen mit Datumsblock, Name, Rolle, Firma, Zeit und Ort mit Icons, Firmenlogo; „Past Events“ mit Fotos und Recap-Link. Eventseite mit Logo im Kopf, Infozeile mit Icons; unter dem Text der Button (Frist darunter) „Fürs Dinner bewerben“ bzw. „Für den Talk bewerben“, solange die Bewerbung offen ist.
 - Personenseite: Foto, Rolle, alle Interviews und Events.
 - Newsletter-Seite: eine Spalte, zentriert: Titel, ein Satz, Formular mit Interessen-Kacheln, darunter frühere Newsletter.
 - About: Mission, Teamfoto, Personenraster nach Gruppe.
@@ -99,8 +99,8 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 
 | Komponente | Datei | Hinweise |
 | --- | --- | --- |
-| Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Börsenkurse (`MarketBar.tsx`, nur breite Bildschirme), Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
-| Themen-Menü | `layout/TopicsMenu.tsx` | „Themen“ in der Rubrikenleiste und im Sticky-Header klappt eine Fläche über die volle Breite auf: eine Spalte pro Haupt-Thema mit seinen Unterthemen, unten „Alle Themen“. Öffnet bei Mausberührung oder per Pfeil-Button (Touch, Tastatur), Esc und Klick daneben schliessen. Im Menü-Drawer stehen die Haupt-Themen unter „Themen“ |
+| Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Börsenkurse (`MarketBar.tsx`, ab Tablet-Breite, immer einzeilig: zentriert, solange Platz ist, sonst links bündig und rechts ausgeblendet), Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
+| Themen-Menü | `layout/TopicsMenu.tsx` | kleines Dropdown unter „Themen“ (Rubrikenleiste und Sticky-Header) mit den vier Haupt-Themen, in der Schrift der Navigation, gebaut wie das Sprach-Dropdown. Öffnet bei Mausberührung oder per Pfeil-Button (Touch, Tastatur), Esc und Klick daneben schliessen. Im Menü-Drawer stehen die Haupt-Themen unter „Themen“ |
 | Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile (Einwilligung so breit wie Feld und Button zusammen), drei Linkspalten |
 | Artikel-Teaser | `cards/ArticleCard.tsx` | Varianten `lead`, `standard`, `horizontal`, `compact` (mit Rangnummer); immer Dachzeile, Titel, Kurzzusammenfassung, Byline |
 | Themen | `topics/TopicsExplorer.tsx` | Übersicht und Themenseite in einem Aufbau, damit nichts springt: Suche, Art, Themen-Chips, darunter in eigener Zeile „Nach Unterthema filtern“ mit den Unterthemen, Raster |
@@ -112,7 +112,7 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 | Buttons | `ui/Button.tsx` | `primary`, `secondary`, `ghost`, eckig, mit Ladezustand; `iconButtonClass` für Icon-Buttons (Hover-Fläche) |
 | Icons | `ui/icons.ts` | alle aus **Phosphor** (`@phosphor-icons/react`, Gewicht regular), einzeln importiert; keine eigenen SVGs, keine Pfeil-Zeichen im Text ([ADR 0019](entscheidungen/0019-icons-phosphor.md)) |
 | Social Links | `ui/SocialLinks.tsx` | Icon + Name (LinkedIn, Instagram, YouTube, X, Spotify), Footer und Menü |
-| Formularfelder | `forms/fields/index.tsx` | Eingabe, Auswahl, Textfeld, Checkbox, Interessen-Kacheln, PDF-Upload mit Drag & Drop |
+| Formularfelder | `forms/fields/index.tsx` | Eingabe, Auswahl, Textfeld, Checkbox, Interessen-Kacheln, PDF-Upload mit Drag & Drop. Keine Browser-Bedienelemente: Auswahlfelder sind eine eigene Liste (`fields/Listbox.tsx`, Tastatur mit Pfeilen, Enter, Esc und Tippen springt zum Eintrag; der Wert steckt in einem normalen Formularfeld), Zahlenfelder ohne Pfeile, Suchfelder ohne Browser-X |
 | Suche | `layout/SearchOverlay.tsx`, `[locale]/search`, `search/SearchResult.tsx` | Overlay mit Schliessen-Icon und Live-Vorschlägen (Pfeiltasten), Suchseite mit Filter nach Art; Treffer überall gleich: Icon der Art, Art, Titel, Auszug, Hervorhebung |
 
 ### Regeln für Linien und Raster

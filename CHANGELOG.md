@@ -7,10 +7,13 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 ### Geändert (2026-11-23, dritte Runde)
 
 - Börsenkurse im Kopf zwischen Datum und Werkzeugen wie auf der alten Seite (S&P 500, DAX, Nikkei 225, Hang Seng, EUR/USD), neuer Endpunkt `/api/market` ([ADR 0020](docs/entscheidungen/0020-boersenkurse.md)).
-- Themen-Menü in der Navigation: Haupt-Themen mit Unterthemen als aufklappende Fläche, im Menü-Drawer die Haupt-Themen.
 - Eventseite: kein Bewerben-Button mehr im Kopf, nur noch unter dem Text.
 - Themen: „Nach Unterthema filtern“ in eigener Zeile über den Unterthemen.
 - Footer-Newsletter: Einwilligung so breit wie Feld und Button zusammen.
+- Themen-Menü vereinfacht: kleines Dropdown mit den vier Haupt-Themen in der Schrift der Navigation.
+- Eigene Auswahlfelder statt der Browser-Selects (Themenfilter, Formulare), Zahlenfelder ohne Pfeile.
+- Börsenkurse: kräftigeres Grün, bleiben einzeilig und blenden rechts aus, wenn der Platz nicht reicht.
+- Eventseite: Bewerbungsfrist unter dem Button.
 
 ### Geändert (2026-11-23, zweite Runde)
 
