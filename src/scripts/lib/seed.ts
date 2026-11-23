@@ -87,7 +87,23 @@ export async function seedForms(payload: Payload): Promise<{ contact: Id; applic
           required: true,
           width: 50,
         },
-        { blockType: 'number', name: 'semester', label: 'Semester', required: false, width: 50 },
+        {
+          blockType: 'select',
+          name: 'semester',
+          label: 'Semester',
+          required: true,
+          width: 50,
+          placeholder: 'Please choose',
+          options: [
+            ...[1, 2, 3, 4, 5, 6].map((n) => ({
+              label: `Bachelor, ${n}. semester`,
+              value: `bachelor-${n}`,
+            })),
+            ...[1, 2, 3, 4].map((n) => ({ label: `Master, ${n}. semester`, value: `master-${n}` })),
+            { label: 'PhD', value: 'phd' },
+            { label: 'Other', value: 'other' },
+          ],
+        },
         {
           blockType: 'textarea',
           name: 'motivation',
@@ -222,7 +238,7 @@ export async function seedPages(
       aboutLayout.push({
         blockType: 'imageText',
         image,
-        imagePosition: 'left',
+        imagePosition: 'full',
         content: plainTextToLexical(caption ? stripTags(caption) : teamPhoto[2]),
       })
     }

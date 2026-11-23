@@ -5,7 +5,10 @@ import { useId, useState, type ReactNode } from 'react'
 
 import { Link } from '@/i18n/navigation'
 
+import { Button } from '../ui/Button'
+import { SuccessMessage } from '../newsletter/NewsletterSignup'
 import { countries } from './countries'
+import { Checkbox, FileDrop, SelectField, TextArea, TextInput } from './fields'
 
 export type FormField = {
   blockType:
@@ -44,8 +47,9 @@ type Props = {
 
 type State = 'idle' | 'sending' | 'done' | 'error' | 'limited'
 
-const inputClass = 'w-full rounded-lg border border-line bg-surface px-4 py-2.5 text-text'
+const DEFAULT_MAX_BYTES = 4 * 1024 * 1024
 
+/** Renders a form from the form builder with the site's field components (docs/formulare.md). */
 export function FormClient({
   formId,
   eventId,
@@ -59,7 +63,6 @@ export function FormClient({
   const t = useTranslations('forms')
   const id = useId()
   const [state, setState] = useState<State>('idle')
-  const [fileError, setFileError] = useState<string | null>(null)
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -71,11 +74,7 @@ export function FormClient({
       if (!field.name || field.blockType === 'message') continue
       if (field.blockType === 'upload') {
         for (const file of data.getAll(field.name)) {
-          if (!(file instanceof File) || file.size === 0) continue
-          if (field.maxFileSize && file.size > field.maxFileSize)
-            return setFileError(t('fileTooLarge'))
-          if (file.type !== 'application/pdf') return setFileError(t('fileWrongType'))
-          body.append(field.name, file)
+          if (file instanceof File && file.size > 0) body.append(field.name, file)
         }
         continue
       }
@@ -87,7 +86,6 @@ export function FormClient({
           : (data.get(field.name)?.toString() ?? '')
       submissionData.push({ field: field.name, value })
     }
-    setFileError(null)
     body.append(
       '_payload',
       JSON.stringify({
@@ -108,7 +106,7 @@ export function FormClient({
       if (response.status === 429) return setState('limited')
       if (!response.ok) return setState('error')
       if (confirmationType === 'redirect' && redirectUrl) {
-        window.location.href = redirectUrl
+        window.location.assign(redirectUrl)
         return
       }
       setState('done')
@@ -117,28 +115,19 @@ export function FormClient({
     }
   }
 
-  if (state === 'done') {
-    return (
-      <div role="status" className="rounded-card border border-line bg-surface p-6">
-        {confirmation}
-      </div>
-    )
-  }
+  if (state === 'done') return <SuccessMessage>{confirmation}</SuccessMessage>
 
   let messageIndex = 0
   return (
-    <form onSubmit={submit} className="grid grid-cols-2 gap-4">
+    <form onSubmit={submit} className="grid grid-cols-2 gap-x-4 gap-y-5">
       {fields.map((field, index) => {
         const key = `${field.blockType}-${field.name ?? index}`
-        const half = field.width && field.width <= 50
-        const wrapper = `col-span-2 ${half ? 'sm:col-span-1' : ''}`
-        const fieldId = `${id}-${field.name}`
-        const label = (
-          <label htmlFor={fieldId} className="mb-1 block text-sm font-medium">
-            {field.label}
-            {field.required && <span className="text-accent"> *</span>}
-          </label>
-        )
+        const span = field.width && field.width <= 50 ? 'col-span-2 sm:col-span-1' : 'col-span-2'
+        const common = {
+          name: field.name,
+          label: field.label ?? undefined,
+          required: Boolean(field.required),
+        }
         switch (field.blockType) {
           case 'message':
             return (
@@ -147,112 +136,72 @@ export function FormClient({
               </div>
             )
           case 'textarea':
-            return (
-              <div key={key} className={wrapper}>
-                {label}
-                <textarea
-                  id={fieldId}
-                  name={field.name}
-                  required={Boolean(field.required)}
-                  rows={6}
-                  className={inputClass}
-                />
-              </div>
-            )
+            return <TextArea key={key} {...common} className={span} />
           case 'select':
             return (
-              <div key={key} className={wrapper}>
-                {label}
-                <select
-                  id={fieldId}
-                  name={field.name}
-                  required={Boolean(field.required)}
-                  className={inputClass}
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    {field.placeholder || '—'}
-                  </option>
-                  {(field.options ?? []).map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <SelectField
+                key={key}
+                {...common}
+                options={field.options ?? []}
+                placeholder={field.placeholder ?? t('choose')}
+                className={span}
+              />
             )
           case 'country':
             return (
-              <div key={key} className={wrapper}>
-                {label}
-                <select
-                  id={fieldId}
-                  name={field.name}
-                  required={Boolean(field.required)}
-                  className={inputClass}
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    —
-                  </option>
-                  {countries.map((country) => (
-                    <option key={country.value} value={country.value}>
-                      {country.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <SelectField
+                key={key}
+                {...common}
+                options={countries}
+                placeholder={t('choose')}
+                className={span}
+              />
             )
           case 'checkbox':
             return (
-              <label key={key} className="col-span-2 flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name={field.name}
-                  required={Boolean(field.required)}
-                  className="mt-0.5 size-4 shrink-0 accent-accent"
-                />
-                <span>
-                  {field.label}
-                  {field.required && <span className="text-accent"> *</span>}
-                </span>
-              </label>
+              <Checkbox
+                key={key}
+                name={field.name}
+                required={Boolean(field.required)}
+                className="col-span-2"
+              >
+                {field.label}
+              </Checkbox>
             )
           case 'upload':
             return (
               <div key={key} className="col-span-2">
-                {label}
-                <input
-                  id={fieldId}
-                  name={field.name}
-                  type="file"
-                  accept="application/pdf,.pdf"
-                  multiple={Boolean(field.multiple)}
+                <FileDrop
+                  name={field.name ?? 'file'}
+                  label={field.label ?? undefined}
                   required={Boolean(field.required)}
-                  className="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-accent"
+                  maxBytes={field.maxFileSize || DEFAULT_MAX_BYTES}
+                  texts={{
+                    choose: t('chooseFile'),
+                    drop: t('dropFile'),
+                    hint: t('fileHint'),
+                    remove: t('removeFile'),
+                    tooLarge: t('fileTooLarge'),
+                    wrongType: t('fileWrongType'),
+                  }}
                 />
-                <p className="mt-1 text-xs text-muted">{t('fileHint')}</p>
               </div>
             )
           default:
             return (
-              <div key={key} className={wrapper}>
-                {label}
-                <input
-                  id={fieldId}
-                  name={field.name}
-                  type={
-                    field.blockType === 'email'
-                      ? 'email'
-                      : field.blockType === 'number'
-                        ? 'number'
-                        : 'text'
-                  }
-                  required={Boolean(field.required)}
-                  autoComplete={field.blockType === 'email' ? 'email' : undefined}
-                  className={inputClass}
-                />
-              </div>
+              <TextInput
+                key={key}
+                {...common}
+                type={
+                  field.blockType === 'email'
+                    ? 'email'
+                    : field.blockType === 'number'
+                      ? 'number'
+                      : 'text'
+                }
+                autoComplete={field.blockType === 'email' ? 'email' : undefined}
+                className={span}
+              />
             )
         }
       })}
@@ -261,38 +210,29 @@ export function FormClient({
         <label htmlFor={`${id}-website`}>Website</label>
         <input id={`${id}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
-      <p className="col-span-2 text-xs text-muted">
+      <p className="meta col-span-2">
         {t.rich('privacy', {
           link: (chunks) => (
-            <Link href="/privacy" className="underline hover:text-text">
+            <Link href="/privacy" className="underline underline-offset-2 hover:text-text">
               {chunks}
             </Link>
           ),
         })}
       </p>
-      {fileError && (
-        <p role="alert" className="col-span-2 text-sm text-red-700 dark:text-red-300">
-          {fileError}
-        </p>
-      )}
       {state === 'error' && (
-        <p role="alert" className="col-span-2 text-sm text-red-700 dark:text-red-300">
+        <p role="alert" className="col-span-2 text-sm text-danger">
           {t('error')}
         </p>
       )}
       {state === 'limited' && (
-        <p role="alert" className="col-span-2 text-sm text-red-700 dark:text-red-300">
+        <p role="alert" className="col-span-2 text-sm text-danger">
           {t('tooManyRequests')}
         </p>
       )}
       <div className="col-span-2">
-        <button
-          type="submit"
-          disabled={state === 'sending'}
-          className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60"
-        >
+        <Button type="submit" loading={state === 'sending'}>
           {state === 'sending' ? t('submitting') : submitLabel || t('submit')}
-        </button>
+        </Button>
       </div>
     </form>
   )

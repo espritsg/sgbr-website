@@ -3,6 +3,10 @@
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
+import { ChoiceTile } from '../forms/fields'
+import { Button } from '../ui/Button'
+import { SuccessMessage } from './NewsletterSignup'
+
 export function PreferencesForm({
   token,
   interests,
@@ -13,11 +17,12 @@ export function PreferencesForm({
   unsubscribed: boolean
 }) {
   const t = useTranslations('newsletter')
-  const [state, setState] = useState<'idle' | 'saved' | 'unsubscribed' | 'error'>(
+  const [state, setState] = useState<'idle' | 'sending' | 'saved' | 'unsubscribed' | 'error'>(
     unsubscribed ? 'unsubscribed' : 'idle',
   )
 
   async function post(body: Record<string, unknown>) {
+    setState('sending')
     const response = await fetch('/api/newsletter/preferences', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -26,69 +31,55 @@ export function PreferencesForm({
     return response.ok
   }
 
-  if (state === 'unsubscribed')
-    return (
-      <p role="status" className="rounded-card bg-band p-5">
-        {t('unsubscribed')}
-      </p>
-    )
+  if (state === 'unsubscribed') return <SuccessMessage>{t('unsubscribed')}</SuccessMessage>
 
   return (
     <form
-      className="max-w-xl space-y-6"
+      className="max-w-2xl space-y-6"
       onSubmit={async (event) => {
         event.preventDefault()
         const selected = new FormData(event.currentTarget).getAll('interests')
         setState((await post({ interests: selected })) ? 'saved' : 'error')
       }}
     >
-      <fieldset className="space-y-3">
-        <legend className="mb-2 font-medium">{t('interests')}</legend>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
+      <fieldset>
+        <legend className="mb-2 text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-muted">
+          {t('interests')}
+        </legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ChoiceTile
             name="interests"
             value="newsletter"
             defaultChecked={interests.includes('newsletter')}
-            className="size-4 accent-accent"
+            title={t('interestNewsletter')}
+            description={t('interestNewsletterText')}
           />
-          {t('interestNewsletter')}
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
+          <ChoiceTile
             name="interests"
             value="events"
             defaultChecked={interests.includes('events')}
-            className="size-4 accent-accent"
+            title={t('interestEvents')}
+            description={t('interestEventsText')}
           />
-          {t('interestEvents')}
-        </label>
+        </div>
       </fieldset>
-      <div className="flex flex-wrap gap-4">
-        <button
-          type="submit"
-          className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
-        >
+      <div className="flex flex-wrap items-center gap-4">
+        <Button type="submit" loading={state === 'sending'}>
           {t('save')}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
           onClick={async () =>
             setState((await post({ unsubscribe: true })) ? 'unsubscribed' : 'error')
           }
-          className="rounded-full border border-line px-6 py-2.5 text-sm font-semibold hover:border-accent"
         >
           {t('unsubscribe')}
-        </button>
+        </Button>
       </div>
-      {state === 'saved' && (
-        <p role="status" className="text-sm text-muted">
-          {t('saved')}
-        </p>
-      )}
+      {state === 'saved' && <SuccessMessage>{t('saved')}</SuccessMessage>}
       {state === 'error' && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
+        <p role="alert" className="text-sm text-danger">
           {t('error')}
         </p>
       )}

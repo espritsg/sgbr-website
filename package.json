@@ -27,7 +27,8 @@
     "build:vercel": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && npm run build",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
-    "migrate:wp": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/migrate.ts"
+    "migrate:wp": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/migrate.ts",
+    "seed:forms": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/seed-forms.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.12.0",

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 
+import { Logo } from '../layout/Logo'
 import { NewsletterSignup } from './NewsletterSignup'
 
 const DISMISSED_KEY = 'sgbr-newsletter-popup'
@@ -43,23 +44,50 @@ export function NewsletterPopup({ delaySeconds }: { delaySeconds: number }) {
     <dialog
       ref={dialog}
       onCancel={close}
+      onClick={(event) => event.target === dialog.current && close()}
       aria-labelledby="newsletter-popup-title"
-      className="m-auto w-[min(34rem,calc(100%-2rem))] rounded-card bg-bg p-8 text-text backdrop:bg-black/40"
+      className="m-auto w-[min(32rem,calc(100%-2rem))] border-t-4 border-accent bg-bg p-0 text-text"
     >
-      <h2 id="newsletter-popup-title" className="font-serif text-3xl">
-        {t('popupTitle')}
-      </h2>
-      <p className="mt-2 text-sm text-muted">{t('intro')}</p>
-      <div className="mt-6">
-        <NewsletterSignup source="popup" onDone={() => window.setTimeout(close, 4000)} />
+      <div className="p-8">
+        <div className="flex items-start justify-between gap-4">
+          <Logo className="h-8 w-auto text-navy dark:text-text" />
+          <button
+            type="button"
+            onClick={close}
+            aria-label={t('popupClose')}
+            className="-mr-2 -mt-2 inline-flex size-9 items-center justify-center text-muted hover:text-text"
+          >
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              className="size-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+        <h2 id="newsletter-popup-title" className="headline-lg mt-6">
+          {t('popupTitle')}
+        </h2>
+        <p className="mt-2 text-sm text-muted">{t('intro')}</p>
+        <div className="mt-6">
+          <NewsletterSignup
+            source="popup"
+            variant="compact"
+            onDone={() => window.setTimeout(close, 4000)}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={close}
+          className="meta mt-5 underline underline-offset-4 hover:text-text"
+        >
+          {t('popupClose')}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={close}
-        className="mt-4 text-sm text-muted underline hover:text-text"
-      >
-        {t('popupClose')}
-      </button>
     </dialog>
   )
 }

@@ -5,13 +5,43 @@ import { useId, useState } from 'react'
 
 import { Link } from '@/i18n/navigation'
 
+import { Checkbox, ChoiceTile, fieldClass, TextInput } from '../forms/fields'
+import { Button } from '../ui/Button'
+
 type Props = {
   source: 'footer' | 'popup' | 'newsletter-page'
-  variant?: 'full' | 'compact'
+  /** inline: one line (footer); full: newsletter page; compact: popup. */
+  variant?: 'inline' | 'full' | 'compact'
   onDone?: () => void
 }
 
 type State = 'idle' | 'sending' | 'done' | 'error' | 'limited'
+
+/** Animated check mark for the success message. */
+export function SuccessMessage({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      role="status"
+      className="flex items-start gap-3 border-l-2 border-accent py-1 pl-4 [animation:sgbr-fade-in_300ms_var(--ease-out-soft)]"
+    >
+      <svg
+        aria-hidden
+        viewBox="0 0 24 24"
+        className="mt-0.5 size-5 shrink-0 text-accent"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path
+          d="M4 12.5 9.5 18 20 6"
+          strokeDasharray="24"
+          style={{ animation: 'sgbr-check 500ms 150ms var(--ease-out-soft) both' }}
+        />
+      </svg>
+      <p className="text-sm leading-relaxed text-text">{children}</p>
+    </div>
+  )
+}
 
 /**
  * Newsletter signup with double opt-in (docs/newsletter.md). The response is the
@@ -27,6 +57,7 @@ export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
+    const interests = form.getAll('interests')
     setState('sending')
     try {
       const response = await fetch('/api/newsletter/subscribe', {
@@ -35,7 +66,7 @@ export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
         body: JSON.stringify({
           email: form.get('email'),
           firstName: form.get('firstName') || undefined,
-          interests: form.getAll('interests'),
+          interests: interests.length ? interests : ['newsletter'],
           consent: form.get('consent') === 'on',
           website: form.get('website'),
           locale,
@@ -50,20 +81,45 @@ export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
     }
   }
 
-  if (state === 'done') {
-    return (
-      <p role="status" className="rounded-card bg-band p-5 text-text">
-        {t('success')}
-      </p>
-    )
-  }
+  if (state === 'done') return <SuccessMessage>{t('success')}</SuccessMessage>
 
-  const compact = variant === 'compact'
-  return (
-    <form onSubmit={submit} className="space-y-4" noValidate={false}>
-      <div className={compact ? 'flex flex-col gap-3 sm:flex-row' : 'grid gap-3 sm:grid-cols-2'}>
-        <div className="flex-1">
-          <label htmlFor={`${id}-email`} className="mb-1 block text-sm font-medium">
+  const consent = (
+    <Checkbox name="consent" required className="text-muted">
+      {t.rich('consent', {
+        link: (chunks) => (
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-text">
+            {chunks}
+          </Link>
+        ),
+      })}
+    </Checkbox>
+  )
+  const honeypot = (
+    <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+      <label htmlFor={`${id}-website`}>Website</label>
+      <input id={`${id}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
+    </div>
+  )
+  const messages = (
+    <>
+      {state === 'error' && (
+        <p role="alert" className="text-sm text-danger">
+          {t('error')}
+        </p>
+      )}
+      {state === 'limited' && (
+        <p role="alert" className="text-sm text-danger">
+          {tForms('tooManyRequests')}
+        </p>
+      )}
+    </>
+  )
+
+  if (variant === 'inline') {
+    return (
+      <form onSubmit={submit} className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <label htmlFor={`${id}-email`} className="sr-only">
             {t('email')}
           </label>
           <input
@@ -72,87 +128,55 @@ export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
             type="email"
             required
             autoComplete="email"
-            className="w-full rounded-lg border border-line bg-surface px-4 py-2.5 text-text"
+            placeholder={t('email')}
+            className={`${fieldClass} sm:flex-1`}
           />
+          <input type="hidden" name="interests" value="newsletter" />
+          <Button type="submit" loading={state === 'sending'} className="sm:px-7">
+            {t('submit')}
+          </Button>
         </div>
-        {!compact && (
-          <div>
-            <label htmlFor={`${id}-first`} className="mb-1 block text-sm font-medium">
-              {t('firstName')}
-            </label>
-            <input
-              id={`${id}-first`}
-              name="firstName"
-              type="text"
-              autoComplete="given-name"
-              className="w-full rounded-lg border border-line bg-surface px-4 py-2.5 text-text"
-            />
-          </div>
+        {honeypot}
+        {consent}
+        {messages}
+      </form>
+    )
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-5">
+      <div className={variant === 'full' ? 'grid gap-4 sm:grid-cols-2' : 'space-y-4'}>
+        <TextInput name="email" type="email" required autoComplete="email" label={t('email')} />
+        {variant === 'full' && (
+          <TextInput name="firstName" autoComplete="given-name" label={t('firstName')} />
         )}
       </div>
-      {/* Honeypot: invisible to people, bots fill it in. */}
-      <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
-        <label htmlFor={`${id}-website`}>Website</label>
-        <input id={`${id}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" />
-      </div>
       <fieldset>
-        <legend className="mb-2 text-sm font-medium">{t('interests')}</legend>
-        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="interests"
-              value="newsletter"
-              defaultChecked
-              className="size-4 accent-accent"
-            />
-            {t('interestNewsletter')}
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="interests"
-              value="events"
-              className="size-4 accent-accent"
-            />
-            {t('interestEvents')}
-          </label>
+        <legend className="mb-2 text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-muted">
+          {t('interests')}
+        </legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ChoiceTile
+            name="interests"
+            value="newsletter"
+            defaultChecked
+            title={t('interestNewsletter')}
+            description={t('interestNewsletterText')}
+          />
+          <ChoiceTile
+            name="interests"
+            value="events"
+            title={t('interestEvents')}
+            description={t('interestEventsText')}
+          />
         </div>
       </fieldset>
-      <label className="flex items-start gap-2 text-sm text-muted">
-        <input
-          type="checkbox"
-          name="consent"
-          required
-          className="mt-0.5 size-4 shrink-0 accent-accent"
-        />
-        <span>
-          {t.rich('consent', {
-            link: (chunks) => (
-              <Link href="/privacy" className="underline hover:text-text">
-                {chunks}
-              </Link>
-            ),
-          })}
-        </span>
-      </label>
-      <button
-        type="submit"
-        disabled={state === 'sending'}
-        className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60"
-      >
+      {honeypot}
+      {consent}
+      <Button type="submit" loading={state === 'sending'}>
         {state === 'sending' ? t('submitting') : t('submit')}
-      </button>
-      {state === 'error' && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
-          {t('error')}
-        </p>
-      )}
-      {state === 'limited' && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
-          {tForms('tooManyRequests')}
-        </p>
-      )}
+      </Button>
+      {messages}
     </form>
   )
 }
