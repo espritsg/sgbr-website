@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { IssueCard, IssueCover } from '@/components/cards/IssueCard'
+import { ArrowRight } from '@/components/ui/icons'
 import { Reveal } from '@/components/ui/Reveal'
 import { PageTitle, SectionHeader } from '@/components/ui/Section'
 import { Link } from '@/i18n/navigation'
@@ -28,15 +29,15 @@ export default async function IssuesPage({ params }: Props) {
   const archive = issues.filter((issue) => issue.format === 'pdf')
   return (
     <>
-      <PageTitle title={t('title')} intro={t('intro')} />
+      <PageTitle title={t('title')} />
       <section className="container-page">
         <SectionHeader title={t('digital')} />
-        <div className="grid gap-10 md:grid-cols-2 md:gap-0 md:divide-x md:divide-line">
+        <div className="grid gap-10 md:-mx-8 md:grid-cols-2 md:gap-0 md:divide-x md:divide-line">
           {digital.map((issue) => (
             <Link
               key={issue.id}
               href={`/issues/${issue.slug}`}
-              className="group grid grid-cols-[9rem_1fr] gap-6 md:px-8 md:first:pl-0 md:last:pr-0 lg:grid-cols-[12rem_1fr]"
+              className="group grid grid-cols-[9rem_1fr] gap-6 md:px-8 lg:grid-cols-[12rem_1fr]"
             >
               <IssueCover issue={issue} sizes="200px" />
               <div>
@@ -50,8 +51,12 @@ export default async function IssuesPage({ params }: Props) {
                     {issue.description}
                   </p>
                 )}
-                <span className="meta mt-4 inline-block font-semibold text-text!">
-                  {t('readIssue')} →
+                <span className="mt-4 inline-flex items-center gap-1.5 text-[0.8125rem] font-semibold transition-colors group-hover:text-accent">
+                  {t('readIssue')}
+                  <ArrowRight
+                    aria-hidden
+                    className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
                 </span>
               </div>
             </Link>

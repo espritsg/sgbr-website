@@ -2,14 +2,18 @@ import { getLocale, getTranslations } from 'next-intl/server'
 
 import { Link } from '@/i18n/navigation'
 import { SITE_TIME_ZONE } from '@/lib/dates'
+import { applicationState } from '@/lib/events'
 import { formatTime } from '@/lib/format'
-import type { Event, Person } from '@/payload-types'
+import type { Event, Media, Person } from '@/payload-types'
+
+import { Clock, ForkKnife, MapPin } from '../ui/icons'
+import { MediaImage } from '../ui/MediaImage'
 
 export function speakerOf(event: Event): Person | null {
   return typeof event.speaker === 'object' ? event.speaker : null
 }
 
-function dateParts(date: string, locale: string) {
+export function dateParts(date: string, locale: string) {
   const format = (options: Intl.DateTimeFormatOptions) =>
     new Intl.DateTimeFormat(locale === 'de' ? 'de-CH' : 'en-GB', {
       timeZone: SITE_TIME_ZONE,
@@ -23,49 +27,87 @@ function dateParts(date: string, locale: string) {
   }
 }
 
-/** One speaker event as a row: date block | speaker | time and place. Same everywhere. */
+/** Company logo on a fixed plate, so logos of any shape line up (event rows and pages). */
+export function LogoPlate({
+  logo,
+  className = 'h-14 w-32',
+}: {
+  logo: Media | number | null | undefined
+  className?: string
+}) {
+  if (!logo || typeof logo !== 'object') return null
+  return (
+    <div
+      className={`flex shrink-0 items-center justify-center border border-line bg-bg px-3 py-2 dark:border-transparent dark:bg-[#eef1f3] ${className}`}
+    >
+      <div className="relative size-full">
+        <MediaImage media={logo} size="card" fill sizes="224px" className="object-contain" />
+      </div>
+    </div>
+  )
+}
+
+/**
+ * One speaker event as a row, the same on every page: date block | speaker with time
+ * and place | company logo. All columns are vertically centred.
+ */
 export async function EventRow({ event, showYear = false }: { event: Event; showYear?: boolean }) {
   const t = await getTranslations('events')
   const locale = await getLocale()
   const speaker = speakerOf(event)
   const date = dateParts(event.startsAt, locale)
+  const dinner = event.applicationFor === 'dinner' && applicationState(event).state === 'open'
   return (
-    <article className="group grid grid-cols-[4.5rem_1fr] gap-x-5 gap-y-3 border-b border-line py-5 sm:grid-cols-[5rem_1fr_19rem]">
+    <article className="group grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-x-5 py-5 sm:grid-cols-[5rem_minmax(0,1fr)_auto] sm:gap-x-8">
       <time
         dateTime={event.startsAt}
-        className="row-span-2 flex flex-col items-start sm:row-span-1"
+        className="flex aspect-square flex-col items-center justify-center border border-line text-center transition-colors duration-200 group-hover:border-accent"
       >
-        <span className="kicker text-muted!">{date.weekday}</span>
-        <span className="font-serif text-4xl font-semibold leading-none">{date.day}</span>
-        <span className="kicker mt-1">
+        <span className="text-[0.625rem] font-bold uppercase tracking-[0.12em] text-muted">
+          {date.weekday}
+        </span>
+        <span className="font-serif text-[2rem] font-semibold leading-none">{date.day}</span>
+        <span className="kicker mt-0.5 text-[0.625rem]">
           {date.month}
-          {showYear && ` ${date.year}`}
+          {showYear && ` ${date.year.slice(-2)}`}
         </span>
       </time>
-      <div>
+      <div className="min-w-0">
         <h3 className="headline-md">
           <Link href={`/events/${event.slug}`} className="link-headline">
             {event.title || speaker?.name}
           </Link>
         </h3>
-        {speaker &&
-          (event.title ? <p className="mt-1 text-sm font-semibold">{speaker.name}</p> : null)}
         {speaker && (
           <p className="meta mt-1">
-            {[speaker.role, speaker.organization].filter(Boolean).join(' · ')}
+            {[event.title ? speaker.name : null, speaker.role, speaker.organization]
+              .filter(Boolean)
+              .join(' · ')}
           </p>
         )}
+        <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[0.8125rem] text-text">
+          <li className="inline-flex items-center gap-1.5">
+            <Clock aria-hidden className="size-4 text-muted" />
+            <span className="sr-only">{t('time')}: </span>
+            {formatTime(event.startsAt, locale)}
+            {showYear && <span className="text-muted">· {date.year}</span>}
+          </li>
+          {event.location && (
+            <li className="inline-flex min-w-0 items-center gap-1.5">
+              <MapPin aria-hidden className="size-4 shrink-0 text-muted" />
+              <span className="sr-only">{t('place')}: </span>
+              <span className="truncate">{event.location}</span>
+            </li>
+          )}
+          {dinner && (
+            <li className="inline-flex items-center gap-1.5 font-semibold text-accent">
+              <ForkKnife aria-hidden className="size-4" />
+              {t('dinnerOpen')}
+            </li>
+          )}
+        </ul>
       </div>
-      <dl className="grid grid-cols-[3.5rem_1fr] gap-x-3 gap-y-1 text-sm sm:border-l sm:border-line sm:pl-5">
-        <dt className="kicker pt-0.5 text-muted!">{t('time')}</dt>
-        <dd>{formatTime(event.startsAt, locale)}</dd>
-        {event.location && (
-          <>
-            <dt className="kicker pt-0.5 text-muted!">{t('place')}</dt>
-            <dd>{event.location}</dd>
-          </>
-        )}
-      </dl>
+      <LogoPlate logo={speaker?.organizationLogo} className="hidden h-14 w-32 sm:flex" />
     </article>
   )
 }

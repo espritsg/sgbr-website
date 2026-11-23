@@ -18,7 +18,7 @@ function Tools({ header, footer }: Props) {
   return (
     <div className="flex items-center">
       <SearchOverlay />
-      <Suspense fallback={<span className="w-12" />}>
+      <Suspense fallback={<span className="w-14" />}>
         <LanguageSwitcher />
       </Suspense>
       <ThemeToggle />
@@ -57,11 +57,7 @@ export async function SiteHeader({ header, footer }: Props) {
             </div>
           </div>
           <div className="flex justify-center pb-6 pt-2 md:pb-8 md:pt-4">
-            <Link
-              href="/"
-              aria-label={t('site.name')}
-              className="text-navy transition-opacity hover:opacity-80 dark:text-text"
-            >
+            <Link href="/" aria-label={t('site.name')} className="text-navy dark:text-text">
               <Logo className="h-12 w-auto md:h-[4.5rem]" />
             </Link>
           </div>

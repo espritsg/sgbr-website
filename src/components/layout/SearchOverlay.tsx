@@ -3,16 +3,13 @@
 import { useLocale, useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 
-import { Link, useRouter } from '@/i18n/navigation'
+import { useRouter } from '@/i18n/navigation'
+
+import { SearchResult, searchPathFor as pathFor } from '../search/SearchResult'
+import { iconButtonClass } from '../ui/Button'
+import { ArrowRight, MagnifyingGlass, X } from '../ui/icons'
 
 type Suggestion = { id: number; title: string; slug: string; excerpt?: string; collection: string }
-
-const pathFor: Record<string, string> = {
-  posts: '/article',
-  issues: '/issues',
-  events: '/events',
-  people: '/people',
-}
 
 /** Search panel below the header with live suggestions from the search index. */
 export function SearchOverlay() {
@@ -46,7 +43,7 @@ export function SearchOverlay() {
         'where[or][0][title][like]': term,
         'where[or][1][excerpt][like]': term,
         locale,
-        limit: '6',
+        limit: '8',
         depth: '0',
         sort: 'priority',
       })
@@ -97,19 +94,9 @@ export function SearchOverlay() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={tNav('search')}
-        className="inline-flex size-9 items-center justify-center text-text transition-colors hover:text-accent"
+        className={iconButtonClass}
       >
-        <svg
-          aria-hidden
-          viewBox="0 0 24 24"
-          className="size-[18px]"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-        >
-          <circle cx="11" cy="11" r="7" />
-          <path d="M20 20l-3.5-3.5" />
-        </svg>
+        <MagnifyingGlass aria-hidden className="size-5" />
       </button>
       <dialog
         ref={dialog}
@@ -118,7 +105,15 @@ export function SearchOverlay() {
         aria-label={t('title')}
         className="m-0 mt-0 h-auto max-h-none w-full max-w-none border-b border-line bg-bg p-0 text-text"
       >
-        <div className="container-page py-8 md:py-12">
+        <div className="container-page relative py-8 md:py-12">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label={tNav('close')}
+            className={`${iconButtonClass} absolute right-3 top-3 md:right-8 md:top-4`}
+          >
+            <X aria-hidden className="size-5" />
+          </button>
           <form
             role="search"
             onSubmit={(event) => {
@@ -130,8 +125,9 @@ export function SearchOverlay() {
               const term = query.trim()
               if (term) go(`/search?q=${encodeURIComponent(term)}`)
             }}
-            className="flex items-end gap-4 border-b-2 border-rule pb-3"
+            className="mt-6 flex items-center gap-4 border-b-2 border-rule pb-3 md:mt-4"
           >
+            <MagnifyingGlass aria-hidden className="size-7 shrink-0 text-muted md:size-9" />
             <label htmlFor="site-search" className="sr-only">
               {t('title')}
             </label>
@@ -157,48 +153,44 @@ export function SearchOverlay() {
               aria-activedescendant={active >= 0 ? `suggestion-${active}` : undefined}
               className="w-full bg-transparent font-serif text-3xl outline-none placeholder:text-muted md:text-5xl"
             />
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="meta shrink-0 uppercase tracking-wider hover:text-text"
-            >
-              {tNav('close')} ✕
-            </button>
           </form>
           {visibleResults.length > 0 && (
-            <ul role="listbox" className="mt-2 divide-y divide-line">
+            <ul role="listbox" className="mt-4 grid gap-x-6 md:grid-cols-2">
               {visibleResults.map((result, index) => (
                 <li
                   key={result.id}
                   id={`suggestion-${index}`}
                   role="option"
                   aria-selected={index === active}
+                  className="border-b border-line"
                 >
-                  <Link
-                    href={`${pathFor[result.collection]}/${result.slug}`}
-                    onClick={() => setOpen(false)}
-                    className={`grid grid-cols-[6rem_1fr] gap-4 py-3 transition-colors ${index === active ? 'bg-band' : 'hover:bg-band'}`}
-                  >
-                    <span className="kicker pl-2 pt-1">{t(`types.${result.collection}`)}</span>
-                    <span>
-                      <span className="headline-sm block">{result.title}</span>
-                      {result.excerpt && (
-                        <span className="meta line-clamp-1">{result.excerpt}</span>
-                      )}
-                    </span>
-                  </Link>
+                  <SearchResult
+                    {...result}
+                    size="sm"
+                    query={query}
+                    typeLabel={t(`types.${result.collection}`)}
+                    active={index === active}
+                    onNavigate={() => setOpen(false)}
+                  />
                 </li>
               ))}
             </ul>
           )}
           {query.trim().length >= 2 && (
-            <button
-              type="button"
-              onClick={() => go(`/search?q=${encodeURIComponent(query.trim())}`)}
-              className="meta mt-4 font-semibold text-text underline underline-offset-4"
-            >
-              {t('allResults')} →
-            </button>
+            <div className="mt-6 flex items-center justify-between gap-4">
+              <p className="meta">{visibleResults.length ? t('topHits') : t('noHits')}</p>
+              <button
+                type="button"
+                onClick={() => go(`/search?q=${encodeURIComponent(query.trim())}`)}
+                className="group inline-flex items-center gap-2 text-sm font-semibold text-text hover:text-accent"
+              >
+                {t('allResults')}
+                <ArrowRight
+                  aria-hidden
+                  className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                />
+              </button>
+            </div>
           )}
         </div>
       </dialog>

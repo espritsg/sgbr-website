@@ -14,6 +14,8 @@ import {
   type TextareaHTMLAttributes,
 } from 'react'
 
+import { CaretDown, Check, FilePdf, UploadSimple } from '../../ui/icons'
+
 export const fieldClass =
   'block w-full border border-line bg-surface px-3.5 py-3 text-[0.9375rem] text-text transition-colors placeholder:text-muted hover:border-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent'
 
@@ -139,16 +141,10 @@ export function SelectField({
             </option>
           ))}
         </select>
-        <svg
+        <CaretDown
           aria-hidden
-          viewBox="0 0 12 12"
-          className="pointer-events-none absolute right-3.5 top-1/2 size-3 -translate-y-1/2 text-muted"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        >
-          <path d="M3 4.5 6 7.5 9 4.5" />
-        </svg>
+          className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-muted"
+        />
       </div>
       <FieldError>{error}</FieldError>
     </div>
@@ -169,15 +165,7 @@ export function Checkbox({
         aria-hidden
         className="mt-px flex size-[18px] shrink-0 items-center justify-center border border-muted bg-surface transition-colors group-hover:border-text peer-checked:border-accent peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100"
       >
-        <svg
-          viewBox="0 0 12 12"
-          className="size-3 text-on-accent transition-opacity"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path d="M2.5 6.5 5 9l4.5-5.5" />
-        </svg>
+        <Check weight="bold" className="size-3 text-on-accent transition-opacity" />
       </span>
       <span>
         {children}
@@ -200,15 +188,7 @@ export function ChoiceTile({
         aria-hidden
         className="mt-0.5 flex size-[18px] shrink-0 items-center justify-center border border-muted transition-colors peer-checked:border-accent peer-checked:bg-accent [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100"
       >
-        <svg
-          viewBox="0 0 12 12"
-          className="size-3 text-on-accent"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path d="M2.5 6.5 5 9l4.5-5.5" />
-        </svg>
+        <Check weight="bold" className="size-3 text-on-accent" />
       </span>
       <span>
         <span className="block text-sm font-semibold text-text">{title}</span>
@@ -306,12 +286,7 @@ export function FileDrop({
         {file ? (
           <div className="relative z-10 flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <span
-                aria-hidden
-                className="flex h-10 w-8 shrink-0 items-center justify-center border border-accent text-[0.5625rem] font-bold text-accent"
-              >
-                PDF
-              </span>
+              <FilePdf aria-hidden className="size-9 shrink-0 text-accent" />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold">{file.name}</span>
                 <span className="meta">{formatSize(file.size)}</span>
@@ -327,16 +302,7 @@ export function FileDrop({
           </div>
         ) : (
           <div className="pointer-events-none flex items-center gap-4">
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              className="size-7 shrink-0 text-muted"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.4"
-            >
-              <path d="M12 16V4m0 0-4 4m4-4 4 4M5 15v4h14v-4" />
-            </svg>
+            <UploadSimple aria-hidden className="size-7 shrink-0 text-muted" />
             <span>
               <span className="block text-sm">
                 <span className="font-semibold text-accent underline underline-offset-4">

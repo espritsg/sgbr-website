@@ -65,7 +65,15 @@
     "title": "Themen",
     "all": "Alle",
     "filter": "Nach Unterthema filtern",
-    "empty": "Zu diesem Thema gibt es noch keine Artikel."
+    "empty": "Zu diesem Thema gibt es noch keine Artikel.",
+    "allTitle": "Alle Themen",
+    "searchPlaceholder": "In Artikeln suchen …",
+    "searchLabel": "In Artikeln suchen",
+    "type": "Art",
+    "allTypes": "Alle Arten",
+    "count": "{count, plural, =0 {Keine Artikel} one {# Artikel} other {# Artikel}}",
+    "reset": "Filter zurücksetzen",
+    "submit": "Suchen"
   },
   "issues": {
     "title": "Ausgaben",
@@ -75,8 +83,7 @@
     "downloadPdf": "PDF herunterladen",
     "foreword": "Vorwort",
     "inThisIssue": "In dieser Ausgabe",
-    "editors": "Redaktion",
-    "intro": "Alle Ausgaben der St. Gallen Business Review seit 2004: digitale Ausgaben und das PDF-Archiv."
+    "editors": "Redaktion"
   },
   "events": {
     "title": "Speaker Events",
@@ -96,7 +103,15 @@
     "languageLabel": "Sprache",
     "speaker": "Speaker",
     "applyIntro": "Studierende der Universität St. Gallen können sich für einen Platz bewerben.",
-    "intro": "Persönlichkeiten aus Wirtschaft, Finanzen und Politik an der Universität St. Gallen, im Gespräch mit Studierenden."
+    "dinnerOpen": "Dinner: Bewerbung offen",
+    "applyDinner": "Fürs Dinner bewerben",
+    "applyEvent": "Für den Talk bewerben",
+    "applyIntroDinner": "Der Talk ist für alle Studierenden offen, ohne Anmeldung. Eine kleine Gruppe isst danach mit dem Speaker zu Abend: Hier können Sie sich für einen Platz bewerben.",
+    "applyIntroEvent": "Die Plätze für den Talk sind begrenzt. Studierende der Universität St. Gallen können sich für einen Platz bewerben.",
+    "about": "Zum Talk",
+    "profile": "Zum Profil",
+    "kicker": "Speaker Event",
+    "back": "Alle Speaker Events"
   },
   "people": {
     "interviews": "Interviews",
@@ -131,12 +146,8 @@
     "sentOn": "Versendet am {date}",
     "interestNewsletterText": "Einmal im Monat: neue Interviews und Gastbeiträge.",
     "interestEventsText": "Einladungen zu unseren Speaker Events in St. Gallen.",
-    "benefits": [
-      "Monatlich, nie öfter",
-      "Gastbeiträge, bevor sie online erscheinen",
-      "Einladungen zu Speaker Events"
-    ],
-    "benefitsTitle": "Das erhalten Sie"
+    "archiveTitle": "Frühere Newsletter",
+    "privacyNote": "Kein Spam. Abmelden mit einem Klick."
   },
   "forms": {
     "submit": "Absenden",
@@ -168,7 +179,9 @@
     "allResults": "Alle Ergebnisse anzeigen",
     "filterAll": "Alle",
     "noResults": "Nichts gefunden. Versuchen Sie ein anderes Wort oder stöbern Sie in den Themen.",
-    "suggestions": "Beliebte Themen"
+    "suggestions": "Beliebte Themen",
+    "topHits": "Beste Treffer",
+    "noHits": "Noch keine direkten Treffer."
   },
   "footer": {
     "esprit": "Die St. Gallen Business Review ist ein Projekt von ESPRIT St. Gallen.",
@@ -189,5 +202,11 @@
   "contact": {
     "address": "Adresse",
     "email": "E-Mail"
+  },
+  "pagination": {
+    "label": "Seiten",
+    "previous": "Vorherige Seite",
+    "next": "Nächste Seite",
+    "status": "Seite {page} von {totalPages}"
   }
 }

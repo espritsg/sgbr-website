@@ -5,6 +5,8 @@ import type { Footer, Header } from '@/payload-types'
 
 import { NewsletterSignup } from '../newsletter/NewsletterSignup'
 import { AppLink } from '../ui/AppLink'
+import { Rss } from '../ui/icons'
+import { SocialLinks } from '../ui/SocialLinks'
 import { Logo } from './Logo'
 
 /** Dark footer with logo, newsletter line and link columns. Same look in light and dark mode. */
@@ -15,29 +17,31 @@ export async function SiteFooter({ footer, header }: { footer: Footer; header: H
     'text-sm text-[#e9edf0] underline decoration-transparent underline-offset-4 transition-colors hover:decoration-current'
   return (
     <footer className="dark mt-24 bg-petrol text-text">
+      {/* Newsletter strip: text and form on one axis, consent under the field. */}
+      <div className="border-b border-white/15">
+        <div className="container-page grid gap-8 py-12 md:grid-cols-[1fr_minmax(0,1.15fr)] md:items-center md:gap-16">
+          <div>
+            <p className={columnTitle}>{t('newsletter.title')}</p>
+            <h2 className="font-serif text-[1.75rem] font-semibold leading-tight text-[#ffffff]">
+              {t('newsletter.popupTitle')}
+            </h2>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-[#b9c6d0]">
+              {footer.newsletterText || t('newsletter.intro')}
+            </p>
+          </div>
+          <NewsletterSignup source="footer" variant="inline" />
+        </div>
+      </div>
       <div className="container-page">
-        <div className="grid gap-10 border-b border-white/15 py-14 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+        <div className="grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:gap-8">
           <div>
             <Link href="/" aria-label={t('site.name')} className="inline-block text-[#ffffff]">
-              <Logo className="h-12 w-auto" />
+              <Logo className="h-11 w-auto" />
             </Link>
-            <p className="mt-6 max-w-md text-sm leading-relaxed text-[#b9c6d0]">
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-[#b9c6d0]">
               {footer.espritNote || t('footer.esprit')}
             </p>
           </div>
-          <div>
-            <h2 className="font-serif text-2xl font-semibold text-[#ffffff]">
-              {t('newsletter.title')}
-            </h2>
-            <p className="mt-2 max-w-lg text-sm text-[#b9c6d0]">
-              {footer.newsletterText || t('newsletter.intro')}
-            </p>
-            <div className="mt-5">
-              <NewsletterSignup source="footer" variant="inline" />
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-8 py-10 md:grid-cols-4">
           <div>
             <p className={columnTitle}>{t('footer.sections')}</p>
             <ul className="space-y-2.5">
@@ -64,25 +68,18 @@ export async function SiteFooter({ footer, header }: { footer: Footer; header: H
           </div>
           <div>
             <p className={columnTitle}>{t('footer.follow')}</p>
-            <ul className="space-y-2.5">
-              {(footer.socialLinks ?? []).map((link) => (
-                <li key={link.id ?? link.url}>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${columnLink} capitalize`}
-                  >
-                    {link.platform}
-                  </a>
-                </li>
-              ))}
-              <li>
-                <a href="/en/feed.xml" className={columnLink}>
-                  RSS
-                </a>
-              </li>
-            </ul>
+            <SocialLinks
+              links={footer.socialLinks ?? []}
+              className="space-y-2.5"
+              linkClassName={columnLink}
+            />
+            <a
+              href="/en/feed.xml"
+              className={`${columnLink} mt-2.5 inline-flex items-center gap-2.5`}
+            >
+              <Rss aria-hidden className="size-5" />
+              RSS
+            </a>
           </div>
         </div>
         <div className="flex flex-wrap justify-between gap-4 border-t border-white/15 py-6 text-xs text-[#8fa1ae]">

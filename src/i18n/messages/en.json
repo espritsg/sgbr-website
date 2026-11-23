@@ -65,7 +65,15 @@
     "title": "Topics",
     "all": "All",
     "filter": "Filter by sub-topic",
-    "empty": "No articles in this topic yet."
+    "empty": "No articles in this topic yet.",
+    "allTitle": "All topics",
+    "searchPlaceholder": "Search in articles…",
+    "searchLabel": "Search in articles",
+    "type": "Type",
+    "allTypes": "All types",
+    "count": "{count, plural, =0 {No articles} one {# article} other {# articles}}",
+    "reset": "Reset filters",
+    "submit": "Search"
   },
   "issues": {
     "title": "Issues",
@@ -75,8 +83,7 @@
     "downloadPdf": "Download PDF",
     "foreword": "Foreword",
     "inThisIssue": "In this issue",
-    "editors": "Editors",
-    "intro": "Every issue of the St. Gallen Business Review since 2004: digital issues and the PDF archive."
+    "editors": "Editors"
   },
   "events": {
     "title": "Speaker Events",
@@ -96,7 +103,15 @@
     "languageLabel": "Language",
     "speaker": "Speaker",
     "applyIntro": "Students of the University of St. Gallen can apply for a seat.",
-    "intro": "Leaders from business, finance and politics at the University of St. Gallen, in conversation with students."
+    "dinnerOpen": "Dinner: applications open",
+    "applyDinner": "Apply for the dinner",
+    "applyEvent": "Apply to attend",
+    "applyIntroDinner": "The talk is open to all students, no registration needed. A small group can join the speaker for dinner afterwards: apply here for a seat.",
+    "applyIntroEvent": "Seats for the talk are limited. Students of the University of St. Gallen can apply for a seat.",
+    "about": "About the talk",
+    "profile": "Speaker profile",
+    "kicker": "Speaker Event",
+    "back": "All speaker events"
   },
   "people": {
     "interviews": "Interviews",
@@ -131,12 +146,8 @@
     "sentOn": "Sent on {date}",
     "interestNewsletterText": "Once a month: new interviews and guest articles.",
     "interestEventsText": "Invitations to our speaker events in St. Gallen.",
-    "benefits": [
-      "Monthly, never more",
-      "Guest articles before they appear online",
-      "Invitations to speaker events"
-    ],
-    "benefitsTitle": "What you get"
+    "archiveTitle": "Past newsletters",
+    "privacyNote": "No spam. One click to unsubscribe."
   },
   "forms": {
     "submit": "Submit",
@@ -168,7 +179,9 @@
     "allResults": "Show all results",
     "filterAll": "All",
     "noResults": "Nothing found. Try another word or browse the topics.",
-    "suggestions": "Popular topics"
+    "suggestions": "Popular topics",
+    "topHits": "Top results",
+    "noHits": "No direct matches yet."
   },
   "footer": {
     "esprit": "The St. Gallen Business Review is a project of ESPRIT St. Gallen.",
@@ -189,5 +202,11 @@
   "contact": {
     "address": "Address",
     "email": "Email"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "status": "Page {page} of {totalPages}"
   }
 }

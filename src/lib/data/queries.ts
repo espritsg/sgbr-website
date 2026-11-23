@@ -64,6 +64,55 @@ export async function getPostsByTopic(locale: AppLocale, topicIds: number[], pag
   return { ...result, docs: result.docs as Post[] }
 }
 
+export type PostFilter = {
+  topicIds?: number[]
+  query?: string
+  type?: Post['type']
+  page?: number
+  limit?: number
+}
+
+/** Article list of the topics page: topic, free text (title or summary) and type combine. */
+export async function findPosts(locale: AppLocale, filter: PostFilter) {
+  const { payload, options } = await client(locale)
+  const and: Where[] = []
+  if (filter.topicIds?.length) and.push({ topics: { in: filter.topicIds } })
+  if (filter.type) and.push({ type: { equals: filter.type } })
+  const query = filter.query?.trim()
+  if (query) and.push({ or: [{ title: { like: query } }, { summary: { like: query } }] })
+  const result = await payload.find({
+    collection: 'posts',
+    ...options,
+    where: and.length ? { and } : undefined,
+    sort: '-publishedAt',
+    page: filter.page ?? 1,
+    limit: filter.limit ?? 12,
+    depth: CARD_DEPTH,
+    select: cardSelect,
+  })
+  return { ...result, docs: result.docs as Post[] }
+}
+
+/** Number of published articles per topic id (a main topic counts its sub-topics too). */
+export async function countPostsByTopic(
+  locale: AppLocale,
+  groups: Array<{ id: number; topicIds: number[] }>,
+): Promise<Map<number, number>> {
+  const { payload, options } = await client(locale)
+  const counts = await Promise.all(
+    groups.map(async (group) => {
+      const { totalDocs } = await payload.count({
+        collection: 'posts',
+        locale: options.locale,
+        overrideAccess: options.overrideAccess,
+        where: { topics: { in: group.topicIds } },
+      })
+      return [group.id, totalDocs] as const
+    }),
+  )
+  return new Map(counts)
+}
+
 export async function getPost(locale: AppLocale, slug: string): Promise<Post | null> {
   const { payload, options } = await client(locale)
   const result = await payload.find({

@@ -7,7 +7,9 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { locales, type AppLocale } from '@/i18n/routing'
 
-/** Language dropdown (EN ▾). Slugs are the same in both languages, so the path stays. */
+import { Check, CaretDown } from '../ui/icons'
+
+/** Language dropdown ("EN" with a caret). Slugs are the same in both languages, so the path stays. */
 export function LanguageSwitcher() {
   const locale = useLocale() as AppLocale
   const t = useTranslations('language')
@@ -58,19 +60,13 @@ export function LanguageSwitcher() {
         aria-controls={menuId}
         aria-label={`${t('switch')}: ${t(locale)}`}
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex h-9 items-center gap-1 px-2 text-xs font-semibold uppercase tracking-wider text-text transition-colors hover:text-accent"
+        className="inline-flex h-10 items-center gap-1 px-2.5 text-xs font-semibold uppercase tracking-wider text-text transition-colors duration-200 hover:bg-band hover:text-accent"
       >
         {locale}
-        <svg
+        <CaretDown
           aria-hidden
-          viewBox="0 0 12 12"
-          className={`size-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        >
-          <path d="M3 4.5 6 7.5 9 4.5" />
-        </svg>
+          className={`size-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
       </button>
       <div
         id={menuId}
@@ -92,11 +88,7 @@ export function LanguageSwitcher() {
             className="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-text transition-colors hover:bg-band focus:bg-band focus:outline-none"
           >
             {t(code)}
-            {code === locale && (
-              <span aria-hidden className="text-accent">
-                ✓
-              </span>
-            )}
+            {code === locale && <Check aria-hidden className="size-4 text-accent" />}
           </button>
         ))}
       </div>

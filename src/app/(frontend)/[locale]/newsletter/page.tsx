@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup'
-import { PageTitle, SectionHeader } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/Section'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import { getNewsletterArchive } from '@/lib/data/queries'
@@ -24,58 +24,38 @@ export default async function NewsletterPage({ params }: Props) {
   setRequestLocale(locale)
   const t = await getTranslations('newsletter')
   const archive = await getNewsletterArchive(locale)
-  const benefits = t.raw('benefits') as string[]
   return (
     <>
-      <PageTitle kicker={t('title')} title={t('popupTitle')} intro={t('intro')} />
-      <section className="container-page">
-        <div className="grid gap-12 md:grid-cols-[1fr_1.5fr] md:gap-16">
-          <div>
-            <p className="kicker text-muted!">{t('benefitsTitle')}</p>
-            <ol className="mt-4 divide-y divide-line border-y border-line">
-              {benefits.map((benefit, index) => (
-                <li key={benefit} className="flex items-baseline gap-4 py-4">
-                  <span className="font-serif text-2xl font-semibold text-accent">{index + 1}</span>
-                  <span className="text-[0.9375rem]">{benefit}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <div className="border-t-2 border-rule pt-6">
-            <NewsletterSignup source="newsletter-page" variant="full" />
-          </div>
+      {/* One calm column: what it is, then the form. */}
+      <section className="container-reading pt-12 md:pt-16">
+        <div className="text-center">
+          <p className="kicker mb-3">{t('title')}</p>
+          <h1 className="display">{t('popupTitle')}</h1>
+          <p className="lead mx-auto mt-4 max-w-xl">{t('intro')}</p>
+        </div>
+        <div className="mt-10 border-t-2 border-rule pt-8">
+          <NewsletterSignup source="newsletter-page" variant="full" />
+          <p className="meta mt-6 text-center">{t('privacyNote')}</p>
         </div>
       </section>
-      <section className="container-page mt-16">
-        <SectionHeader title={t('archive')} />
-        {archive.length ? (
-          <ul className="border-t border-line">
+      {archive.length > 0 && (
+        <section className="container-reading mt-20">
+          <SectionHeader title={t('archiveTitle')} />
+          <ul className="divide-y divide-line">
             {archive.map((newsletter) => (
-              <li
-                key={newsletter.id}
-                className="grid gap-2 border-b border-line py-5 sm:grid-cols-[10rem_1fr]"
-              >
+              <li key={newsletter.id} className="py-4 first:pt-0">
                 <p className="meta">{newsletter.sentAt && formatDate(newsletter.sentAt, locale)}</p>
-                <div>
-                  <Link
-                    href={`/newsletter/${newsletter.slug}`}
-                    className="headline-md link-headline"
-                  >
-                    {newsletter.title}
-                  </Link>
-                  {newsletter.intro && (
-                    <p className="mt-1 line-clamp-2 text-[0.9375rem] text-muted">
-                      {newsletter.intro}
-                    </p>
-                  )}
-                </div>
+                <Link
+                  href={`/newsletter/${newsletter.slug}`}
+                  className="headline-sm mt-1 inline-block link-headline"
+                >
+                  {newsletter.title}
+                </Link>
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="meta">{t('archiveEmpty')}</p>
-        )}
-      </section>
+        </section>
+      )}
     </>
   )
 }

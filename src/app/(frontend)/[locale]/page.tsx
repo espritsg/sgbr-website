@@ -5,7 +5,8 @@ import { IssueCard, IssueCover } from '@/components/cards/IssueCard'
 import { EventRow } from '@/components/events/EventRow'
 import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup'
 import { Reveal } from '@/components/ui/Reveal'
-import { SectionHeader } from '@/components/ui/Section'
+import { ArrowRight } from '@/components/ui/icons'
+import { ArrowLink, SectionHeader } from '@/components/ui/Section'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
 import {
@@ -82,12 +83,9 @@ export default async function HomePage({ params }: Props) {
               {currentIssue.tagline && (
                 <p className="mt-1 font-serif text-lg italic text-muted">{currentIssue.tagline}</p>
               )}
-              <Link
-                href={`/issues/${currentIssue.slug}`}
-                className="meta mt-3 inline-block font-semibold text-text! underline underline-offset-4"
-              >
-                {tIssues('readIssue')} →
-              </Link>
+              <ArrowLink href={`/issues/${currentIssue.slug}`} className="mt-3">
+                {tIssues('readIssue')}
+              </ArrowLink>
             </div>
           )}
           <div className="order-first lg:order-none lg:px-8">
@@ -122,7 +120,7 @@ export default async function HomePage({ params }: Props) {
           link={{ href: '/events', label: t('allEvents') }}
         />
         {upcoming.length ? (
-          <div className="border-t border-line">
+          <div className="divide-y divide-line">
             {upcoming.map((event) => (
               <EventRow key={event.id} event={event} />
             ))}
@@ -148,16 +146,20 @@ export default async function HomePage({ params }: Props) {
       {topicPosts.some((entry) => entry.posts.length) && (
         <Reveal as="section" className="container-page mt-16">
           <SectionHeader title={t('byTopic')} link={{ href: '/topics', label: t('allTopics') }} />
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-line">
+          {/* Equal padding on every column (negative margin outside), so all images get the same size. */}
+          <div className="grid gap-10 sm:grid-cols-2 lg:-mx-6 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-line">
             {topicPosts.map(({ topic, posts }) =>
               posts.length ? (
-                <div key={topic.id} className="lg:px-6 lg:first:pl-0 lg:last:pr-0">
+                <div key={topic.id} className="lg:px-6">
                   <Link
                     href={`/topics/${topic.slug}`}
-                    className="mb-4 flex items-center justify-between border-b border-rule pb-2 text-xs font-bold uppercase tracking-[0.12em] hover:text-accent"
+                    className="group mb-4 flex items-center justify-between border-b border-rule pb-2 text-xs font-bold uppercase tracking-[0.12em] hover:text-accent"
                   >
                     {topic.title}
-                    <span aria-hidden>→</span>
+                    <ArrowRight
+                      aria-hidden
+                      className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                    />
                   </Link>
                   <ArticleCard post={posts[0]} />
                   {posts[1] && (
@@ -173,14 +175,14 @@ export default async function HomePage({ params }: Props) {
       )}
 
       {/* 5. Newsletter band */}
-      <Reveal as="section" className="container-page mt-16">
-        <div className="grid gap-8 border-y-2 border-rule py-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
-          <div>
-            <p className="kicker mb-2">{tNewsletter('title')}</p>
-            <h2 className="headline-lg">{tNewsletter('popupTitle')}</h2>
-            <p className="mt-3 text-muted">{tNewsletter('intro')}</p>
+      <Reveal as="section" className="container-page mt-20">
+        <div className="rule-top border-b border-line py-12 text-center md:py-14">
+          <p className="kicker mb-3">{tNewsletter('title')}</p>
+          <h2 className="headline-lg">{tNewsletter('popupTitle')}</h2>
+          <p className="mx-auto mt-3 max-w-xl text-muted">{tNewsletter('intro')}</p>
+          <div className="mx-auto mt-8 max-w-xl text-left">
+            <NewsletterSignup source="newsletter-page" variant="inline" align="center" />
           </div>
-          <NewsletterSignup source="newsletter-page" variant="inline" />
         </div>
       </Reveal>
     </>

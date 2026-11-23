@@ -7,8 +7,7 @@ import { IssueCover } from '@/components/cards/IssueCard'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
 import { RichText } from '@/components/richtext/RichText'
 import { ButtonLink } from '@/components/ui/Button'
-import { SectionHeader } from '@/components/ui/Section'
-import { Link } from '@/i18n/navigation'
+import { BackLink, SectionHeader } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
 import { getIssue, getPostsByIds } from '@/lib/data/queries'
 import { fileUrl } from '@/lib/media'
@@ -57,9 +56,9 @@ export default async function IssuePage({ params }: Props) {
             <IssueCover issue={issue} sizes="288px" />
           </div>
           <div className="self-end">
-            <Link href="/issues" className="kicker hover:underline">
-              ← {t('title')} · {issue.year}
-            </Link>
+            <BackLink href="/issues">
+              {t('title')} · {issue.year}
+            </BackLink>
             <h1 className="display mt-4">{issue.title}</h1>
             {issue.tagline && (
               <p className="mt-3 font-serif text-2xl italic text-muted">{issue.tagline}</p>

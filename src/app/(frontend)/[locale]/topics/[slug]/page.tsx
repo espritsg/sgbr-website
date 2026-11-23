@@ -1,21 +1,17 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { setRequestLocale } from 'next-intl/server'
 
-import { PostGrid } from '@/components/cards/PostGrid'
-import { PageTitle } from '@/components/ui/Section'
-import { Pagination } from '@/components/ui/Pagination'
-import { TopicTabs } from '@/components/ui/TopicTabs'
+import { TopicsExplorer, type TopicSearch } from '@/components/topics/TopicsExplorer'
 import type { AppLocale } from '@/i18n/routing'
-import { getPostsByTopic, getTopic, getTopics } from '@/lib/data/queries'
+import { getTopic, getTopics } from '@/lib/data/queries'
 import { buildMetadata } from '@/lib/seo'
-import type { Topic } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
 type Props = {
   params: Promise<{ locale: AppLocale; slug: string }>
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<TopicSearch>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -33,42 +29,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TopicPage({ params, searchParams }: Props) {
   const { locale, slug } = await params
   setRequestLocale(locale)
-  const page = Math.max(1, Number((await searchParams).page) || 1)
-  const t = await getTranslations('topics')
   const [topic, topics] = await Promise.all([getTopic(locale, slug), getTopics(locale)])
   if (!topic) notFound()
-
-  const parent = typeof topic.parent === 'object' ? (topic.parent as Topic | null) : null
-  const activeMain = parent ?? topic
-  const activeSub = parent ? topic : null
-  // A main topic shows its own articles plus those of its sub-topics.
-  const ids = activeSub
-    ? [topic.id]
-    : [
-        topic.id,
-        ...topics
-          .filter(
-            (item) =>
-              (typeof item.parent === 'object' ? item.parent?.id : item.parent) === topic.id,
-          )
-          .map((item) => item.id),
-      ]
-  const posts = await getPostsByTopic(locale, ids, page)
-
   return (
-    <>
-      <PageTitle
-        kicker={parent ? parent.title : t('title')}
-        title={topic.title}
-        intro={topic.description}
-      />
-      <TopicTabs topics={topics} activeMain={activeMain} activeSub={activeSub} />
-      {posts.docs.length ? (
-        <PostGrid posts={posts.docs} />
-      ) : (
-        <p className="container-page meta mt-10">{t('empty')}</p>
-      )}
-      <Pagination page={page} totalPages={posts.totalPages} basePath={`/topics/${slug}`} />
-    </>
+    <TopicsExplorer locale={locale} topics={topics} active={topic} search={await searchParams} />
   )
 }

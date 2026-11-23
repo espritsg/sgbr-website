@@ -7,11 +7,14 @@ import { Link } from '@/i18n/navigation'
 
 import { Checkbox, ChoiceTile, fieldClass, TextInput } from '../forms/fields'
 import { Button } from '../ui/Button'
+import { CheckCircle } from '../ui/icons'
 
 type Props = {
   source: 'footer' | 'popup' | 'newsletter-page'
   /** inline: one line (footer); full: newsletter page; compact: popup. */
   variant?: 'inline' | 'full' | 'compact'
+  /** inline only: centre the consent line under the field (newsletter band). */
+  align?: 'start' | 'center'
   onDone?: () => void
 }
 
@@ -24,20 +27,11 @@ export function SuccessMessage({ children }: { children: React.ReactNode }) {
       role="status"
       className="flex items-start gap-3 border-l-2 border-accent py-1 pl-4 [animation:sgbr-fade-in_300ms_var(--ease-out-soft)]"
     >
-      <svg
+      <CheckCircle
         aria-hidden
-        viewBox="0 0 24 24"
-        className="mt-0.5 size-5 shrink-0 text-accent"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          d="M4 12.5 9.5 18 20 6"
-          strokeDasharray="24"
-          style={{ animation: 'sgbr-check 500ms 150ms var(--ease-out-soft) both' }}
-        />
-      </svg>
+        weight="fill"
+        className="mt-0.5 size-5 shrink-0 text-accent [animation:sgbr-pop_420ms_120ms_var(--ease-out-soft)_both]"
+      />
       <p className="text-sm leading-relaxed text-text">{children}</p>
     </div>
   )
@@ -47,7 +41,7 @@ export function SuccessMessage({ children }: { children: React.ReactNode }) {
  * Newsletter signup with double opt-in (docs/newsletter.md). The response is the
  * same whether the address is new or known, so nobody learns who is subscribed.
  */
-export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
+export function NewsletterSignup({ source, variant = 'full', align = 'start', onDone }: Props) {
   const t = useTranslations('newsletter')
   const tForms = useTranslations('forms')
   const locale = useLocale()
@@ -116,9 +110,10 @@ export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
   )
 
   if (variant === 'inline') {
+    // Field and button form one bar of the same height (NYT/FAZ pattern).
     return (
-      <form onSubmit={submit} className="space-y-4">
-        <div className="flex flex-col gap-2 sm:flex-row">
+      <form onSubmit={submit} className="space-y-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-0">
           <label htmlFor={`${id}-email`} className="sr-only">
             {t('email')}
           </label>
@@ -129,15 +124,17 @@ export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
             required
             autoComplete="email"
             placeholder={t('email')}
-            className={`${fieldClass} sm:flex-1`}
+            className={`${fieldClass} h-12 py-0 sm:flex-1 sm:border-r-0`}
           />
           <input type="hidden" name="interests" value="newsletter" />
-          <Button type="submit" loading={state === 'sending'} className="sm:px-7">
+          <Button type="submit" loading={state === 'sending'} className="h-12 py-0 sm:px-8">
             {t('submit')}
           </Button>
         </div>
         {honeypot}
-        {consent}
+        <div className={align === 'center' ? 'flex justify-center text-left' : ''}>
+          <div className="max-w-lg text-xs">{consent}</div>
+        </div>
         {messages}
       </form>
     )
@@ -173,7 +170,11 @@ export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
       </fieldset>
       {honeypot}
       {consent}
-      <Button type="submit" loading={state === 'sending'}>
+      <Button
+        type="submit"
+        loading={state === 'sending'}
+        className={variant === 'full' ? 'h-12 w-full' : ''}
+      >
         {state === 'sending' ? t('submitting') : t('submit')}
       </Button>
       {messages}

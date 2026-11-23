@@ -1,7 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { PageTitle } from '@/components/ui/Section'
-import { Link } from '@/i18n/navigation'
+import { ArrowLink, PageTitle } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
 import { confirm } from '@/lib/newsletter/subscriptions'
 import { getPayloadClient } from '@/lib/payload'
@@ -26,12 +25,9 @@ export default async function ConfirmPage({ params, searchParams }: Props) {
       />
       <div className="container-page">
         {subscriber?.preferencesToken && (
-          <Link
-            href={`/newsletter/preferences?token=${subscriber.preferencesToken}`}
-            className="text-sm font-semibold text-accent hover:underline"
-          >
-            {t('preferencesTitle')} →
-          </Link>
+          <ArrowLink href={`/newsletter/preferences?token=${subscriber.preferencesToken}`}>
+            {t('preferencesTitle')}
+          </ArrowLink>
         )}
       </div>
     </>

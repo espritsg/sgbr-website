@@ -6,6 +6,9 @@ import { useEffect, useRef, useState } from 'react'
 import type { Footer, Header } from '@/payload-types'
 
 import { AppLink } from '../ui/AppLink'
+import { iconButtonClass } from '../ui/Button'
+import { ArrowRight, List, X } from '../ui/icons'
+import { SocialLinks } from '../ui/SocialLinks'
 import { Logo } from './Logo'
 
 type Props = { navItems: NonNullable<Header['navItems']>; footer: Footer }
@@ -28,18 +31,9 @@ export function MenuDrawer({ navItems, footer }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t('menu')}
-        className="inline-flex size-9 items-center justify-center text-text transition-colors hover:text-accent"
+        className={iconButtonClass}
       >
-        <svg
-          aria-hidden
-          viewBox="0 0 24 24"
-          className="size-5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-        >
-          <path d="M4 7h16M4 12h16M4 17h16" />
-        </svg>
+        <List aria-hidden className="size-5" />
       </button>
       <dialog
         ref={dialog}
@@ -54,18 +48,9 @@ export function MenuDrawer({ navItems, footer }: Props) {
               type="button"
               onClick={() => setOpen(false)}
               aria-label={t('close')}
-              className="inline-flex size-9 items-center justify-center hover:text-accent"
+              className={`${iconButtonClass} -mr-2`}
             >
-              <svg
-                aria-hidden
-                viewBox="0 0 24 24"
-                className="size-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-              >
-                <path d="M6 6l12 12M18 6L6 18" />
-              </svg>
+              <X aria-hidden className="size-5" />
             </button>
           </div>
           <nav aria-label={t('menu')} onClick={() => setOpen(false)} className="mt-6">
@@ -74,12 +59,13 @@ export function MenuDrawer({ navItems, footer }: Props) {
                 <li key={item.id ?? item.href}>
                   <AppLink
                     href={item.href}
-                    className="flex items-center justify-between py-4 font-serif text-2xl font-semibold transition-colors hover:text-accent"
+                    className="group flex items-center justify-between py-4 font-serif text-2xl font-semibold transition-colors hover:text-accent"
                   >
                     {item.label}
-                    <span aria-hidden className="text-base text-muted">
-                      →
-                    </span>
+                    <ArrowRight
+                      aria-hidden
+                      className="size-5 text-muted transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent"
+                    />
                   </AppLink>
                 </li>
               ))}
@@ -97,20 +83,11 @@ export function MenuDrawer({ navItems, footer }: Props) {
               ))}
             </ul>
           </nav>
-          <ul className="mt-auto flex gap-6 border-t border-line pt-5 text-sm">
-            {(footer.socialLinks ?? []).map((link) => (
-              <li key={link.id ?? link.url}>
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="capitalize text-muted hover:text-text"
-                >
-                  {link.platform}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <SocialLinks
+            links={footer.socialLinks ?? []}
+            className="mt-auto flex flex-wrap gap-x-6 gap-y-3 border-t border-line pt-5 text-sm"
+            linkClassName="text-muted transition-colors hover:text-text"
+          />
         </div>
       </dialog>
     </>

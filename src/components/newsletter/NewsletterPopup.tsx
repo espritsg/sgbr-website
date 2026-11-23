@@ -4,6 +4,8 @@ import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 
 import { Logo } from '../layout/Logo'
+import { iconButtonClass } from '../ui/Button'
+import { X } from '../ui/icons'
 import { NewsletterSignup } from './NewsletterSignup'
 
 const DISMISSED_KEY = 'sgbr-newsletter-popup'
@@ -55,18 +57,9 @@ export function NewsletterPopup({ delaySeconds }: { delaySeconds: number }) {
             type="button"
             onClick={close}
             aria-label={t('popupClose')}
-            className="-mr-2 -mt-2 inline-flex size-9 items-center justify-center text-muted hover:text-text"
+            className={`${iconButtonClass} -mr-2 -mt-2`}
           >
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              className="size-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-            >
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
+            <X aria-hidden className="size-5" />
           </button>
         </div>
         <h2 id="newsletter-popup-title" className="headline-lg mt-6">

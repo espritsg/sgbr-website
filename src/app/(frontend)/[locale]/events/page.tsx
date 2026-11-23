@@ -27,11 +27,11 @@ export default async function EventsPage({ params }: Props) {
   ])
   return (
     <>
-      <PageTitle title={t('title')} intro={t('intro')} />
+      <PageTitle title={t('title')} />
       <section className="container-page">
         <SectionHeader title={t('upcoming')} />
         {upcoming.length ? (
-          <div className="border-t border-line">
+          <div className="divide-y divide-line">
             {upcoming.map((event) => (
               <EventRow key={event.id} event={event} />
             ))}
@@ -43,7 +43,7 @@ export default async function EventsPage({ params }: Props) {
       {past.length > 0 && (
         <section className="container-page mt-16">
           <SectionHeader title={t('past')} />
-          <div className="border-t border-line">
+          <div className="divide-y divide-line">
             {past.map((event) => (
               <EventRow key={event.id} event={event} showYear />
             ))}

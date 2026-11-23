@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { ArticleCard } from '@/components/cards/ArticleCard'
 import { EventRow } from '@/components/events/EventRow'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
+import { LinkedinLogo } from '@/components/ui/icons'
 import { MediaImage } from '@/components/ui/MediaImage'
 import { SectionHeader } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
@@ -80,9 +81,10 @@ export default async function PersonPage({ params }: Props) {
                 href={person.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="meta mt-4 inline-block font-semibold text-text! underline underline-offset-4"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-accent"
               >
-                LinkedIn →
+                <LinkedinLogo aria-hidden className="size-5" />
+                LinkedIn
               </a>
             )}
           </div>
@@ -101,7 +103,7 @@ export default async function PersonPage({ params }: Props) {
       {events.length > 0 && (
         <section className="container-page mt-16">
           <SectionHeader title={t('events')} />
-          <div className="border-t border-line">
+          <div className="divide-y divide-line">
             {events.map((event) => (
               <EventRow key={event.id} event={event} showYear />
             ))}

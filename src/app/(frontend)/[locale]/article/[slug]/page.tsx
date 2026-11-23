@@ -6,6 +6,7 @@ import { ArticleCard } from '@/components/cards/ArticleCard'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
 import { RichText } from '@/components/richtext/RichText'
 import { Byline } from '@/components/ui/Byline'
+import { ArrowLeft, ArrowRight } from '@/components/ui/icons'
 import { MediaImage } from '@/components/ui/MediaImage'
 import { Reveal } from '@/components/ui/Reveal'
 import { SectionHeader } from '@/components/ui/Section'
@@ -88,7 +89,7 @@ export default async function ArticlePage({ params }: Props) {
           {topic && <span className="mx-2 text-line">|</span>}
           <span className="text-muted">{t(`types.${post.type}`)}</span>
         </p>
-        <h1 className="display mt-4">{post.title}</h1>
+        <h1 className="headline-xl mt-4">{post.title}</h1>
         {post.summary && <p className="lead mt-5">{post.summary}</p>}
         <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line pt-4 text-sm">
           <span className="font-semibold">
@@ -145,19 +146,19 @@ export default async function ArticlePage({ params }: Props) {
         {people.length > 0 && (
           <aside className="mt-12 border-t-2 border-rule pt-5">
             {people.map((person) => (
-              <div key={person.id} className="flex gap-5 py-2">
+              <div key={person.id} className="flex items-center gap-5 py-2">
                 {isMedia(person.photo) && (
-                  <div className="relative size-20 shrink-0 overflow-hidden bg-band">
+                  <div className="relative size-24 shrink-0 self-stretch overflow-hidden bg-band sm:h-auto sm:min-h-24 sm:w-24">
                     <MediaImage
                       media={person.photo}
                       size="thumbnail"
                       fill
-                      sizes="80px"
+                      sizes="96px"
                       className="object-cover"
                     />
                   </div>
                 )}
-                <div>
+                <div className="min-w-0">
                   <Link href={`/people/${person.slug}`} className="headline-sm link-headline">
                     {person.name}
                   </Link>
@@ -194,9 +195,9 @@ export default async function ArticlePage({ params }: Props) {
       {related.length > 0 && (
         <Reveal as="section" className="container-page mt-6">
           <SectionHeader title={t('readMoreTitle')} />
-          <div className="grid gap-10 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-line">
+          <div className="grid gap-10 sm:-mx-6 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-line">
             {related.map((item) => (
-              <div key={item.id} className="sm:px-6 sm:first:pl-0 sm:last:pr-0">
+              <div key={item.id} className="sm:px-6">
                 <ArticleCard post={item} />
               </div>
             ))}
@@ -204,28 +205,36 @@ export default async function ArticlePage({ params }: Props) {
         </Reveal>
       )}
 
-      <nav
-        aria-label="Articles"
-        className="container-page mt-12 grid border-y border-line sm:grid-cols-2 sm:divide-x sm:divide-line"
-      >
-        {next ? (
-          <Link href={`/article/${next.slug}`} className="group py-6 sm:pr-8">
-            <span className="kicker text-muted!">← {t('next')}</span>
-            <span className="headline-sm mt-1 block link-headline">{next.title}</span>
-          </Link>
-        ) : (
-          <span />
-        )}
-        {previous && (
-          <Link
-            href={`/article/${previous.slug}`}
-            className="group border-t border-line py-6 text-right sm:border-t-0 sm:pl-8"
-          >
-            <span className="kicker text-muted!">{t('previous')} →</span>
-            <span className="headline-sm mt-1 block link-headline">{previous.title}</span>
-          </Link>
-        )}
-      </nav>
+      <div className="container-page mt-12">
+        <nav
+          aria-label="Articles"
+          className="grid border-y border-line sm:grid-cols-2 sm:divide-x sm:divide-line"
+        >
+          {next ? (
+            <Link href={`/article/${next.slug}`} className="group py-6 sm:pr-8">
+              <span className="kicker inline-flex items-center gap-1.5 text-muted!">
+                <ArrowLeft aria-hidden className="size-3.5" />
+                {t('next')}
+              </span>
+              <span className="headline-sm mt-1 block link-headline">{next.title}</span>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {previous && (
+            <Link
+              href={`/article/${previous.slug}`}
+              className="group border-t border-line py-6 text-right sm:border-t-0 sm:pl-8"
+            >
+              <span className="kicker inline-flex items-center gap-1.5 text-muted!">
+                {t('previous')}
+                <ArrowRight aria-hidden className="size-3.5" />
+              </span>
+              <span className="headline-sm mt-1 block link-headline">{previous.title}</span>
+            </Link>
+          )}
+        </nav>
+      </div>
     </article>
   )
 }

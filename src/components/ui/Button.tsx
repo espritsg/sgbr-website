@@ -12,6 +12,10 @@ const styles: Record<Variant, string> = {
     'text-text underline decoration-transparent underline-offset-4 hover:decoration-current px-0',
 }
 
+/** Square icon button (header tools, close buttons): pointer, hover surface, focus ring. */
+export const iconButtonClass =
+  'inline-flex size-10 shrink-0 items-center justify-center text-text transition-colors duration-200 hover:bg-band hover:text-accent active:bg-line'
+
 export function buttonClass(variant: Variant = 'primary', extra = '') {
   return `inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold tracking-wide transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${styles[variant]} ${extra}`
 }

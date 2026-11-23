@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import type { ReactNode } from 'react'
 
+import { SearchResult } from '@/components/search/SearchResult'
 import { Button } from '@/components/ui/Button'
 import { Link } from '@/i18n/navigation'
 import type { AppLocale } from '@/i18n/routing'
@@ -21,28 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: t('title'), robots: { index: false } }
 }
 
-const pathFor: Record<string, string> = {
-  posts: '/article',
-  issues: '/issues',
-  events: '/events',
-  people: '/people',
-}
 const types = ['posts', 'people', 'issues', 'events'] as const
-
-/** Highlights the search term in a text. */
-function highlight(text: string, query: string): ReactNode {
-  if (!query) return text
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  return text.split(new RegExp(`(${escaped})`, 'gi')).map((part, index) =>
-    part.toLowerCase() === query.toLowerCase() ? (
-      <mark key={index} className="bg-accent/15 text-inherit">
-        {part}
-      </mark>
-    ) : (
-      part
-    ),
-  )
-}
 
 export default async function SearchPage({ params, searchParams }: Props) {
   const { locale } = await params
@@ -109,23 +88,14 @@ export default async function SearchPage({ params, searchParams }: Props) {
             )}
           </div>
           {results.length ? (
-            <ul className="divide-y divide-line">
+            <ul className="mt-4 grid gap-x-8 md:grid-cols-2">
               {results.map((result) => (
-                <li key={result.id} className="grid gap-1 py-5 sm:grid-cols-[8rem_1fr]">
-                  <p className="kicker pt-1.5">{t(`types.${result.collection}`)}</p>
-                  <div>
-                    <Link
-                      href={`${pathFor[result.collection]}/${result.slug}`}
-                      className="headline-md link-headline"
-                    >
-                      {highlight(result.title, query)}
-                    </Link>
-                    {result.excerpt && (
-                      <p className="mt-1 line-clamp-2 text-[0.9375rem] text-muted">
-                        {highlight(result.excerpt, query)}
-                      </p>
-                    )}
-                  </div>
+                <li key={result.id} className="border-b border-line">
+                  <SearchResult
+                    {...result}
+                    query={query}
+                    typeLabel={t(`types.${result.collection}`)}
+                  />
                 </li>
               ))}
             </ul>

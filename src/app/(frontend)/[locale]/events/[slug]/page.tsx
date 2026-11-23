@@ -2,16 +2,25 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { speakerOf } from '@/components/events/EventRow'
+import { LogoPlate, speakerOf } from '@/components/events/EventRow'
 import { FormRenderer } from '@/components/forms/FormRenderer'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
 import { RichText } from '@/components/richtext/RichText'
+import { ButtonLink } from '@/components/ui/Button'
+import {
+  CalendarBlank,
+  Clock,
+  ForkKnife,
+  MapPin,
+  Microphone,
+  Translate,
+} from '@/components/ui/icons'
 import { MediaImage } from '@/components/ui/MediaImage'
-import { SectionHeader } from '@/components/ui/Section'
-import { Link } from '@/i18n/navigation'
+import { ArrowLink, BackLink, SectionHeader } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
 import { getEvent, getForm } from '@/lib/data/queries'
 import { applicationState } from '@/lib/events'
+import { SITE_TIME_ZONE } from '@/lib/dates'
 import { formatDate, formatTime } from '@/lib/format'
 import { isMedia } from '@/lib/media'
 import { buildMetadata } from '@/lib/seo'
@@ -49,70 +58,101 @@ export default async function EventPage({ params }: Props) {
   const form = application.state === 'open' && formId ? await getForm(formId) : null
   const recap = typeof event.recap === 'object' ? (event.recap as Post | null) : null
   const gallery = (event.gallery ?? []).filter(isMedia)
+  const forDinner = event.applicationFor !== 'event'
+  const applyLabel = forDinner ? t('applyDinner') : t('applyEvent')
+  const longDate = new Intl.DateTimeFormat(locale === 'de' ? 'de-CH' : 'en-GB', {
+    timeZone: SITE_TIME_ZONE,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(event.startsAt))
   const facts = [
-    { label: t('date'), value: formatDate(event.startsAt, locale) },
-    { label: t('time'), value: formatTime(event.startsAt, locale) },
-    { label: t('place'), value: event.location ?? '—' },
-    { label: t('languageLabel'), value: tLanguage(`languageNames.${event.language}`) },
+    { icon: CalendarBlank, label: t('date'), value: longDate },
+    { icon: Clock, label: t('time'), value: formatTime(event.startsAt, locale) },
+    ...(event.location ? [{ icon: MapPin, label: t('place'), value: event.location }] : []),
+    {
+      icon: Translate,
+      label: t('languageLabel'),
+      value: tLanguage(`languageNames.${event.language}`),
+    },
   ]
 
   return (
     <>
       <AdminBarDocument collection="events" id={event.id} label={t('title')} />
       <header className="container-page pt-10 md:pt-14">
-        <Link href="/events" className="kicker hover:underline">
-          ← {t('title')}
-        </Link>
-        <h1 className="display mt-4 max-w-4xl">{event.title || speaker?.name}</h1>
-        {speaker && (
-          <p className="lead mt-3">
-            {[event.title ? speaker.name : null, speaker.role, speaker.organization]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        )}
-        <dl className="mt-8 grid grid-cols-2 border-y border-rule md:grid-cols-4">
-          {facts.map((fact, index) => (
-            <div
-              key={fact.label}
-              className={`py-4 pr-4 ${index > 0 ? 'md:border-l md:border-line md:pl-5' : ''} ${index % 2 === 1 ? 'border-l border-line pl-5 md:pl-5' : ''} ${index >= 2 ? 'border-t border-line md:border-t-0' : ''}`}
-            >
-              <dt className="kicker text-muted!">{fact.label}</dt>
-              <dd className="mt-1 text-[0.9375rem] font-semibold">{fact.value}</dd>
+        <BackLink href="/events">{t('back')}</BackLink>
+        <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-12">
+          <div className="min-w-0">
+            <p className="kicker mb-3">{t('kicker')}</p>
+            <h1 className="headline-xl max-w-3xl">{event.title || speaker?.name}</h1>
+            {speaker && (
+              <p className="lead mt-3">
+                {[event.title ? speaker.name : null, speaker.role, speaker.organization]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+            )}
+          </div>
+          <LogoPlate logo={speaker?.organizationLogo} className="h-20 w-44 md:h-24 md:w-56" />
+        </div>
+        <div className="mt-8 flex flex-col gap-5 border-y border-line py-5 lg:flex-row lg:items-center lg:justify-between">
+          <dl className="flex flex-wrap gap-x-8 gap-y-3">
+            {facts.map((fact) => (
+              <div key={fact.label} className="flex items-center gap-2.5">
+                <fact.icon aria-hidden className="size-5 shrink-0 text-accent" />
+                <dt className="sr-only">{fact.label}</dt>
+                <dd className="text-[0.9375rem] font-medium">{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+          {application.state === 'open' && form && (
+            <div className="flex shrink-0 flex-col items-start gap-1.5 lg:items-end">
+              <ButtonLink href="#apply">
+                {forDinner ? (
+                  <ForkKnife aria-hidden className="size-4" />
+                ) : (
+                  <Microphone aria-hidden className="size-4" />
+                )}
+                {applyLabel}
+              </ButtonLink>
+              {application.deadline && (
+                <p className="meta">
+                  {t('applicationDeadline', { date: formatDate(application.deadline, locale) })}
+                </p>
+              )}
             </div>
-          ))}
-        </dl>
+          )}
+        </div>
       </header>
 
-      <section className="container-page mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div>
+      <section className="container-page mt-12 grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+        <div className="min-w-0">
           {event.description && (
-            <RichText
-              data={event.description}
-              locale={locale}
-              className="prose prose-lg max-w-none text-text dark:prose-invert"
-            />
+            <>
+              <h2 className="kicker mb-4 text-muted!">{t('about')}</h2>
+              <RichText
+                data={event.description}
+                locale={locale}
+                className="prose prose-lg max-w-none text-text dark:prose-invert"
+              />
+            </>
           )}
           {recap && (
-            <Link
-              href={`/article/${recap.slug}`}
-              className="mt-6 inline-block font-semibold underline underline-offset-4"
-            >
-              {t('recap')} →
-            </Link>
+            <ArrowLink href={`/article/${recap.slug}`} className="mt-6 text-base">
+              {t('recap')}
+            </ArrowLink>
           )}
 
           {application.state !== 'none' && (
-            <div id="apply" className="mt-4 scroll-mt-20">
-              <SectionHeader title={t('apply')} />
+            <div id="apply" className="mt-14 scroll-mt-24 first:mt-0">
+              <SectionHeader title={applyLabel} />
               {application.state === 'open' && form && (
                 <>
-                  <p className="text-muted">{t('applyIntro')}</p>
-                  {application.deadline && (
-                    <p className="meta mt-1">
-                      {t('applicationDeadline', { date: formatDate(application.deadline, locale) })}
-                    </p>
-                  )}
+                  <p className="max-w-2xl text-[0.9375rem] leading-relaxed text-muted">
+                    {forDinner ? t('applyIntroDinner') : t('applyIntroEvent')}
+                  </p>
                   <div className="mt-8">
                     <FormRenderer form={form} eventId={event.id} />
                   </div>
@@ -131,43 +171,33 @@ export default async function EventPage({ params }: Props) {
         </div>
 
         {speaker && (
-          <aside className="self-start border-t-2 border-rule pt-4 lg:sticky lg:top-20">
-            <p className="kicker text-muted!">{t('speaker')}</p>
-            {speaker.photo && (
-              <div className="relative mt-3 aspect-[4/5] overflow-hidden bg-band">
-                <MediaImage
-                  media={speaker.photo}
-                  size="card"
-                  fill
-                  sizes="320px"
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <h2 className="headline-sm mt-3">
-              <Link href={`/people/${speaker.slug}`} className="link-headline">
-                {speaker.name}
-              </Link>
-            </h2>
-            <p className="meta mt-1">
-              {[speaker.role, speaker.organization].filter(Boolean).join(', ')}
-            </p>
-            {speaker.bio && (
-              <p className="mt-3 line-clamp-6 text-sm leading-relaxed text-muted">{speaker.bio}</p>
-            )}
-            {speaker.organizationLogo && (
-              <div className="mt-5 flex h-16 items-center justify-center border border-line bg-[#ffffff] px-6">
-                <div className="relative h-8 w-full">
+          <aside className="bg-band p-6 lg:sticky lg:top-24">
+            <div className="flex items-center gap-4 lg:block">
+              {speaker.photo && (
+                <div className="relative size-20 shrink-0 overflow-hidden bg-line lg:aspect-[4/5] lg:size-auto lg:w-full">
                   <MediaImage
-                    media={speaker.organizationLogo}
-                    size="thumbnail"
+                    media={speaker.photo}
+                    size="card"
                     fill
-                    sizes="240px"
-                    className="object-contain"
+                    sizes="(min-width: 1024px) 272px, 80px"
+                    className="object-cover"
                   />
                 </div>
+              )}
+              <div className="lg:mt-5">
+                <p className="kicker text-muted!">{t('speaker')}</p>
+                <h2 className="headline-sm mt-1">{speaker.name}</h2>
+                <p className="meta mt-1">
+                  {[speaker.role, speaker.organization].filter(Boolean).join(', ')}
+                </p>
               </div>
+            </div>
+            {speaker.bio && (
+              <p className="mt-4 line-clamp-6 text-sm leading-relaxed text-muted">{speaker.bio}</p>
             )}
+            <ArrowLink href={`/people/${speaker.slug}`} className="mt-4">
+              {t('profile')}
+            </ArrowLink>
           </aside>
         )}
       </section>
