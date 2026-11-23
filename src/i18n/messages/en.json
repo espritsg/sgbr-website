@@ -111,7 +111,8 @@
     "about": "About the talk",
     "profile": "Speaker profile",
     "kicker": "Speaker Event",
-    "back": "All speaker events"
+    "back": "All speaker events",
+    "applicationsOpen": "Applications open"
   },
   "people": {
     "interviews": "Interviews",
@@ -181,7 +182,8 @@
     "noResults": "Nothing found. Try another word or browse the topics.",
     "suggestions": "Popular topics",
     "topHits": "Top results",
-    "noHits": "No direct matches yet."
+    "noHits": "No direct matches yet.",
+    "clear": "Clear"
   },
   "footer": {
     "esprit": "The St. Gallen Business Review is a project of ESPRIT St. Gallen.",
@@ -206,7 +208,6 @@
   "pagination": {
     "label": "Pagination",
     "previous": "Previous page",
-    "next": "Next page",
-    "status": "Page {page} of {totalPages}"
+    "next": "Next page"
   }
 }

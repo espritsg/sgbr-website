@@ -2,8 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { ArticleCard } from '@/components/cards/ArticleCard'
 import { IssueCard, IssueCover } from '@/components/cards/IssueCard'
-import { EventRow } from '@/components/events/EventRow'
-import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup'
+import { EventCard, EventCardGrid } from '@/components/events/EventRow'
 import { Reveal } from '@/components/ui/Reveal'
 import { ArrowRight } from '@/components/ui/icons'
 import { ArrowLink, SectionHeader } from '@/components/ui/Section'
@@ -30,7 +29,6 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale)
   const t = await getTranslations('home')
   const tIssues = await getTranslations('issues')
-  const tNewsletter = await getTranslations('newsletter')
 
   const homepage = await getHomepage(locale)
   const currentIssue =
@@ -120,11 +118,11 @@ export default async function HomePage({ params }: Props) {
           link={{ href: '/events', label: t('allEvents') }}
         />
         {upcoming.length ? (
-          <div className="divide-y divide-line">
+          <EventCardGrid>
             {upcoming.map((event) => (
-              <EventRow key={event.id} event={event} />
+              <EventCard key={event.id} event={event} />
             ))}
-          </div>
+          </EventCardGrid>
         ) : (
           <p className="meta">—</p>
         )}
@@ -153,7 +151,7 @@ export default async function HomePage({ params }: Props) {
                 <div key={topic.id} className="lg:px-6">
                   <Link
                     href={`/topics/${topic.slug}`}
-                    className="group mb-4 flex items-center justify-between border-b border-rule pb-2 text-xs font-bold uppercase tracking-[0.12em] hover:text-accent"
+                    className="group mb-4 flex items-center justify-between border-b border-line pb-2 text-xs font-bold uppercase tracking-[0.12em] hover:text-accent"
                   >
                     {topic.title}
                     <ArrowRight
@@ -173,18 +171,6 @@ export default async function HomePage({ params }: Props) {
           </div>
         </Reveal>
       )}
-
-      {/* 5. Newsletter band */}
-      <Reveal as="section" className="container-page mt-20">
-        <div className="rule-top border-b border-line py-12 text-center md:py-14">
-          <p className="kicker mb-3">{tNewsletter('title')}</p>
-          <h2 className="headline-lg">{tNewsletter('popupTitle')}</h2>
-          <p className="mx-auto mt-3 max-w-xl text-muted">{tNewsletter('intro')}</p>
-          <div className="mx-auto mt-8 max-w-xl text-left">
-            <NewsletterSignup source="newsletter-page" variant="inline" align="center" />
-          </div>
-        </div>
-      </Reveal>
     </>
   )
 }

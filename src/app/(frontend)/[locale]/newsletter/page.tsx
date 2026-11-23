@@ -33,7 +33,7 @@ export default async function NewsletterPage({ params }: Props) {
           <h1 className="display">{t('popupTitle')}</h1>
           <p className="lead mx-auto mt-4 max-w-xl">{t('intro')}</p>
         </div>
-        <div className="mt-10 border-t-2 border-rule pt-8">
+        <div className="mt-10 border-t border-line pt-8">
           <NewsletterSignup source="newsletter-page" variant="full" />
           <p className="meta mt-6 text-center">{t('privacyNote')}</p>
         </div>

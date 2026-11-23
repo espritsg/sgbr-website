@@ -59,7 +59,6 @@ export async function Pagination({
         ))}
         {arrow(page + 1, t('next'), CaretRight)}
       </nav>
-      <p className="meta mt-3 text-center">{t('status', { page, totalPages })}</p>
     </div>
   )
 }

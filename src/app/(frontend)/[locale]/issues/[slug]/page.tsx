@@ -51,7 +51,7 @@ export default async function IssuePage({ params }: Props) {
     <>
       <AdminBarDocument collection="issues" id={issue.id} label={t('title')} />
       <header className="container-page pt-10 md:pt-14">
-        <div className="grid gap-10 border-b border-rule pb-10 md:grid-cols-[14rem_1fr] lg:grid-cols-[18rem_1fr] lg:gap-14">
+        <div className="grid gap-10 border-b border-line pb-10 md:grid-cols-[14rem_1fr] lg:grid-cols-[18rem_1fr] lg:gap-14">
           <div className="max-w-[16rem] md:max-w-none">
             <IssueCover issue={issue} sizes="288px" />
           </div>

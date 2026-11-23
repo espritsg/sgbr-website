@@ -59,7 +59,7 @@ Details: call-2026-11-21.md.
 - Kopf: Logo, Navigation (Issues, Topics, Speaker Events, Newsletter), Suche als Overlay, Sprachumschalter EN/DE, Hell/Dunkel-Umschalter, Menü-Drawer mit About, Contact, Social Links.
 - Artikelkarten: gross, mittel, Liste. Immer mit `summary`, nie mit Textanfang.
 - Artikelseite: Hero-Bild, Titel, Byline, Text in Lesebreite, Frage/Antwort-Block, Navigation vorher/nachher.
-- Topics-Seite: Übersicht und Themenseiten im selben Aufbau: Suche im Text, Filter nach Art, Themen als Chips mit Anzahl, Unterthemen als Textlinks, Artikelraster, Seitenzahlen.
+- Topics-Seite: Übersicht und Themenseiten im selben Aufbau: Suche im Text, Filter nach Art, Themen und Unterthemen als gleiche Chips mit Anzahl, Artikelraster, Seitenzahlen.
 - Ausgaben: Raster mit Cover, Jahr, Tagline, „Read the issue“ oder PDF. Ausgabenseite mit Vorwort und Interview-Karten mit freigestellten Porträts.
 - Events: Zeilen mit Datumsblock, Name, Rolle, Firma, Zeit und Ort mit Icons, Firmenlogo; „Past Events“ mit Fotos und Recap-Link. Eventseite mit Logo im Kopf, Infozeile mit Icons und Button „Fürs Dinner bewerben“ bzw. „Für den Talk bewerben“, solange die Bewerbung offen ist.
 - Personenseite: Foto, Rolle, alle Interviews und Events.
@@ -103,7 +103,8 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 | Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile, drei Linkspalten |
 | Artikel-Teaser | `cards/ArticleCard.tsx` | Varianten `lead`, `standard`, `horizontal`, `compact` (mit Rangnummer); immer Dachzeile, Titel, Kurzzusammenfassung, Byline |
 | Themen | `topics/TopicsExplorer.tsx` | Übersicht und Themenseite in einem Aufbau, damit nichts springt: Suche, Art, Themen-Chips, Raster |
-| Event | `events/EventRow.tsx` | Datumsblock (zentriert), Speaker mit Zeit und Ort (Icons), Logo auf fester Fläche (`LogoPlate`); alle Spalten vertikal mittig; überall gleich |
+| Event | `events/EventRow.tsx` | `EventCard` für kommende Events (Karten nebeneinander), `EventRow` für vergangene (Liste): Datumsblock, Speaker, Zeit und Ort mit Icons, Logo auf fester Fläche (`LogoPlate`). Karte und Zeile sind als Ganzes klickbar |
+| Formular-Pop-up | `forms/FormDialog.tsx` | Bewerbungen öffnen sich als Dialog (`FormDialogButton` mehrfach pro Seite möglich, Link auf `#apply-form` öffnet ihn direkt) |
 | Seitenzahlen | `ui/Pagination.tsx` | höchstens 5 Zahlen um die aktuelle Seite, Pfeile für vor/zurück (`src/lib/pagination.ts`) |
 | Ausgabe | `cards/IssueCard.tsx` | Cover oder typografischer Platzhalter mit Logo |
 | Rubrik | `ui/Section.tsx` | `SectionHeader` (2 px Linie, Titel, „Alle …“), `PageTitle` (ohne eigene Linie und ohne Beschreibung, damit nie zwei Linien übereinander stehen), `ArrowLink`, `BackLink` |
@@ -115,6 +116,8 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 
 ### Regeln für Linien und Raster
 
+- Drei Linien, sonst keine: **schwarze 1-px-Linien** nur im Masthead (Rubrikenleiste), **2-px-Linie** (`rule-top`) nur über Rubriken (`SectionHeader`), alles andere ist eine **graue Haarlinie** (`border-line`).
+- Der Newsletter steht nur im Footer (auf jeder Seite), nicht zusätzlich auf der Startseite.
 - Linien liegen immer **innerhalb** von `container-page` (nie auf dem Container selbst), damit alle Linien gleich breit sind.
 - Spalten mit Trennlinien bekommen alle dasselbe Innenpolster (`px-6`, aussen `-mx-6`), damit Bilder gleich gross sind.
 - Listen trennen nur zwischen den Einträgen (`divide-y`), direkt unter einem `SectionHeader` steht keine zweite Linie.

@@ -134,6 +134,13 @@
     cursor: pointer;
   }
 
+  /* Browsers draw their own clear button in search fields; we use our own or none. */
+  input[type='search']::-webkit-search-cancel-button,
+  input[type='search']::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
   ::selection {
     background: var(--color-accent);
     color: var(--color-on-accent);

@@ -50,7 +50,7 @@ export default async function PersonPage({ params }: Props) {
       <AdminBarDocument collection="people" id={person.id} label={person.name} />
       <header className="container-page pt-10 md:pt-14">
         <div
-          className={`grid gap-8 border-b border-rule pb-10 ${hasPhoto ? 'md:grid-cols-[14rem_1fr] md:gap-12' : ''}`}
+          className={`grid gap-8 border-b border-line pb-10 ${hasPhoto ? 'md:grid-cols-[14rem_1fr] md:gap-12' : ''}`}
         >
           {hasPhoto && (
             <div className="relative aspect-[4/5] w-40 overflow-hidden bg-band md:w-auto">

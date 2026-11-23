@@ -16,6 +16,7 @@ aktualisiert: 2026-11-22
 ## Bewerbung auf Speaker Events
 
 - Studierende bewerben sich auf ein Speaker Event.
+- Das Formular öffnet sich als Pop-up (`src/components/forms/FormDialog.tsx`): Button im Kopf der Eventseite und unter dem Text. Ein Link auf `/{l}/events/{slug}#apply-form` öffnet es direkt.
 - Event-Felder dafür: `applicationForm` → forms, `applicationFor` (Dinner oder Talk: steuert Button-Text „Fürs Dinner bewerben“ / „Für den Talk bewerben“ und den Hinweistext), `applicationOpensAt`, `applicationDeadline`. Formular nur zwischen diesen Zeitpunkten sichtbar, sonst Hinweis „Bewerbung geschlossen“.
 - Jede Einsendung speichert den Bezug zum Event.
 - Im Admin vorerst nur die Liste der Einsendungen, filterbar nach Event, mit Export als CSV.

@@ -111,7 +111,8 @@
     "about": "Zum Talk",
     "profile": "Zum Profil",
     "kicker": "Speaker Event",
-    "back": "Alle Speaker Events"
+    "back": "Alle Speaker Events",
+    "applicationsOpen": "Bewerbung offen"
   },
   "people": {
     "interviews": "Interviews",
@@ -181,7 +182,8 @@
     "noResults": "Nichts gefunden. Versuchen Sie ein anderes Wort oder stöbern Sie in den Themen.",
     "suggestions": "Beliebte Themen",
     "topHits": "Beste Treffer",
-    "noHits": "Noch keine direkten Treffer."
+    "noHits": "Noch keine direkten Treffer.",
+    "clear": "Leeren"
   },
   "footer": {
     "esprit": "Die St. Gallen Business Review ist ein Projekt von ESPRIT St. Gallen.",
@@ -206,7 +208,6 @@
   "pagination": {
     "label": "Seiten",
     "previous": "Vorherige Seite",
-    "next": "Nächste Seite",
-    "status": "Seite {page} von {totalPages}"
+    "next": "Nächste Seite"
   }
 }

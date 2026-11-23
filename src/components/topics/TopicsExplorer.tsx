@@ -69,15 +69,23 @@ export async function TopicsExplorer({
     const qs = params.toString()
     return qs ? `${path}?${qs}` : path
   }
-  const chip = (isActive: boolean) =>
-    `inline-flex items-center gap-2 border px-3.5 py-2 text-[0.8125rem] font-semibold transition-colors duration-200 ${isActive ? 'border-text bg-text text-bg' : 'border-line text-text hover:border-text'}`
+  // Same chip for topics and sub-topics; the active sub-topic is outlined, not filled,
+  // so only one filled chip is on screen.
+  const chip = (isActive: boolean, level: 'main' | 'sub' = 'main') =>
+    `inline-flex items-center gap-2 border px-3.5 py-2 text-[0.8125rem] font-semibold transition-colors duration-200 ${
+      isActive
+        ? level === 'main'
+          ? 'border-text bg-text text-bg'
+          : 'border-text bg-band text-text'
+        : 'border-line text-text hover:border-text'
+    }`
   const filtered = Boolean(query || type || active)
 
   return (
     <>
       <PageTitle kicker={t('title')} title={active ? active.title : t('allTitle')} />
       <div className="container-page">
-        <div className="rule-top pt-6">
+        <div className="border-t border-line pt-6">
           <form
             role="search"
             action={`/${locale}${basePath}`}
@@ -148,26 +156,21 @@ export async function TopicsExplorer({
             ))}
           </nav>
           {subs.length > 0 && (
-            <div
-              aria-label={t('filter')}
-              className="mt-4 flex flex-wrap items-baseline gap-x-5 gap-y-2 text-sm"
-            >
-              <span className="kicker text-muted!">{t('filter')}</span>
+            <div aria-label={t('filter')} className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="kicker mr-2 text-muted!">{t('filter')}</span>
               {[activeMain!, ...subs].map((topic) => {
+                const isMain = topic.id === activeMain!.id
                 const isActive = topic.id === (activeSub ?? activeMain)?.id
                 return (
                   <Link
                     key={topic.id}
                     href={keep(`/topics/${topic.slug}`)}
-                    className={
-                      isActive
-                        ? 'font-semibold text-text underline decoration-2 underline-offset-[6px]'
-                        : 'text-muted transition-colors hover:text-text'
-                    }
+                    aria-current={isActive ? 'page' : undefined}
+                    className={chip(isActive, 'sub')}
                   >
-                    {topic.id === activeMain!.id ? t('all') : topic.title}
-                    {topic.id !== activeMain!.id && (
-                      <span className="ml-1 text-xs text-muted">{counts.get(topic.id) ?? 0}</span>
+                    {isMain ? t('all') : topic.title}
+                    {!isMain && (
+                      <span className="font-normal opacity-60">{counts.get(topic.id) ?? 0}</span>
                     )}
                   </Link>
                 )

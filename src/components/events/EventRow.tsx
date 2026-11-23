@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from 'next-intl/server'
+import type { ReactNode } from 'react'
 
 import { Link } from '@/i18n/navigation'
 import { SITE_TIME_ZONE } from '@/lib/dates'
@@ -6,7 +7,7 @@ import { applicationState } from '@/lib/events'
 import { formatTime } from '@/lib/format'
 import type { Event, Media, Person } from '@/payload-types'
 
-import { Clock, ForkKnife, MapPin } from '../ui/icons'
+import { Clock, ForkKnife, MapPin, Microphone } from '../ui/icons'
 import { MediaImage } from '../ui/MediaImage'
 
 export function speakerOf(event: Event): Person | null {
@@ -58,7 +59,7 @@ export async function EventRow({ event, showYear = false }: { event: Event; show
   const date = dateParts(event.startsAt, locale)
   const dinner = event.applicationFor === 'dinner' && applicationState(event).state === 'open'
   return (
-    <article className="group grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-x-5 py-5 sm:grid-cols-[5rem_minmax(0,1fr)_auto] sm:gap-x-8">
+    <article className="group relative grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-x-5 py-5 sm:grid-cols-[5rem_minmax(0,1fr)_auto] sm:gap-x-8">
       <time
         dateTime={event.startsAt}
         className="flex aspect-square flex-col items-center justify-center border border-line text-center transition-colors duration-200 group-hover:border-accent"
@@ -74,7 +75,11 @@ export async function EventRow({ event, showYear = false }: { event: Event; show
       </time>
       <div className="min-w-0">
         <h3 className="headline-md">
-          <Link href={`/events/${event.slug}`} className="link-headline">
+          {/* The link covers the whole row: everything is clickable. */}
+          <Link
+            href={`/events/${event.slug}`}
+            className="underline decoration-transparent underline-offset-[0.18em] transition-colors duration-200 after:absolute after:inset-0 group-hover:decoration-current"
+          >
             {event.title || speaker?.name}
           </Link>
         </h3>
@@ -110,4 +115,80 @@ export async function EventRow({ event, showYear = false }: { event: Event; show
       <LogoPlate logo={speaker?.organizationLogo} className="hidden h-14 w-32 sm:flex" />
     </article>
   )
+}
+
+/**
+ * Upcoming speaker event as a card (homepage, events page). The whole card is one
+ * link; past events stay rows (EventRow).
+ */
+export async function EventCard({ event }: { event: Event }) {
+  const t = await getTranslations('events')
+  const locale = await getLocale()
+  const speaker = speakerOf(event)
+  const date = dateParts(event.startsAt, locale)
+  const dinner = event.applicationFor !== 'event' && applicationState(event).state === 'open'
+  const applyOpen = applicationState(event).state === 'open'
+  return (
+    <article className="group relative flex h-full flex-col border border-line p-5 transition-colors duration-200 hover:border-text sm:p-6">
+      <div className="flex items-start justify-between gap-4">
+        <time
+          dateTime={event.startsAt}
+          className="flex size-[4.5rem] shrink-0 flex-col items-center justify-center border border-line text-center"
+        >
+          <span className="text-[0.625rem] font-bold uppercase tracking-[0.12em] text-muted">
+            {date.weekday}
+          </span>
+          <span className="font-serif text-[2rem] font-semibold leading-none">{date.day}</span>
+          <span className="kicker mt-0.5 text-[0.625rem]">{date.month}</span>
+        </time>
+        <LogoPlate logo={speaker?.organizationLogo} className="h-14 w-32" />
+      </div>
+      <h3 className="headline-md mt-6">
+        <Link
+          href={`/events/${event.slug}`}
+          className="underline decoration-transparent underline-offset-[0.18em] transition-colors duration-200 after:absolute after:inset-0 group-hover:decoration-current"
+        >
+          {event.title || speaker?.name}
+        </Link>
+      </h3>
+      {speaker && (
+        <p className="meta mt-1">
+          {[event.title ? speaker.name : null, speaker.role, speaker.organization]
+            .filter(Boolean)
+            .join(' · ')}
+        </p>
+      )}
+      <div className="mt-auto pt-6">
+        <ul className="space-y-1.5 border-t border-line pt-4 text-[0.8125rem]">
+          <li className="flex items-center gap-2">
+            <Clock aria-hidden className="size-4 shrink-0 text-muted" />
+            <span className="sr-only">{t('time')}: </span>
+            {formatTime(event.startsAt, locale)}
+          </li>
+          {event.location && (
+            <li className="flex items-start gap-2">
+              <MapPin aria-hidden className="mt-px size-4 shrink-0 text-muted" />
+              <span className="sr-only">{t('place')}: </span>
+              <span>{event.location}</span>
+            </li>
+          )}
+          {applyOpen && (
+            <li className="flex items-center gap-2 font-semibold text-accent">
+              {dinner ? (
+                <ForkKnife aria-hidden className="size-4 shrink-0" />
+              ) : (
+                <Microphone aria-hidden className="size-4 shrink-0" />
+              )}
+              {dinner ? t('dinnerOpen') : t('applicationsOpen')}
+            </li>
+          )}
+        </ul>
+      </div>
+    </article>
+  )
+}
+
+/** Grid of upcoming event cards. */
+export function EventCardGrid({ children }: { children: ReactNode }) {
+  return <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
 }

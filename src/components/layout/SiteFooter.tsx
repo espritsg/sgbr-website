@@ -17,19 +17,19 @@ export async function SiteFooter({ footer, header }: { footer: Footer; header: H
     'text-sm text-[#e9edf0] underline decoration-transparent underline-offset-4 transition-colors hover:decoration-current'
   return (
     <footer className="dark mt-24 bg-petrol text-text">
-      {/* Newsletter strip: text and form on one axis, consent under the field. */}
+      {/* Newsletter: text first, the form below it, centred in one column. */}
       <div className="border-b border-white/15">
-        <div className="container-page grid gap-8 py-12 md:grid-cols-[1fr_minmax(0,1.15fr)] md:items-center md:gap-16">
-          <div>
-            <p className={columnTitle}>{t('newsletter.title')}</p>
-            <h2 className="font-serif text-[1.75rem] font-semibold leading-tight text-[#ffffff]">
-              {t('newsletter.popupTitle')}
-            </h2>
-            <p className="mt-2 max-w-md text-sm leading-relaxed text-[#b9c6d0]">
-              {footer.newsletterText || t('newsletter.intro')}
-            </p>
+        <div className="container-page py-14 text-center">
+          <p className={columnTitle}>{t('newsletter.title')}</p>
+          <h2 className="font-serif text-[1.75rem] font-semibold leading-tight text-[#ffffff]">
+            {t('newsletter.popupTitle')}
+          </h2>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-[#b9c6d0]">
+            {footer.newsletterText || t('newsletter.intro')}
+          </p>
+          <div className="mx-auto mt-8 max-w-xl text-left">
+            <NewsletterSignup source="footer" variant="inline" align="center" />
           </div>
-          <NewsletterSignup source="footer" variant="inline" />
         </div>
       </div>
       <div className="container-page">

@@ -6,7 +6,7 @@ import { LogoPlate, speakerOf } from '@/components/events/EventRow'
 import { FormRenderer } from '@/components/forms/FormRenderer'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
 import { RichText } from '@/components/richtext/RichText'
-import { ButtonLink } from '@/components/ui/Button'
+import { FormDialog, FormDialogButton } from '@/components/forms/FormDialog'
 import {
   CalendarBlank,
   Clock,
@@ -60,6 +60,12 @@ export default async function EventPage({ params }: Props) {
   const gallery = (event.gallery ?? []).filter(isMedia)
   const forDinner = event.applicationFor !== 'event'
   const applyLabel = forDinner ? t('applyDinner') : t('applyEvent')
+  const applyIntro = forDinner ? t('applyIntroDinner') : t('applyIntroEvent')
+  const applyIcon = forDinner ? (
+    <ForkKnife aria-hidden className="size-4" />
+  ) : (
+    <Microphone aria-hidden className="size-4" />
+  )
   const longDate = new Intl.DateTimeFormat(locale === 'de' ? 'de-CH' : 'en-GB', {
     timeZone: SITE_TIME_ZONE,
     weekday: 'long',
@@ -109,14 +115,10 @@ export default async function EventPage({ params }: Props) {
           </dl>
           {application.state === 'open' && form && (
             <div className="flex shrink-0 flex-col items-start gap-1.5 lg:items-end">
-              <ButtonLink href="#apply">
-                {forDinner ? (
-                  <ForkKnife aria-hidden className="size-4" />
-                ) : (
-                  <Microphone aria-hidden className="size-4" />
-                )}
+              <FormDialogButton dialogId="apply-form">
+                {applyIcon}
                 {applyLabel}
-              </ButtonLink>
+              </FormDialogButton>
               {application.deadline && (
                 <p className="meta">
                   {t('applicationDeadline', { date: formatDate(application.deadline, locale) })}
@@ -146,25 +148,38 @@ export default async function EventPage({ params }: Props) {
           )}
 
           {application.state !== 'none' && (
-            <div id="apply" className="mt-14 scroll-mt-24 first:mt-0">
-              <SectionHeader title={applyLabel} />
+            <div id="apply" className="mt-12 scroll-mt-24 border-t border-line pt-8 first:mt-0 first:border-t-0 first:pt-0">
+              <h2 className="headline-md">{applyLabel}</h2>
               {application.state === 'open' && form && (
                 <>
-                  <p className="max-w-2xl text-[0.9375rem] leading-relaxed text-muted">
-                    {forDinner ? t('applyIntroDinner') : t('applyIntroEvent')}
+                  <p className="mt-3 max-w-2xl text-[0.9375rem] leading-relaxed text-muted">
+                    {applyIntro}
                   </p>
-                  <div className="mt-8">
-                    <FormRenderer form={form} eventId={event.id} />
+                  <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+                    <FormDialogButton dialogId="apply-form">
+                      {applyIcon}
+                      {applyLabel}
+                    </FormDialogButton>
+                    {application.deadline && (
+                      <p className="meta">
+                        {t('applicationDeadline', {
+                          date: formatDate(application.deadline, locale),
+                        })}
+                      </p>
+                    )}
                   </div>
+                  <FormDialog id="apply-form" title={applyLabel} intro={applyIntro}>
+                    <FormRenderer form={form} eventId={event.id} />
+                  </FormDialog>
                 </>
               )}
               {application.state === 'notYetOpen' && (
-                <p className="text-muted">
+                <p className="mt-3 text-muted">
                   {t('applicationOpens', { date: formatDate(application.opensAt, locale) })}
                 </p>
               )}
               {application.state === 'closed' && (
-                <p className="text-muted">{t('applicationClosed')}</p>
+                <p className="mt-3 text-muted">{t('applicationClosed')}</p>
               )}
             </div>
           )}

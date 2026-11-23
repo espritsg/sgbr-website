@@ -145,7 +145,7 @@ export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
             const [form, { settings }] = await Promise.all([getForm(formId), getGlobals(locale)])
             return (
               <section key={block.id} className="container-page">
-                <div className="grid gap-12 border-t-2 border-rule pt-8 md:grid-cols-[1fr_1.6fr] md:gap-16">
+                <div className="grid gap-12 border-t border-line pt-8 md:grid-cols-[1fr_1.6fr] md:gap-16">
                   <div>
                     {block.heading && <h2 className="headline-lg">{block.heading}</h2>}
                     <dl className="mt-6 space-y-5 text-sm">
@@ -180,7 +180,7 @@ export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
           case 'cta':
             return (
               <section key={block.id} className="container-page">
-                <div className="grid gap-6 border-y-2 border-rule py-10 md:grid-cols-[1fr_auto] md:items-center">
+                <div className="grid gap-6 border-y border-line py-10 md:grid-cols-[1fr_auto] md:items-center">
                   <div>
                     <h2 className="headline-lg">{block.heading}</h2>
                     {block.text && <p className="mt-2 max-w-2xl text-muted">{block.text}</p>}

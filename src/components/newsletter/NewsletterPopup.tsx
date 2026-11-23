@@ -48,7 +48,7 @@ export function NewsletterPopup({ delaySeconds }: { delaySeconds: number }) {
       onCancel={close}
       onClick={(event) => event.target === dialog.current && close()}
       aria-labelledby="newsletter-popup-title"
-      className="m-auto w-[min(32rem,calc(100%-2rem))] border-t-4 border-accent bg-bg p-0 text-text"
+      className="m-auto w-[min(32rem,calc(100%-2rem))] border border-line bg-bg p-0 text-text"
     >
       <div className="p-8">
         <div className="flex items-start justify-between gap-4">

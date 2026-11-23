@@ -41,7 +41,11 @@ export default async function SearchPage({ params, searchParams }: Props) {
 
   return (
     <div className="container-page pt-10 md:pt-14">
-      <form role="search" action="" className="flex items-end gap-4 border-b-2 border-rule pb-3">
+      <form
+        role="search"
+        action=""
+        className="flex items-end gap-4 border-b border-line pb-3 transition-colors focus-within:border-text"
+      >
         <label htmlFor="search-page-q" className="sr-only">
           {t('title')}
         </label>

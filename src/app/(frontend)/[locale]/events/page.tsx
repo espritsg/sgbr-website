@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { EventRow } from '@/components/events/EventRow'
+import { EventCard, EventCardGrid, EventRow } from '@/components/events/EventRow'
 import { PageTitle, SectionHeader } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
 import { getEvents } from '@/lib/data/queries'
@@ -31,11 +31,11 @@ export default async function EventsPage({ params }: Props) {
       <section className="container-page">
         <SectionHeader title={t('upcoming')} />
         {upcoming.length ? (
-          <div className="divide-y divide-line">
+          <EventCardGrid>
             {upcoming.map((event) => (
-              <EventRow key={event.id} event={event} />
+              <EventCard key={event.id} event={event} />
             ))}
-          </div>
+          </EventCardGrid>
         ) : (
           <p className="meta py-6">{t('none')}</p>
         )}

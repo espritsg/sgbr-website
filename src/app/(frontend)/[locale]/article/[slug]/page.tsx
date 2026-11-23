@@ -144,7 +144,7 @@ export default async function ArticlePage({ params }: Props) {
         />
 
         {people.length > 0 && (
-          <aside className="mt-12 border-t-2 border-rule pt-5">
+          <aside className="mt-12 border-t border-line pt-6">
             {people.map((person) => (
               <div key={person.id} className="flex items-center gap-5 py-2">
                 {isMedia(person.photo) && (

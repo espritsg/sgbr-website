@@ -4,6 +4,14 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-23, zweite Runde)
+
+- Bewerbungen als Pop-up, Button im Kopf und unter dem Text der Eventseite; Link auf `#apply-form` öffnet das Formular direkt.
+- Kommende Events als Karten nebeneinander, vergangene als Liste; Karten und Zeilen ganz klickbar.
+- Themen und Unterthemen als gleiche Chips; Seitenzahlen ohne „Seite x von y“.
+- Linien vereinheitlicht (schwarz nur im Masthead, 2 px nur über Rubriken, sonst grau), Newsletter-Block auf der Startseite entfernt (steht im Footer), Footer-Newsletter zentriert mit Abstand zwischen Feld und Button.
+- Suche ohne das Browser-X, stattdessen „Leeren“; Menü-Drawer in derselben Schrift wie die Navigation.
+
 ### Geändert (2026-11-23, Feinschliff)
 
 - Alle Icons aus Phosphor, Social Links mit Icons (LinkedIn, Instagram …), Hand-Cursor und Hover-Fläche auf allen Buttons, kein Hover-Effekt mehr am Logo.

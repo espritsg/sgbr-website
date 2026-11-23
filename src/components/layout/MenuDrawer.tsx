@@ -42,7 +42,7 @@ export function MenuDrawer({ navItems, footer }: Props) {
         className="sgbr-drawer ml-auto mr-0 h-dvh max-h-none w-full max-w-md border-l border-line bg-bg p-0 text-text"
       >
         <div className="flex h-full flex-col px-8 py-6">
-          <div className="flex items-center justify-between border-b border-rule pb-5">
+          <div className="flex items-center justify-between border-b border-line pb-5">
             <Logo className="h-8 w-auto text-navy dark:text-text" />
             <button
               type="button"
@@ -59,12 +59,12 @@ export function MenuDrawer({ navItems, footer }: Props) {
                 <li key={item.id ?? item.href}>
                   <AppLink
                     href={item.href}
-                    className="group flex items-center justify-between py-4 font-serif text-2xl font-semibold transition-colors hover:text-accent"
+                    className="group flex items-center justify-between py-4 text-sm font-semibold uppercase tracking-[0.1em] transition-colors hover:text-accent"
                   >
                     {item.label}
                     <ArrowRight
                       aria-hidden
-                      className="size-5 text-muted transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent"
+                      className="size-4 text-muted transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent"
                     />
                   </AppLink>
                 </li>

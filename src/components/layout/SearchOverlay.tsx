@@ -125,7 +125,7 @@ export function SearchOverlay() {
               const term = query.trim()
               if (term) go(`/search?q=${encodeURIComponent(term)}`)
             }}
-            className="mt-6 flex items-center gap-4 border-b-2 border-rule pb-3 md:mt-4"
+            className="mt-6 flex items-center gap-4 border-b border-line pb-3 transition-colors focus-within:border-text md:mt-4"
           >
             <MagnifyingGlass aria-hidden className="size-7 shrink-0 text-muted md:size-9" />
             <label htmlFor="site-search" className="sr-only">
@@ -153,6 +153,18 @@ export function SearchOverlay() {
               aria-activedescendant={active >= 0 ? `suggestion-${active}` : undefined}
               className="w-full bg-transparent font-serif text-3xl outline-none placeholder:text-muted md:text-5xl"
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('')
+                  input.current?.focus()
+                }}
+                className="shrink-0 text-[0.8125rem] font-semibold text-muted transition-colors hover:text-text"
+              >
+                {t('clear')}
+              </button>
+            )}
           </form>
           {visibleResults.length > 0 && (
             <ul role="listbox" className="mt-4 grid gap-x-6 md:grid-cols-2">

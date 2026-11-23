@@ -110,10 +110,10 @@ export function NewsletterSignup({ source, variant = 'full', align = 'start', on
   )
 
   if (variant === 'inline') {
-    // Field and button form one bar of the same height (NYT/FAZ pattern).
+    // Field and button side by side, same height, with a gap.
     return (
       <form onSubmit={submit} className="space-y-3">
-        <div className="flex flex-col gap-2 sm:flex-row sm:gap-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
           <label htmlFor={`${id}-email`} className="sr-only">
             {t('email')}
           </label>
@@ -124,7 +124,7 @@ export function NewsletterSignup({ source, variant = 'full', align = 'start', on
             required
             autoComplete="email"
             placeholder={t('email')}
-            className={`${fieldClass} h-12 py-0 sm:flex-1 sm:border-r-0`}
+            className={`${fieldClass} h-12 py-0 sm:flex-1`}
           />
           <input type="hidden" name="interests" value="newsletter" />
           <Button type="submit" loading={state === 'sending'} className="h-12 py-0 sm:px-8">
