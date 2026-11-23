@@ -34,7 +34,7 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 
 **`events`** (Speaker Events)
 - Reiter Event: `speaker` → people (Pflicht) · `title` L (optional, sonst Name des Speakers) · `startsAt` · `language` (en/de: Sprache des Talks, im Feed als `English`/`German`) · `location` · `description` L
-- Reiter Bewerbung: `applicationForm` → forms · `applicationOpensAt` · `applicationDeadline` ([formulare.md](formulare.md))
+- Reiter Bewerbung: `applicationForm` → forms · `applicationFor` (`dinner` = Talk offen, Bewerbung nur fürs Dinner, Standard; `event` = Bewerbung für den Talk) · `applicationOpensAt` · `applicationDeadline` ([formulare.md](formulare.md))
 - Reiter Nach dem Event: `gallery` → media (mehrfach) · `recap` → posts
 - `slug` übernimmt alte IDs wie `weimer`. Kommend/vergangen wird aus `startsAt` berechnet.
 

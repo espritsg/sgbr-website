@@ -48,7 +48,7 @@ Abonnenten melden sich selbst an und bestätigen per Mail. Abgemeldete bleiben i
 
 - **Formulare → Neu** (Admin und Editorial Board): Felder zusammenklicken. Für Lebensläufe den Feldtyp **Upload** wählen, Collection `application-files`, erlaubter Typ `application/pdf`, max. Grösse 4194304 (4 MB).
 - Unter **E-Mails** pro Formular eine Bestätigung an den Absender (`{{email}}` als Empfänger) und eine Benachrichtigung an die Redaktion eintragen.
-- **Bewerbung auf ein Event:** Im Event unter „Bewerbung“ das Formular wählen und „Bewerbung ab“ und „Bewerbungsschluss“ setzen. Ausserhalb dieser Zeit zeigt die Eventseite „Bewerbung geschlossen“.
+- **Bewerbung auf ein Event:** Im Event unter „Bewerbung“ das Formular wählen und „Bewerbung ab“ und „Bewerbungsschluss“ setzen. Ausserhalb dieser Zeit zeigt die Eventseite „Bewerbung geschlossen“. Unter **„Bewerbung für“** wählen: **Dinner** (Standard: Der Talk ist offen, beworben wird nur fürs Dinner danach) oder **Talk** (ohne Zusage keine Teilnahme). Davon hängen Button („Fürs Dinner bewerben“ / „Für den Talk bewerben“) und Hinweistext ab.
 - **Einsendungen** sehen nur Admin und Editorial Board. In der Liste nach Event filtern, über **Exportieren** als CSV herunterladen. Lebensläufe öffnen sich nur für eingeloggte Admins und Board-Mitglieder.
 - Einsendungen und Lebensläufe werden **6 Monate nach dem Event** automatisch gelöscht (pro Formular unter „Aufbewahrung“ änderbar). Vorher exportieren, wenn etwas länger gebraucht wird.
 

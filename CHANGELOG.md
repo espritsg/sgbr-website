@@ -4,6 +4,18 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-23, Feinschliff)
+
+- Alle Icons aus Phosphor, Social Links mit Icons (LinkedIn, Instagram …), Hand-Cursor und Hover-Fläche auf allen Buttons, kein Hover-Effekt mehr am Logo.
+- Suche: Schliessen nur als Icon, Treffer mit Icon der Art in Overlay und Suchseite gleich.
+- Startseite: kleinere Titel, Event-Zeilen vertikal mittig mit Icons und Firmenlogo, gleich grosse Bilder bei den Themen, Newsletter-Band zentriert, Footer mit eigener Newsletter-Zeile.
+- Übersichtsseiten ohne Beschreibungstext und ohne doppelte Linien.
+- Themen: Übersicht und Themenseiten im selben Aufbau mit Suche, Filter nach Art und Themen-Chips mit Anzahl.
+- Seitenzahlen: höchstens fünf, mit Pfeilen.
+- Eventseite: Logo im Kopf, Infozeile mit Icons, Bewerben-Button; neues Feld „Bewerbung für“ (Dinner oder Talk, Migration).
+- Newsletter-Seite einspaltig und kürzer.
+- Artikel: kleinerer Titel, Personenbox mittig ausgerichtet, alle Trennlinien gleich breit.
+
 ### Geändert (2026-11-23)
 
 - Design überarbeitet: eckiges Zeitungsdesign, Source Serif 4 für Überschriften, SGBR-Logo, ein Komponentensystem (Artikel-Teaser, Event-Zeilen, Ausgaben), Startseite im Raster mit Spaltenlinien, Sticky-Header, Sprache als Dropdown, sanfte Animationen, Dark Mode ohne weisse Flächen.

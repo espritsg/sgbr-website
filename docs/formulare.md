@@ -16,7 +16,7 @@ aktualisiert: 2026-11-22
 ## Bewerbung auf Speaker Events
 
 - Studierende bewerben sich auf ein Speaker Event.
-- Event-Felder dafür: `applicationForm` → forms, `applicationOpensAt`, `applicationDeadline`. Formular nur zwischen diesen Zeitpunkten sichtbar, sonst Hinweis „Bewerbung geschlossen“.
+- Event-Felder dafür: `applicationForm` → forms, `applicationFor` (Dinner oder Talk: steuert Button-Text „Fürs Dinner bewerben“ / „Für den Talk bewerben“ und den Hinweistext), `applicationOpensAt`, `applicationDeadline`. Formular nur zwischen diesen Zeitpunkten sichtbar, sonst Hinweis „Bewerbung geschlossen“.
 - Jede Einsendung speichert den Bezug zum Event.
 - Im Admin vorerst nur die Liste der Einsendungen, filterbar nach Event, mit Export als CSV.
 - Ein Auswahlprozess (Status, Zusagen, Mails) kommt später. Ablauf ist noch abzusprechen. Datenmodell so anlegen, dass ein Feld `status` leicht ergänzt werden kann.

@@ -59,11 +59,11 @@ Details: call-2026-11-21.md.
 - Kopf: Logo, Navigation (Issues, Topics, Speaker Events, Newsletter), Suche als Overlay, Sprachumschalter EN/DE, Hell/Dunkel-Umschalter, Menü-Drawer mit About, Contact, Social Links.
 - Artikelkarten: gross, mittel, Liste. Immer mit `summary`, nie mit Textanfang.
 - Artikelseite: Hero-Bild, Titel, Byline, Text in Lesebreite, Frage/Antwort-Block, Navigation vorher/nachher.
-- Topics-Seite: Haupt-Topics als Reiter, Unter-Topics als Filter.
+- Topics-Seite: Übersicht und Themenseiten im selben Aufbau: Suche im Text, Filter nach Art, Themen als Chips mit Anzahl, Unterthemen als Textlinks, Artikelraster, Seitenzahlen.
 - Ausgaben: Raster mit Cover, Jahr, Tagline, „Read the issue“ oder PDF. Ausgabenseite mit Vorwort und Interview-Karten mit freigestellten Porträts.
-- Events: Karten mit Datum, Uhrzeit, Name, Rolle, Firma, Logo, Ort; „Past Events“ mit Fotos und Recap-Link. Eventseite mit Bewerbungsformular, solange die Bewerbung offen ist.
+- Events: Zeilen mit Datumsblock, Name, Rolle, Firma, Zeit und Ort mit Icons, Firmenlogo; „Past Events“ mit Fotos und Recap-Link. Eventseite mit Logo im Kopf, Infozeile mit Icons und Button „Fürs Dinner bewerben“ bzw. „Für den Talk bewerben“, solange die Bewerbung offen ist.
 - Personenseite: Foto, Rolle, alle Interviews und Events.
-- Newsletter-Seite: Anmeldung, Archiv.
+- Newsletter-Seite: eine Spalte, zentriert: Titel, ein Satz, Formular mit Interessen-Kacheln, darunter frühere Newsletter.
 - About: Mission, Teamfoto, Personenraster nach Gruppe.
 - Footer: Newsletter-Formular, Seitenlinks, ESPRIT-Hinweis.
 
@@ -88,7 +88,8 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 
 | Klasse | Verwendung |
 | --- | --- |
-| `display` | Seitentitel, Artikeltitel |
+| `display` | kurze Seitentitel (Übersichten) |
+| `headline-xl` | lange Titel: Artikel, Events |
 | `headline-lg` / `headline-md` / `headline-sm` | Aufmacher, Rubrikentitel, Listen |
 | `kicker` | Dachzeile: Inter, 11 px, Versalien, gesperrt, Akzentfarbe |
 | `meta` | Byline, Datum, Hinweise: Inter 13 px, muted |
@@ -101,13 +102,23 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 | Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
 | Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile, drei Linkspalten |
 | Artikel-Teaser | `cards/ArticleCard.tsx` | Varianten `lead`, `standard`, `horizontal`, `compact` (mit Rangnummer); immer Dachzeile, Titel, Kurzzusammenfassung, Byline |
-| Artikellisten | `cards/PostGrid.tsx` | Aufmacher + Liste, dann Zeilen mit Bild rechts |
-| Event | `events/EventRow.tsx` | Datumsblock, Speaker, „Zeit“/„Ort“ als Beschriftung; kein Logo, kein Emoji; überall gleich |
+| Themen | `topics/TopicsExplorer.tsx` | Übersicht und Themenseite in einem Aufbau, damit nichts springt: Suche, Art, Themen-Chips, Raster |
+| Event | `events/EventRow.tsx` | Datumsblock (zentriert), Speaker mit Zeit und Ort (Icons), Logo auf fester Fläche (`LogoPlate`); alle Spalten vertikal mittig; überall gleich |
+| Seitenzahlen | `ui/Pagination.tsx` | höchstens 5 Zahlen um die aktuelle Seite, Pfeile für vor/zurück (`src/lib/pagination.ts`) |
 | Ausgabe | `cards/IssueCard.tsx` | Cover oder typografischer Platzhalter mit Logo |
-| Rubrik | `ui/Section.tsx` | `SectionHeader` (2 px Linie, Titel, „Alle …“), `PageTitle` |
-| Buttons | `ui/Button.tsx` | `primary`, `secondary`, `ghost`, eckig, mit Ladezustand |
+| Rubrik | `ui/Section.tsx` | `SectionHeader` (2 px Linie, Titel, „Alle …“), `PageTitle` (ohne eigene Linie und ohne Beschreibung, damit nie zwei Linien übereinander stehen), `ArrowLink`, `BackLink` |
+| Buttons | `ui/Button.tsx` | `primary`, `secondary`, `ghost`, eckig, mit Ladezustand; `iconButtonClass` für Icon-Buttons (Hover-Fläche) |
+| Icons | `ui/icons.ts` | alle aus **Phosphor** (`@phosphor-icons/react`, Gewicht regular), einzeln importiert; keine eigenen SVGs, keine Pfeil-Zeichen im Text ([ADR 0019](entscheidungen/0019-icons-phosphor.md)) |
+| Social Links | `ui/SocialLinks.tsx` | Icon + Name (LinkedIn, Instagram, YouTube, X, Spotify), Footer und Menü |
 | Formularfelder | `forms/fields/index.tsx` | Eingabe, Auswahl, Textfeld, Checkbox, Interessen-Kacheln, PDF-Upload mit Drag & Drop |
-| Suche | `layout/SearchOverlay.tsx`, `[locale]/search` | Overlay mit Live-Vorschlägen (Pfeiltasten), Suchseite mit Filter nach Art und Hervorhebung |
+| Suche | `layout/SearchOverlay.tsx`, `[locale]/search`, `search/SearchResult.tsx` | Overlay mit Schliessen-Icon und Live-Vorschlägen (Pfeiltasten), Suchseite mit Filter nach Art; Treffer überall gleich: Icon der Art, Art, Titel, Auszug, Hervorhebung |
+
+### Regeln für Linien und Raster
+
+- Linien liegen immer **innerhalb** von `container-page` (nie auf dem Container selbst), damit alle Linien gleich breit sind.
+- Spalten mit Trennlinien bekommen alle dasselbe Innenpolster (`px-6`, aussen `-mx-6`), damit Bilder gleich gross sind.
+- Listen trennen nur zwischen den Einträgen (`divide-y`), direkt unter einem `SectionHeader` steht keine zweite Linie.
+- Alles Klickbare zeigt den Hand-Cursor (Basisregel in `globals.css`).
 
 ### Bewegung
 
