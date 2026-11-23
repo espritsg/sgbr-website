@@ -101,6 +101,25 @@ export const Events: CollectionConfig = {
               label: { de: 'Bewerbungsformular', en: 'Application form' },
             },
             {
+              name: 'applicationFor',
+              type: 'select',
+              defaultValue: 'dinner',
+              label: { de: 'Bewerbung für', en: 'Application for' },
+              options: [
+                {
+                  label: { de: 'Das Dinner mit dem Speaker', en: 'The dinner with the speaker' },
+                  value: 'dinner',
+                },
+                { label: { de: 'Den Talk selbst', en: 'The talk itself' }, value: 'event' },
+              ],
+              admin: {
+                description: {
+                  de: 'Dinner: Der Talk ist offen, bewerben muss man sich nur fürs Dinner. Talk: Ohne Zusage keine Teilnahme. Steuert Button und Text auf der Eventseite.',
+                  en: 'Dinner: the talk is open, only the dinner needs an application. Talk: attendance needs an application. Sets the button and text on the event page.',
+                },
+              },
+            },
+            {
               type: 'row',
               fields: [
                 {

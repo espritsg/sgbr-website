@@ -418,6 +418,10 @@ export interface Event {
     [k: string]: unknown;
   } | null;
   applicationForm?: (number | null) | Form;
+  /**
+   * Dinner: the talk is open, only the dinner needs an application. Talk: attendance needs an application. Sets the button and text on the event page.
+   */
+  applicationFor?: ('dinner' | 'event') | null;
   applicationOpensAt?: string | null;
   applicationDeadline?: string | null;
   gallery?: (number | Media)[] | null;
@@ -1603,6 +1607,7 @@ export interface EventsSelect<T extends boolean = true> {
   location?: T;
   description?: T;
   applicationForm?: T;
+  applicationFor?: T;
   applicationOpensAt?: T;
   applicationDeadline?: T;
   gallery?: T;
