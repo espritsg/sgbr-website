@@ -4,7 +4,16 @@ import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical
 
 import type { Newsletter, Post } from '@/payload-types'
 
-import { button, emailFonts, emailLayout, escapeHtml } from './layout'
+import {
+  button,
+  emailColors,
+  emailFonts,
+  emailLayout,
+  escapeHtml,
+  heading,
+  kicker,
+  styleRichText,
+} from './layout'
 import { emailStrings, type EmailLocale } from './strings'
 
 export type NewsletterLinks = {
@@ -23,9 +32,9 @@ export type RenderedNewsletter = {
 
 function richTextToHtml(data: unknown): string {
   if (!data || typeof data !== 'object') return ''
-  return convertLexicalToHTML({ data: data as SerializedEditorState, disableContainer: true })
-    .replace(/<p>/g, '<p style="margin:0 0 16px">')
-    .replace(/<a /g, '<a style="color:#0B3C6D" ')
+  return styleRichText(
+    convertLexicalToHTML({ data: data as SerializedEditorState, disableContainer: true }),
+  )
 }
 
 function richTextToText(data: unknown): string {
@@ -48,14 +57,15 @@ export function renderNewsletter(
   const contentText = richTextToText(newsletter.content)
 
   const html = (links: NewsletterLinks) => {
+    const c = emailColors
     const featured = posts.length
-      ? `<h2 style="font-family:${emailFonts.SERIF};font-size:24px;font-weight:normal;margin:32px 0 8px;border-top:2px solid #1A1A1A;padding-top:12px">${escapeHtml(s.featured)}</h2>` +
+      ? `<div style="margin:36px 0 4px;border-top:2px solid ${c.text};padding-top:12px">${kicker(s.featured)}</div>` +
         posts
           .map(
             (post) =>
-              `<div style="padding:16px 0;border-bottom:1px solid #E3E7ED"><a href="${escapeHtml(links.articleUrl(post.slug))}" style="font-family:${emailFonts.SERIF};font-size:21px;color:#1A1A1A;text-decoration:none">${escapeHtml(post.title)}</a>` +
-              `<p style="margin:6px 0 0;font-size:14px;color:#6B6B6B">${escapeHtml(post.summary ?? '')}</p>` +
-              `<a href="${escapeHtml(links.articleUrl(post.slug))}" style="font-size:14px;font-weight:600;color:#0B3C6D">${escapeHtml(s.readArticle)} →</a></div>`,
+              `<div style="padding:16px 0;border-bottom:1px solid ${c.line}"><a href="${escapeHtml(links.articleUrl(post.slug))}" style="font-family:${emailFonts.SERIF};font-size:20px;font-weight:600;line-height:1.3;color:${c.text};text-decoration:none">${escapeHtml(post.title)}</a>` +
+              `<p style="margin:6px 0 8px;font-size:14px;line-height:1.55;color:${c.muted}">${escapeHtml(post.summary ?? '')}</p>` +
+              `<a href="${escapeHtml(links.articleUrl(post.slug))}" style="font-size:14px;font-weight:600;color:${c.navy}">${escapeHtml(s.readArticle)} &rarr;</a></div>`,
           )
           .join('')
       : ''
@@ -63,16 +73,17 @@ export function renderNewsletter(
       lang: locale,
       previewText: newsletter.previewText,
       body:
-        `<p style="font-size:12px;text-align:right;margin:0 0 16px"><a href="${escapeHtml(links.onlineUrl)}" style="color:#6B6B6B">${escapeHtml(s.viewOnline)}</a></p>` +
-        `<h1 style="font-family:${emailFonts.SERIF};font-size:32px;font-weight:normal;line-height:1.2;margin:0 0 16px">${escapeHtml(newsletter.title)}</h1>` +
+        `<p style="font-size:12px;text-align:right;margin:0 0 20px"><a href="${escapeHtml(links.onlineUrl)}" style="color:${c.muted}">${escapeHtml(s.viewOnline)}</a></p>` +
+        kicker('Newsletter') +
+        heading(newsletter.title) +
         (newsletter.intro
-          ? `<p style="font-size:18px;color:#1A1A1A">${escapeHtml(newsletter.intro)}</p>`
+          ? `<p style="margin:0 0 20px;font-size:18px;line-height:1.55;color:${c.text}">${escapeHtml(newsletter.intro)}</p>`
           : '') +
         contentHtml +
         featured +
         (posts[0] ? button(links.articleUrl(posts[0].slug), s.readArticle) : ''),
       footer:
-        `${escapeHtml(s.footerReason)}<br><a href="${escapeHtml(links.preferencesUrl)}" style="color:#ffffff">${escapeHtml(s.preferences)}</a> · ` +
+        `${escapeHtml(s.footerReason)}<br><a href="${escapeHtml(links.preferencesUrl)}" style="color:#ffffff">${escapeHtml(s.preferences)}</a> &middot; ` +
         `<a href="${escapeHtml(links.unsubscribeUrl)}" style="color:#ffffff">${escapeHtml(s.unsubscribe)}</a><br><br>${escapeHtml(address).replace(/\n/g, '<br>')}`,
     })
   }

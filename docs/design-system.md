@@ -99,7 +99,7 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 
 | Komponente | Datei | Hinweise |
 | --- | --- | --- |
-| Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Börsenkurse (`MarketBar.tsx`, ab Tablet-Breite, immer einzeilig: zentriert, solange Platz ist, sonst links bündig und rechts ausgeblendet), Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
+| Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Börsenkurse (`MarketBar.tsx`, ab Tablet-Breite, immer einzeilig: zentriert, solange Platz ist, sonst langsame Laufschrift mit Ausblendung an beiden Rändern, pausiert bei Mausberührung, steht still bei „Bewegung reduzieren“), Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
 | Themen-Menü | `layout/TopicsMenu.tsx` | kleines Dropdown unter „Themen“ (Rubrikenleiste und Sticky-Header) mit den vier Haupt-Themen, in der Schrift der Navigation, gebaut wie das Sprach-Dropdown. Öffnet bei Mausberührung oder per Pfeil-Button (Touch, Tastatur), Esc und Klick daneben schliessen. Im Menü-Drawer stehen die Haupt-Themen unter „Themen“ |
 | Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile (Einwilligung so breit wie Feld und Button zusammen), drei Linkspalten |
 | Artikel-Teaser | `cards/ArticleCard.tsx` | Varianten `lead`, `standard`, `horizontal`, `compact` (mit Rangnummer); immer Dachzeile, Titel, Kurzzusammenfassung, Byline |

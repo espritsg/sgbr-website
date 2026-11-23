@@ -307,6 +307,12 @@
     opacity: 0;
   }
 }
+@keyframes sgbr-ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @keyframes sgbr-fade-in {
   from {
     opacity: 0;
@@ -335,5 +341,9 @@
   .js [data-reveal] {
     opacity: 1;
     transform: none;
+  }
+  /* The market ticker stands still instead of looping. */
+  [data-ticker] {
+    animation: none !important;
   }
 }

@@ -44,6 +44,6 @@ aktualisiert: 2026-11-22
 - Die Website schickt Einsendungen als `multipart/form-data` an `POST /api/form-submissions`: Feld `_payload` (JSON mit `form`, `event`, `submissionData`, `honeypot`) plus die Dateien unter dem Namen des Upload-Felds.
 - Vor dem Speichern prüft `guardSubmission`: Honeypot leer, höchstens 10 Einsendungen pro IP in 10 Minuten (sonst 429), bei `event`: Das Event gehört zu diesem Formular und die Bewerbung ist offen (`applicationOpensAt` ≤ jetzt ≤ `applicationDeadline`, ohne Deadline bis zum Event). Interne Aufrufe über die Local API sind ausgenommen.
 - PDF-Prüfung: Dateisignatur `%PDF-` und Payloads eigene PDF-Prüfung, max. 4 MB.
-- Mails pro Formular (Bestätigung an den Absender, Benachrichtigung an die Redaktion) verschickt das Plugin über den Mail-Adapter, lokal in die Mail-Vorschau.
+- Mails pro Formular (Bestätigung an den Absender, Benachrichtigung an die Redaktion) verschickt das Plugin über den Mail-Adapter, lokal in die Mail-Vorschau. Vorher setzt `beforeEmail` (`src/lib/forms/formEmail.ts`) den Text in die SGBR-Mail-Vorlage.
 - Datei-Download: `/api/application-files/file/{name}`, nur Admin und Board (sonst 403), `Cache-Control: private, no-store`.
 - Löschlauf: täglicher Job, löscht Einsendungen und ihre Dateien, wenn Eventdatum (oder Einsendedatum) + `retentionMonths` vorbei ist, und schreibt ins Job-Protokoll, wie viele es waren.

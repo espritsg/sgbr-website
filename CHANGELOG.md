@@ -4,6 +4,12 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-23, Admin und Mails)
+
+- Admin: SGBR-Logo auf der Anmeldeseite, SGBR-Zeichen im Menü und als Favicon; Mail-Vorschau zusätzlich als Karte im Dashboard.
+- Eine Mail-Vorlage im SGBR-Stil (Logo als PNG, eckig, Navy, dunkler Fuss) für Newsletter, Anmeldebestätigung und jetzt auch Formular-Mails.
+- Börsenkurse: bei wenig Platz langsame Laufschrift, an beiden Rändern ausgeblendet.
+
 ### Geändert (2026-11-23, dritte Runde)
 
 - Börsenkurse im Kopf zwischen Datum und Werkzeugen wie auf der alten Seite (S&P 500, DAX, Nikkei 225, Hang Seng, EUR/USD), neuer Endpunkt `/api/market` ([ADR 0020](docs/entscheidungen/0020-boersenkurse.md)).

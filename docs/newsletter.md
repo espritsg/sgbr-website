@@ -30,7 +30,7 @@ Entschieden 2026-11-22: **Variante A.** Payload ist die einzige Datenquelle. Res
 - Versand über die Batch-API von Resend, höchstens 100 Mails pro Aufruf, Rate-Limit von Resend beachten.
 - Muss fortsetzbar sein: bricht der Versand ab, bekommt beim nächsten Lauf niemand die Mail doppelt (Fortschritt speichern, Idempotency-Key pro Paket). Startet sofort per Button und setzt sich selbst fort, siehe „Hintergrund-Jobs“ in [architektur.md](architektur.md).
 - Status des Newsletters: `draft` → `sending` → `sent` oder `failed`. Gespeichert: Versandzeit, Empfängerzahl, Fehler.
-- Mail-Vorlage im SGBR-Design (hell), HTML und Textversion, Inhalt aus dem Lexical-Text.
+- Mail-Vorlage im SGBR-Design (Logo, eckig, Navy, immer hell; `src/emails/layout.ts`), HTML und Textversion, Inhalt aus dem Lexical-Text. Dieselbe Vorlage für Bestätigungs- und Formular-Mails ([redaktion.md](redaktion.md#mail-vorlage)).
 - Nach dem Versand erscheint der Newsletter verzögert im Archiv auf `/{l}/newsletter/{slug}` (siehe unten).
 
 ## Rückmeldungen von Resend

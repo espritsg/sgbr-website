@@ -15,6 +15,7 @@ import {
   searchAccess,
 } from '@/access/permissions'
 import { formsGroup, settingsGroup } from '@/collections/shared'
+import { formEmailTemplate } from '@/lib/forms/formEmail'
 import { guardSubmission } from '@/lib/forms/submissionGuard'
 import { storagePlugins } from '@/lib/storage'
 
@@ -95,6 +96,8 @@ export function plugins(): Plugin[] {
         payment: false,
       },
       uploadCollections: ['application-files'],
+      // Form mails get the SGBR email template (src/emails/layout.ts).
+      beforeEmail: formEmailTemplate,
       redirectRelationships: ['pages', 'posts', 'events'],
       formOverrides: {
         access: formAccess,

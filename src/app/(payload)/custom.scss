@@ -1,0 +1,28 @@
+// SGBR branding in the admin: logo only, Payload's colours stay (src/components/admin/AdminGraphics.tsx).
+.sgbr-admin-logo {
+  display: block;
+  width: min(280px, 100%);
+  height: auto;
+  color: #17415b;
+}
+
+html[data-theme='dark'] .sgbr-admin-logo {
+  color: #ffffff;
+}
+
+.sgbr-admin-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  background: #17415b;
+  color: #ffffff;
+
+  svg {
+    width: 100%;
+    height: auto;
+  }
+}

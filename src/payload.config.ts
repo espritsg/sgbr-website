@@ -31,10 +31,16 @@ export default buildConfig({
     },
     meta: {
       titleSuffix: ' – SGBR Admin',
+      icons: [{ rel: 'icon', type: 'image/png', url: '/icon.png' }],
     },
     dateFormat: 'dd.MM.yyyy HH:mm',
     components: {
+      graphics: {
+        Logo: '@/components/admin/AdminGraphics#AdminLogo',
+        Icon: '@/components/admin/AdminGraphics#AdminIcon',
+      },
       afterNavLinks: ['@/components/admin/MailPreviewLink#MailPreviewLink'],
+      afterDashboard: ['@/components/admin/MailPreviewCard#MailPreviewCard'],
       views: {
         mailPreview: {
           Component: '@/components/admin/MailPreviewView#MailPreviewView',

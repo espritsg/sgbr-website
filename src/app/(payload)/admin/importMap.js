@@ -45,6 +45,9 @@ import { ExportPreview as ExportPreview_cdf7e044479f899a31f804427d568b36 } from 
 import { ExportSaveButton as ExportSaveButton_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportPreview as ImportPreview_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportSaveButton as ImportSaveButton_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
+import { AdminIcon as AdminIcon_cf05759dc79b7737cf5272e2ef70392b } from '@/components/admin/AdminGraphics'
+import { AdminLogo as AdminLogo_cf05759dc79b7737cf5272e2ef70392b } from '@/components/admin/AdminGraphics'
+import { MailPreviewCard as MailPreviewCard_be68a00927711039072e7513eec61c95 } from '@/components/admin/MailPreviewCard'
 import { MailPreviewLink as MailPreviewLink_b70accb99dea283050a729c4ab570081 } from '@/components/admin/MailPreviewLink'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { MailPreviewView as MailPreviewView_38fea8710e45be107d00133aa5e1c73b } from '@/components/admin/MailPreviewView'
@@ -100,6 +103,9 @@ export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ExportSaveButton": ExportSaveButton_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportPreview": ImportPreview_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportSaveButton": ImportSaveButton_cdf7e044479f899a31f804427d568b36,
+  "@/components/admin/AdminGraphics#AdminIcon": AdminIcon_cf05759dc79b7737cf5272e2ef70392b,
+  "@/components/admin/AdminGraphics#AdminLogo": AdminLogo_cf05759dc79b7737cf5272e2ef70392b,
+  "@/components/admin/MailPreviewCard#MailPreviewCard": MailPreviewCard_be68a00927711039072e7513eec61c95,
   "@/components/admin/MailPreviewLink#MailPreviewLink": MailPreviewLink_b70accb99dea283050a729c4ab570081,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "@/components/admin/MailPreviewView#MailPreviewView": MailPreviewView_38fea8710e45be107d00133aa5e1c73b,

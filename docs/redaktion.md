@@ -1,11 +1,11 @@
 ---
 description: Anleitung für die Redaktion ohne Technik: Artikel, Ausgaben, Events, Newsletter, Formulare im Payload-Admin
-aktualisiert: 2026-11-22
+aktualisiert: 2026-11-23
 ---
 
 # Anleitung für die Redaktion
 
-Der Admin liegt unter `/admin`. Zugang legt nur der Admin an.
+Der Admin liegt unter `/admin`, mit SGBR-Logo auf der Anmeldeseite und im Menü (`src/components/admin/AdminGraphics.tsx`). Zugang legt nur der Admin an.
 
 ## Rollen
 
@@ -63,4 +63,11 @@ Abonnenten melden sich selbst an und bestätigen per Mail. Abgemeldete bleiben i
 
 ## Mail-Vorschau
 
-- Der Menüpunkt **Mail-Vorschau (nur lokal)** erscheint nur auf dem Entwicklungsrechner. Dort werden Mails nicht verschickt, sondern hier angezeigt. Auf der echten Website gibt es ihn nicht.
+- **Mail-Vorschau (nur lokal)** gibt es nur auf dem Entwicklungsrechner und nur für Admins: als Karte „Werkzeuge“ unten im Dashboard und als letzter Punkt im Menü. Dort werden Mails nicht verschickt, sondern hier angezeigt. Auf der echten Website gibt es sie nicht.
+
+## Mail-Vorlage
+
+- Alle Mails der Website haben dieselbe Vorlage im SGBR-Stil (`src/emails/layout.ts`): Logo oben, schwarze Linie, Text, dunkler Fuss mit Adresse aus den Website-Einstellungen. Eckig, Navy, Überschriften in Serif, immer hell.
+- **Newsletter:** nur Titel, Einleitung, Text und ausgewählte Artikel ausfüllen, die Gestaltung kommt von der Vorlage. Mit **Testversand** prüfen.
+- **Formular-Mails** (Bestätigung an Bewerbende, Benachrichtigung an die Redaktion): Text im Formular unter „E-Mails“ schreiben, er wird automatisch in die Vorlage gesetzt (`src/lib/forms/formEmail.ts`).
+- Mails laden keine Web-Schriften (keine Anfragen an Schriftdienste aus dem Postfach); ohne installierte Source Serif 4 und Inter erscheinen Georgia und Helvetica.

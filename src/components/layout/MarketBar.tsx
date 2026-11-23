@@ -10,7 +10,7 @@ const REFRESH_MS = 5 * 60 * 1000
 /**
  * Market snapshot between the date and the tools in the masthead (from tablet width).
  * Loads after the page, refreshes every five minutes and stays empty if there is no data.
- * Always one line: centred while it fits, otherwise left-aligned and faded out on the right.
+ * Always one line: centred while it fits, otherwise a slow loop faded out on both sides.
  */
 export function MarketBar() {
   const t = useTranslations('market')
@@ -18,7 +18,7 @@ export function MarketBar() {
   const [quotes, setQuotes] = useState<MarketQuote[]>([])
   const [overflowing, setOverflowing] = useState(false)
   const box = useRef<HTMLElement>(null)
-  const row = useRef<HTMLUListElement>(null)
+  const row = useRef<HTMLUListElement>(null) // the first copy, measured without padding
 
   useEffect(() => {
     const container = box.current
@@ -53,45 +53,61 @@ export function MarketBar() {
   }, [])
 
   const tag = locale === 'de' ? 'de-CH' : 'en-GB'
+  const list = (copy: boolean) => (
+    <ul
+      ref={copy ? undefined : row}
+      aria-hidden={copy || undefined}
+      className="flex w-max shrink-0 items-center gap-x-6 whitespace-nowrap text-xs tabular-nums"
+    >
+      {quotes.map((quote) => {
+        const up = quote.changePercent >= 0
+        return (
+          <li key={quote.symbol} className="flex shrink-0 items-baseline gap-1.5">
+            <span className="font-semibold text-text">{quote.label}</span>
+            <span className="text-muted">
+              {quote.price.toLocaleString(tag, {
+                minimumFractionDigits: quote.decimals,
+                maximumFractionDigits: quote.decimals,
+              })}
+            </span>
+            <span className={up ? 'text-success' : 'text-danger'}>
+              <span className="sr-only">{up ? t('up') : t('down')} </span>
+              {up ? '+' : '−'}
+              {Math.abs(quote.changePercent).toLocaleString(tag, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+              %
+            </span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+
   return (
     <section
       ref={box}
       aria-label={t('label')}
-      className={`hidden min-w-0 flex-1 overflow-hidden md:flex ${
+      className={`group hidden min-w-0 flex-1 overflow-hidden md:flex ${
         overflowing
-          ? 'justify-start [mask-image:linear-gradient(to_right,#000_calc(100%-4rem),transparent)]'
+          ? 'justify-start [mask-image:linear-gradient(to_right,transparent,#000_3rem,#000_calc(100%-3rem),transparent)]'
           : 'justify-center'
       }`}
     >
       {quotes.length > 0 && (
-        <ul
-          ref={row}
-          className="flex w-max shrink-0 items-center gap-x-6 whitespace-nowrap text-xs tabular-nums [animation:sgbr-fade-in_300ms_var(--ease-out-soft)]"
+        // Too narrow: two copies run as a slow loop (paused on hover), faded on both sides.
+        <div
+          data-ticker={overflowing || undefined}
+          className={`flex w-max shrink-0 ${
+            overflowing
+              ? '[animation:sgbr-ticker_40s_linear_infinite] group-hover:[animation-play-state:paused]'
+              : '[animation:sgbr-fade-in_300ms_var(--ease-out-soft)]'
+          }`}
         >
-          {quotes.map((quote) => {
-            const up = quote.changePercent >= 0
-            return (
-              <li key={quote.symbol} className="flex shrink-0 items-baseline gap-1.5">
-                <span className="font-semibold text-text">{quote.label}</span>
-                <span className="text-muted">
-                  {quote.price.toLocaleString(tag, {
-                    minimumFractionDigits: quote.decimals,
-                    maximumFractionDigits: quote.decimals,
-                  })}
-                </span>
-                <span className={up ? 'text-success' : 'text-danger'}>
-                  <span className="sr-only">{up ? t('up') : t('down')} </span>
-                  {up ? '+' : '−'}
-                  {Math.abs(quote.changePercent).toLocaleString(tag, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                  %
-                </span>
-              </li>
-            )
-          })}
-        </ul>
+          <div className={overflowing ? 'pr-6' : ''}>{list(false)}</div>
+          {overflowing && <div className="pr-6">{list(true)}</div>}
+        </div>
       )}
     </section>
   )
