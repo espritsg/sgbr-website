@@ -4,6 +4,14 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-23)
+
+- Design überarbeitet: eckiges Zeitungsdesign, Source Serif 4 für Überschriften, SGBR-Logo, ein Komponentensystem (Artikel-Teaser, Event-Zeilen, Ausgaben), Startseite im Raster mit Spaltenlinien, Sticky-Header, Sprache als Dropdown, sanfte Animationen, Dark Mode ohne weisse Flächen.
+- Suche mit Live-Vorschlägen im Overlay und Filtern auf der Suchseite.
+- Formulare: einheitliche Felder, Semester als Auswahl, PDF-Upload mit Drag & Drop, Newsletter-Anmeldung mit Interessen-Kacheln.
+- About- und Kontaktseite neu aufgebaut, Bildblock mit Option „volle Breite“ (Migration).
+- Admin: SEO als eigener Reiter bei Artikeln, Seiten, Ausgaben, Events; Mail-Vorschau als „nur lokal“ benannt und erklärt.
+
 ### Hinzugefügt
 
 - Grundgerüst mit Next.js 16, Payload 3.94, Postgres (Docker), Tailwind CSS 4 und next-intl (`/en`, `/de`).

@@ -51,3 +51,16 @@ Abonnenten melden sich selbst an und bestätigen per Mail. Abgemeldete bleiben i
 - **Bewerbung auf ein Event:** Im Event unter „Bewerbung“ das Formular wählen und „Bewerbung ab“ und „Bewerbungsschluss“ setzen. Ausserhalb dieser Zeit zeigt die Eventseite „Bewerbung geschlossen“.
 - **Einsendungen** sehen nur Admin und Editorial Board. In der Liste nach Event filtern, über **Exportieren** als CSV herunterladen. Lebensläufe öffnen sich nur für eingeloggte Admins und Board-Mitglieder.
 - Einsendungen und Lebensläufe werden **6 Monate nach dem Event** automatisch gelöscht (pro Formular unter „Aufbewahrung“ änderbar). Vorher exportieren, wenn etwas länger gebraucht wird.
+
+## SEO
+
+- Artikel, Seiten, Ausgaben und Events haben einen eigenen Reiter **SEO**: Titel und Beschreibung für Google und Social Media, Vorschau des Suchergebnisses. Leer lassen geht: Dann nimmt die Website Titel und Kurzzusammenfassung.
+- Slug, Status und Erscheinungsdatum stehen rechts in der Seitenleiste.
+
+## Seiten gestalten
+
+- Seiten (About, Kontakt …) bestehen aus Blöcken. Beim Block **Bild und Text** gibt es die Position „volle Breite, Text darunter“, z. B. für das Teamfoto.
+
+## Mail-Vorschau
+
+- Der Menüpunkt **Mail-Vorschau (nur lokal)** erscheint nur auf dem Entwicklungsrechner. Dort werden Mails nicht verschickt, sondern hier angezeigt. Auf der echten Website gibt es ihn nicht.

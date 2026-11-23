@@ -17,7 +17,7 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 - Reiter Inhalt: `type` (interview, guest-article) · `title` L · `summary` L (Pflicht, 1–2 Sätze für Karten) · `heroImage` → media · `content` L (Lexical mit Blöcken `qa`, `quote`, `embed`, `pdfDownload`, `src/blocks/content.ts`)
 - Reiter Zuordnung: `interviewees` → people (mehrfach, Byline, [ADR 0006](entscheidungen/0006-byline.md)) · `interviewers` → team-members · `topics` → topics (mindestens ein Haupt-Topic, `validateMainTopic.ts`) · `issue` → issues · `issueImage` → media (freigestelltes Porträt, nur Ausgabenseite)
 - Seitenleiste: `slug` · `publishedAt` (wird beim ersten Veröffentlichen gesetzt, wenn leer) · `originalLanguage` (en/de, Pflicht) · `summaryNeedsReview` (von der Migration gesetzt) · `wpId` (nur lesen)
-- `meta` L (SEO-Plugin: Titel, Beschreibung, Bild)
+- `meta` L (SEO: Titel, Beschreibung, Bild) im eigenen Reiter „SEO“ (`src/fields/seoTab.ts`). Reiter: Inhalt | Zuordnung | SEO. Ausgaben und Events haben ebenfalls einen SEO-Reiter.
 - Liste „Zusammenfassung prüfen“: in der Artikelliste nach „Zusammenfassung prüfen = ja“ filtern.
 
 **`people`** (Interviewpartner, Gastautoren, Speaker, URL `/{l}/people/{slug}`)
@@ -42,7 +42,8 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 - `name` · `photo` → media · `group` (`editorial-board`, `editors`, `advisory`) · `position` L · `study` L · `university` · `active` · `order`
 
 **`pages`** (About, Contact, Imprint, Privacy, URL `/{l}/{slug}`)
-- `title` L · `layout` L aus Blöcken `richText`, `teamGrid`, `contactForm`, `imageText`, `cta` (`src/blocks/layout.ts`) · `slug` · `meta` L
+- `title` L · `layout` L aus Blöcken `richText`, `teamGrid`, `contactForm`, `imageText` (Bild links, rechts oder volle Breite), `cta` (`src/blocks/layout.ts`) · `slug` · `meta` L
+- Im Admin: Reiter Inhalt | SEO.
 
 **`media`** (Bilder und PDFs, öffentliche URL `/files/{filename}`)
 - `alt` L · `caption` L · `credit` · `legacyPath` (alter Pfad unter `wp-content/uploads/`) · `wpId`

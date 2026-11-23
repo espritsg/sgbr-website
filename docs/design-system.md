@@ -1,6 +1,6 @@
 ---
-description: Design der SGBR-Website als Tailwind-Tokens (Farben, Schriften, Breiten, Dark Mode) plus Startseite, Komponenten und was wegfällt
-aktualisiert: 2026-11-22
+description: Design der SGBR-Website: eckiges Zeitungsdesign, Tokens, Typo-Skala, Komponentensystem, Animationen, Dark Mode und Startseite
+aktualisiert: 2026-11-23
 ---
 
 # Design
@@ -72,24 +72,48 @@ Details: call-2026-11-21.md.
 - **Marktleiste:** die Zeile ganz oben mit S&P 500, DAX, Nikkei 225, Hang Seng und EUR/USD. Sie holt Kurse über einen eigenen Endpunkt und zeigt heute nur „–“, weil der Endpunkt einen Fehler liefert. Für ein Interview-Magazin ohne Mehrwert, braucht aber einen Kurs-Datendienst.
 - **Instagram-Feed:** Plugin „Smash Balloon Instagram Feed“ ist installiert, auf den geprüften Seiten wird aber kein Feed angezeigt. Ein Link aufs Instagram-Profil reicht.
 
-## Umsetzung
+## Umsetzung (Stand 2026-11-23, [ADR 0018](entscheidungen/0018-design-ueberarbeitung.md))
 
-- Tokens in `src/app/(frontend)/globals.css` (`@theme`). Markenfarben (`navy`, `petrol`, …) plus semantische Tokens `bg`, `surface`, `band`, `text`, `muted`, `line`, `accent`, `accent-hover`, `on-accent`. Komponenten nutzen nur die semantischen Tokens, die Werte für Dunkel stehen unter `.dark`.
-- Breiten als Utilities: `container-page` (1440px) und `container-reading` (920px Lesebreite für Artikel).
-- Schriften über `next/font` in `src/lib/fonts.ts` (Inter, Cormorant Garamond).
-- Dark Mode: `src/components/layout/ThemeScript.tsx` setzt die Klasse `dark` vor dem ersten Zeichnen, wenn `localStorage['sgbr-theme'] === 'dark'`. Ohne gespeicherte Wahl bleibt es hell, auch bei dunklem System. Umschalter im Kopf und im Menü-Drawer.
-- Logos von Firmen und das Newsletter-Formular im Footer liegen auf einer weissen Fläche, damit sie in beiden Modi gleich aussehen.
-- Muted hell ist `#6B6B6B` statt `#7A7A7A` (Kontrast AA, [ADR 0010](entscheidungen/0010-design-werte.md)).
+Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FAZ (Dachzeile, Nüchternheit) und HBR (grosse Titel, klare Listen). Die alte Seite war zusammengewürfelt; die neue nutzt **ein** Komponentensystem.
 
-## Komponenten im Code
+### Grundregeln
 
-| Komponente | Datei |
+- **Eckig:** keine abgerundeten Ecken (alle Radius-Tokens sind 0). Trennung über Linien statt Boxen: Haarlinie `border-line`, kräftige Linie `rule-top` (2 px, `--color-rule`) über Rubriken.
+- **Schriften:** Überschriften in **Source Serif 4** (600, leicht eng gesetzt), alles andere in **Inter**, auch der Artikeltext. Nur diese zwei (`src/lib/fonts.ts`).
+- **Logo:** die SGBR-Wortmarke als SVG (`src/components/layout/Logo.tsx`, `currentColor`: Navy hell, Weiss dunkel und im Footer). Dateien für Mails und OG in `public/logo-sgbr.svg` und `public/logo-sgbr-white.svg`, Favicon `src/app/icon.png`.
+- **Farben:** Hauptfarbe `#17415B` (Logofarbe). Komponenten nutzen nur semantische Tokens: `bg`, `surface`, `band`, `text`, `muted`, `line`, `rule`, `accent`, `accent-hover`, `on-accent`, `danger`. Dunkle Werte unter `.dark` (auch verschachtelt, z. B. der Footer). Keine fest weissen Flächen, ausser hinter Firmenlogos.
+- **Breiten:** `container-page` (1280 px), `container-wide` (1040 px, grosse Bilder), `container-reading` (720 px, Lesetext).
+
+### Typo-Skala (Utilities in `globals.css`)
+
+| Klasse | Verwendung |
 | --- | --- |
-| Kopf, Sprache, Hell/Dunkel, Suche, Drawer | `src/components/layout/` |
-| Artikel-, Ausgaben-, Eventkarten | `src/components/cards/`, `src/components/events/` |
-| Byline „Interview with …“ | `src/components/ui/Byline.tsx` |
-| Lexical-Text mit Frage/Antwort, Zitat, Embed, PDF | `src/components/richtext/` |
-| Seitenblöcke (Text, Team, Formular, Bild+Text, CTA) | `src/components/blocks/RenderBlocks.tsx` |
-| Formulare aus dem Form Builder | `src/components/forms/` |
-| Newsletter-Anmeldung und Popup | `src/components/newsletter/` |
-| Admin-Leiste, Live Preview | `src/components/preview/` |
+| `display` | Seitentitel, Artikeltitel |
+| `headline-lg` / `headline-md` / `headline-sm` | Aufmacher, Rubrikentitel, Listen |
+| `kicker` | Dachzeile: Inter, 11 px, Versalien, gesperrt, Akzentfarbe |
+| `meta` | Byline, Datum, Hinweise: Inter 13 px, muted |
+| `lead` | Vorspann |
+
+### Komponenten
+
+| Komponente | Datei | Hinweise |
+| --- | --- | --- |
+| Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
+| Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile, drei Linkspalten |
+| Artikel-Teaser | `cards/ArticleCard.tsx` | Varianten `lead`, `standard`, `horizontal`, `compact` (mit Rangnummer); immer Dachzeile, Titel, Kurzzusammenfassung, Byline |
+| Artikellisten | `cards/PostGrid.tsx` | Aufmacher + Liste, dann Zeilen mit Bild rechts |
+| Event | `events/EventRow.tsx` | Datumsblock, Speaker, „Zeit“/„Ort“ als Beschriftung; kein Logo, kein Emoji; überall gleich |
+| Ausgabe | `cards/IssueCard.tsx` | Cover oder typografischer Platzhalter mit Logo |
+| Rubrik | `ui/Section.tsx` | `SectionHeader` (2 px Linie, Titel, „Alle …“), `PageTitle` |
+| Buttons | `ui/Button.tsx` | `primary`, `secondary`, `ghost`, eckig, mit Ladezustand |
+| Formularfelder | `forms/fields/index.tsx` | Eingabe, Auswahl, Textfeld, Checkbox, Interessen-Kacheln, PDF-Upload mit Drag & Drop |
+| Suche | `layout/SearchOverlay.tsx`, `[locale]/search` | Overlay mit Live-Vorschlägen (Pfeiltasten), Suchseite mit Filter nach Art und Hervorhebung |
+
+### Bewegung
+
+- Sanft und kurz: Hover (Unterstreichung bei Titeln, leichter Bild-Zoom), Dropdowns und Dialoge blenden ein, der Drawer gleitet von rechts, Abschnitte blenden beim Scrollen ein (`ui/Reveal.tsx`).
+- Ohne JavaScript bleibt alles sichtbar (`.js`-Klasse), `prefers-reduced-motion` schaltet alle Animationen ab.
+
+### Dark Mode
+
+- Hell ist Standard. Umschalter im Kopf, Wahl in `localStorage`, gesetzt vor dem ersten Zeichnen (`ThemeScript.tsx`). `?theme=dark` oder `?theme=light` in der URL setzt die Wahl (für Prüfungen und Screenshots).
