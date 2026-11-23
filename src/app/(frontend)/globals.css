@@ -26,6 +26,7 @@
   --color-accent-hover: var(--sgbr-accent-hover);
   --color-on-accent: var(--sgbr-on-accent);
   --color-danger: var(--sgbr-danger);
+  --color-success: var(--sgbr-success);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-serif-headline), ui-serif, Georgia, serif;
@@ -59,6 +60,7 @@
   --sgbr-accent-hover: #0f2f43;
   --sgbr-on-accent: #ffffff;
   --sgbr-danger: #b42318;
+  --sgbr-success: #1a7f4b;
   color-scheme: light;
 }
 
@@ -74,6 +76,7 @@
   --sgbr-accent-hover: #b4d0e5;
   --sgbr-on-accent: #0f1417;
   --sgbr-danger: #f0877f;
+  --sgbr-success: #6fcf97;
   color-scheme: dark;
 
   /* Re-declared so nested .dark areas (e.g. the footer) resolve the dark values too. */
@@ -88,6 +91,7 @@
   --color-accent-hover: var(--sgbr-accent-hover);
   --color-on-accent: var(--sgbr-on-accent);
   --color-danger: var(--sgbr-danger);
+  --color-success: var(--sgbr-success);
 }
 
 @layer base {

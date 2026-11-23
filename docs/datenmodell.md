@@ -1,6 +1,6 @@
 ---
 description: Payload-Datenmodell der SGBR-Website: Collections, Felder, Lokalisierung, Entwürfe, Globals und Plugin-Collections, mit Pfaden im Code
-aktualisiert: 2026-11-22
+aktualisiert: 2026-11-23
 ---
 
 # Datenmodell
@@ -91,4 +91,4 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 
 ## Bewusst nicht im Modell
 
-- Börsenticker, Instagram-Feed, Seitenaufrufe, Übersetzungen, Auswahlprozess für Bewerbungen (kommt später).
+- Instagram-Feed, Seitenaufrufe, Übersetzungen, Auswahlprozess für Bewerbungen (kommt später).

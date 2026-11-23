@@ -2,19 +2,41 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { Suspense } from 'react'
 
 import { Link } from '@/i18n/navigation'
-import type { Footer, Header } from '@/payload-types'
+import type { AppLocale } from '@/i18n/routing'
+import { getTopics } from '@/lib/data/queries'
+import type { Footer, Header, Topic } from '@/payload-types'
 
 import { AppLink } from '../ui/AppLink'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { Logo } from './Logo'
+import { MarketBar } from './MarketBar'
 import { MenuDrawer } from './MenuDrawer'
 import { SearchOverlay } from './SearchOverlay'
 import { StickyHeader } from './StickyHeader'
 import { ThemeToggle } from './ThemeToggle'
+import { TopicsMenu, type TopicGroup } from './TopicsMenu'
 
 type Props = { header: Header; footer: Footer }
 
-function Tools({ header, footer }: Props) {
+const TOPICS_HREF = '/topics'
+
+/** Main topics with their sub-topics, in the order set in the admin. */
+function topicGroups(topics: Topic[]): TopicGroup[] {
+  const parentOf = (topic: Topic) =>
+    typeof topic.parent === 'object' ? topic.parent?.id : topic.parent
+  return topics
+    .filter((topic) => !topic.parent)
+    .map((main) => ({
+      id: main.id,
+      title: main.title,
+      slug: main.slug,
+      children: topics
+        .filter((topic) => parentOf(topic) === main.id)
+        .map(({ id, title, slug }) => ({ id, title, slug })),
+    }))
+}
+
+function Tools({ header, footer, groups }: Props & { groups: TopicGroup[] }) {
   return (
     <div className="flex items-center">
       <SearchOverlay />
@@ -22,7 +44,7 @@ function Tools({ header, footer }: Props) {
         <LanguageSwitcher />
       </Suspense>
       <ThemeToggle />
-      <MenuDrawer navItems={header.navItems ?? []} footer={footer} />
+      <MenuDrawer navItems={header.navItems ?? []} footer={footer} topics={groups} />
     </div>
   )
 }
@@ -39,6 +61,7 @@ export async function SiteHeader({ header, footer }: Props) {
     year: 'numeric',
   }).format(new Date())
   const nav = header.navItems ?? []
+  const groups = topicGroups(await getTopics(locale as AppLocale))
 
   return (
     <>
@@ -48,12 +71,13 @@ export async function SiteHeader({ header, footer }: Props) {
       >
         {t('nav.skipToContent')}
       </a>
-      <header id="masthead" className="bg-bg">
+      <header id="masthead" className="relative bg-bg">
         <div className="container-page">
           <div className="flex h-12 items-center justify-between gap-4">
-            <span className="meta hidden capitalize sm:inline">{today}</span>
-            <div className="ml-auto">
-              <Tools header={header} footer={footer} />
+            <span className="meta hidden shrink-0 capitalize sm:inline">{today}</span>
+            <MarketBar />
+            <div className="ml-auto shrink-0">
+              <Tools header={header} footer={footer} groups={groups} />
             </div>
           </div>
           <div className="flex justify-center pb-6 pt-2 md:pb-8 md:pt-4">
@@ -63,16 +87,23 @@ export async function SiteHeader({ header, footer }: Props) {
           </div>
           <nav aria-label="Main" className="hidden border-y border-rule md:block">
             <ul className="flex items-center justify-center gap-x-10 py-2.5 text-[0.8125rem] font-semibold uppercase tracking-[0.1em]">
-              {nav.map((item) => (
-                <li key={item.id ?? item.href}>
+              {nav.map((item) => {
+                const link = (
                   <AppLink
                     href={item.href}
                     className="text-text underline decoration-transparent decoration-2 underline-offset-[10px] transition-colors hover:decoration-accent"
                   >
                     {item.label}
                   </AppLink>
-                </li>
-              ))}
+                )
+                return item.href === TOPICS_HREF ? (
+                  <TopicsMenu key={item.id ?? item.href} groups={groups}>
+                    {link}
+                  </TopicsMenu>
+                ) : (
+                  <li key={item.id ?? item.href}>{link}</li>
+                )
+              })}
             </ul>
           </nav>
           <div className="border-b border-rule md:hidden" />
@@ -89,15 +120,22 @@ export async function SiteHeader({ header, footer }: Props) {
             <Logo className="h-7 w-auto" />
           </Link>
           <ul className="hidden items-center gap-8 text-xs font-semibold uppercase tracking-[0.1em] lg:flex">
-            {nav.map((item) => (
-              <li key={item.id ?? item.href}>
+            {nav.map((item) => {
+              const link = (
                 <AppLink href={item.href} tabIndex={-1} className="hover:text-accent">
                   {item.label}
                 </AppLink>
-              </li>
-            ))}
+              )
+              return item.href === TOPICS_HREF ? (
+                <TopicsMenu key={item.id ?? item.href} groups={groups} compact>
+                  {link}
+                </TopicsMenu>
+              ) : (
+                <li key={item.id ?? item.href}>{link}</li>
+              )
+            })}
           </ul>
-          <Tools header={header} footer={footer} />
+          <Tools header={header} footer={footer} groups={groups} />
         </div>
       </StickyHeader>
     </>

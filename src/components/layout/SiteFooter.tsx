@@ -28,7 +28,7 @@ export async function SiteFooter({ footer, header }: { footer: Footer; header: H
             {footer.newsletterText || t('newsletter.intro')}
           </p>
           <div className="mx-auto mt-8 max-w-xl text-left">
-            <NewsletterSignup source="footer" variant="inline" align="center" />
+            <NewsletterSignup source="footer" variant="inline" />
           </div>
         </div>
       </div>

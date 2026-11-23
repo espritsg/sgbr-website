@@ -13,7 +13,8 @@ Browser ──> Vercel (Next.js 16)
               ├─ /admin, /api .... Payload CMS (Admin, REST, GraphQL)
               ├─ /files/… ........ Dateien (leitet auf Vercel Blob bzw. lokale Platte)
               ├─ /issues/?sgbr_feed=1, /category/speaker-events/?sgbr_feed=1 ... JSON für espritsg.ch
-              └─ /api/cron/run-jobs  täglicher Vercel Cron → Payload Jobs
+              ├─ /api/cron/run-jobs  täglicher Vercel Cron → Payload Jobs
+              └─ /api/market ....... Börsenkurse für den Kopf (ADR 0020)
             ├─> Postgres (Neon; lokal Docker)
             ├─> Vercel Blob (Bilder, PDFs; lokal Ordner media/)
             └─> Resend (Mails; lokal Konsole + .mail-preview/)

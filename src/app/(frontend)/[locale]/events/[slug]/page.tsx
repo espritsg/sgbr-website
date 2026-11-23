@@ -103,30 +103,15 @@ export default async function EventPage({ params }: Props) {
           </div>
           <LogoPlate logo={speaker?.organizationLogo} className="h-20 w-44 md:h-24 md:w-56" />
         </div>
-        <div className="mt-8 flex flex-col gap-5 border-y border-line py-5 lg:flex-row lg:items-center lg:justify-between">
-          <dl className="flex flex-wrap gap-x-8 gap-y-3">
-            {facts.map((fact) => (
-              <div key={fact.label} className="flex items-center gap-2.5">
-                <fact.icon aria-hidden className="size-5 shrink-0 text-accent" />
-                <dt className="sr-only">{fact.label}</dt>
-                <dd className="text-[0.9375rem] font-medium">{fact.value}</dd>
-              </div>
-            ))}
-          </dl>
-          {application.state === 'open' && form && (
-            <div className="flex shrink-0 flex-col items-start gap-1.5 lg:items-end">
-              <FormDialogButton dialogId="apply-form">
-                {applyIcon}
-                {applyLabel}
-              </FormDialogButton>
-              {application.deadline && (
-                <p className="meta">
-                  {t('applicationDeadline', { date: formatDate(application.deadline, locale) })}
-                </p>
-              )}
+        <dl className="mt-8 flex flex-wrap gap-x-8 gap-y-3 border-y border-line py-5">
+          {facts.map((fact) => (
+            <div key={fact.label} className="flex items-center gap-2.5">
+              <fact.icon aria-hidden className="size-5 shrink-0 text-accent" />
+              <dt className="sr-only">{fact.label}</dt>
+              <dd className="text-[0.9375rem] font-medium">{fact.value}</dd>
             </div>
-          )}
-        </div>
+          ))}
+        </dl>
       </header>
 
       <section className="container-page mt-12 grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
@@ -148,7 +133,10 @@ export default async function EventPage({ params }: Props) {
           )}
 
           {application.state !== 'none' && (
-            <div id="apply" className="mt-12 scroll-mt-24 border-t border-line pt-8 first:mt-0 first:border-t-0 first:pt-0">
+            <div
+              id="apply"
+              className="mt-12 scroll-mt-24 border-t border-line pt-8 first:mt-0 first:border-t-0 first:pt-0"
+            >
               <h2 className="headline-md">{applyLabel}</h2>
               {application.state === 'open' && form && (
                 <>

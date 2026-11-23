@@ -13,8 +13,6 @@ type Props = {
   source: 'footer' | 'popup' | 'newsletter-page'
   /** inline: one line (footer); full: newsletter page; compact: popup. */
   variant?: 'inline' | 'full' | 'compact'
-  /** inline only: centre the consent line under the field (newsletter band). */
-  align?: 'start' | 'center'
   onDone?: () => void
 }
 
@@ -41,7 +39,7 @@ export function SuccessMessage({ children }: { children: React.ReactNode }) {
  * Newsletter signup with double opt-in (docs/newsletter.md). The response is the
  * same whether the address is new or known, so nobody learns who is subscribed.
  */
-export function NewsletterSignup({ source, variant = 'full', align = 'start', onDone }: Props) {
+export function NewsletterSignup({ source, variant = 'full', onDone }: Props) {
   const t = useTranslations('newsletter')
   const tForms = useTranslations('forms')
   const locale = useLocale()
@@ -132,9 +130,8 @@ export function NewsletterSignup({ source, variant = 'full', align = 'start', on
           </Button>
         </div>
         {honeypot}
-        <div className={align === 'center' ? 'flex justify-center text-left' : ''}>
-          <div className="max-w-lg text-xs">{consent}</div>
-        </div>
+        {/* Consent spans the full row, from the field to the end of the button. */}
+        <div className="text-left text-xs">{consent}</div>
         {messages}
       </form>
     )

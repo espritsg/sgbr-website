@@ -156,25 +156,29 @@ export async function TopicsExplorer({
             ))}
           </nav>
           {subs.length > 0 && (
-            <div aria-label={t('filter')} className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="kicker mr-2 text-muted!">{t('filter')}</span>
-              {[activeMain!, ...subs].map((topic) => {
-                const isMain = topic.id === activeMain!.id
-                const isActive = topic.id === (activeSub ?? activeMain)?.id
-                return (
-                  <Link
-                    key={topic.id}
-                    href={keep(`/topics/${topic.slug}`)}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={chip(isActive, 'sub')}
-                  >
-                    {isMain ? t('all') : topic.title}
-                    {!isMain && (
-                      <span className="font-normal opacity-60">{counts.get(topic.id) ?? 0}</span>
-                    )}
-                  </Link>
-                )
-              })}
+            <div className="mt-6">
+              <p id="topics-sub-label" className="kicker mb-3 text-muted!">
+                {t('filter')}
+              </p>
+              <nav aria-labelledby="topics-sub-label" className="flex flex-wrap gap-2">
+                {[activeMain!, ...subs].map((topic) => {
+                  const isMain = topic.id === activeMain!.id
+                  const isActive = topic.id === (activeSub ?? activeMain)?.id
+                  return (
+                    <Link
+                      key={topic.id}
+                      href={keep(`/topics/${topic.slug}`)}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={chip(isActive, 'sub')}
+                    >
+                      {isMain ? t('all') : topic.title}
+                      {!isMain && (
+                        <span className="font-normal opacity-60">{counts.get(topic.id) ?? 0}</span>
+                      )}
+                    </Link>
+                  )
+                })}
+              </nav>
             </div>
           )}
         </div>

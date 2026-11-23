@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url'
 import { canRunJobs } from './access/permissions'
 import { collections } from './collections'
 import { cronEndpoint } from './endpoints/cron'
+import { marketEndpoint } from './endpoints/market'
 import { newsletterEndpoints } from './endpoints/newsletter'
 import { dailyMaintenanceTask } from './jobs/dailyMaintenance'
 import { Users } from './collections/users'
@@ -74,7 +75,7 @@ export default buildConfig({
   },
   collections,
   globals,
-  endpoints: [...newsletterEndpoints, cronEndpoint],
+  endpoints: [...newsletterEndpoints, cronEndpoint, marketEndpoint],
   email: emailAdapter(),
   editor: defaultEditor,
   secret: process.env.PAYLOAD_SECRET || '',

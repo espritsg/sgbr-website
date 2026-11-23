@@ -10,10 +10,16 @@ import { iconButtonClass } from '../ui/Button'
 import { ArrowRight, List, X } from '../ui/icons'
 import { SocialLinks } from '../ui/SocialLinks'
 import { Logo } from './Logo'
+import type { TopicGroup } from './TopicsMenu'
 
-type Props = { navItems: NonNullable<Header['navItems']>; footer: Footer }
+type Props = {
+  navItems: NonNullable<Header['navItems']>
+  footer: Footer
+  /** Main topics, listed under the "Topics" item. */
+  topics?: TopicGroup[]
+}
 
-export function MenuDrawer({ navItems, footer }: Props) {
+export function MenuDrawer({ navItems, footer, topics = [] }: Props) {
   const t = useTranslations('nav')
   const [open, setOpen] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
@@ -67,6 +73,20 @@ export function MenuDrawer({ navItems, footer }: Props) {
                       className="size-4 text-muted transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent"
                     />
                   </AppLink>
+                  {item.href === '/topics' && topics.length > 0 && (
+                    <ul className="-mt-1 grid grid-cols-2 gap-x-4 gap-y-2.5 pb-4 text-sm">
+                      {topics.map((topic) => (
+                        <li key={topic.id}>
+                          <AppLink
+                            href={`/topics/${topic.slug}`}
+                            className="text-muted transition-colors hover:text-text"
+                          >
+                            {topic.title}
+                          </AppLink>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>

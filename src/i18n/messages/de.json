@@ -16,7 +16,9 @@
     "search": "Suche",
     "menu": "Menü",
     "close": "Schliessen",
-    "skipToContent": "Zum Inhalt springen"
+    "skipToContent": "Zum Inhalt springen",
+    "topicsMenu": "Themen anzeigen",
+    "allTopics": "Alle Themen"
   },
   "theme": {
     "toggle": "Dunkelmodus umschalten",
@@ -209,5 +211,10 @@
     "label": "Seiten",
     "previous": "Vorherige Seite",
     "next": "Nächste Seite"
+  },
+  "market": {
+    "label": "Märkte",
+    "up": "gestiegen",
+    "down": "gefallen"
   }
 }

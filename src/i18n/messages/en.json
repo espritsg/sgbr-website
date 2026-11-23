@@ -16,7 +16,9 @@
     "search": "Search",
     "menu": "Menu",
     "close": "Close",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "topicsMenu": "Show topics",
+    "allTopics": "All topics"
   },
   "theme": {
     "toggle": "Toggle dark mode",
@@ -209,5 +211,10 @@
     "label": "Pagination",
     "previous": "Previous page",
     "next": "Next page"
+  },
+  "market": {
+    "label": "Markets",
+    "up": "up",
+    "down": "down"
   }
 }

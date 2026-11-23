@@ -61,7 +61,7 @@ Details: call-2026-11-21.md.
 - Artikelseite: Hero-Bild, Titel, Byline, Text in Lesebreite, Frage/Antwort-Block, Navigation vorher/nachher.
 - Topics-Seite: Übersicht und Themenseiten im selben Aufbau: Suche im Text, Filter nach Art, Themen und Unterthemen als gleiche Chips mit Anzahl, Artikelraster, Seitenzahlen.
 - Ausgaben: Raster mit Cover, Jahr, Tagline, „Read the issue“ oder PDF. Ausgabenseite mit Vorwort und Interview-Karten mit freigestellten Porträts.
-- Events: Zeilen mit Datumsblock, Name, Rolle, Firma, Zeit und Ort mit Icons, Firmenlogo; „Past Events“ mit Fotos und Recap-Link. Eventseite mit Logo im Kopf, Infozeile mit Icons und Button „Fürs Dinner bewerben“ bzw. „Für den Talk bewerben“, solange die Bewerbung offen ist.
+- Events: Zeilen mit Datumsblock, Name, Rolle, Firma, Zeit und Ort mit Icons, Firmenlogo; „Past Events“ mit Fotos und Recap-Link. Eventseite mit Logo im Kopf, Infozeile mit Icons; unter dem Text der Button „Fürs Dinner bewerben“ bzw. „Für den Talk bewerben“, solange die Bewerbung offen ist.
 - Personenseite: Foto, Rolle, alle Interviews und Events.
 - Newsletter-Seite: eine Spalte, zentriert: Titel, ein Satz, Formular mit Interessen-Kacheln, darunter frühere Newsletter.
 - About: Mission, Teamfoto, Personenraster nach Gruppe.
@@ -81,7 +81,7 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 - **Eckig:** keine abgerundeten Ecken (alle Radius-Tokens sind 0). Trennung über Linien statt Boxen: Haarlinie `border-line`, kräftige Linie `rule-top` (2 px, `--color-rule`) über Rubriken.
 - **Schriften:** Überschriften in **Source Serif 4** (600, leicht eng gesetzt), alles andere in **Inter**, auch der Artikeltext. Nur diese zwei (`src/lib/fonts.ts`).
 - **Logo:** die SGBR-Wortmarke als SVG (`src/components/layout/Logo.tsx`, `currentColor`: Navy hell, Weiss dunkel und im Footer). Dateien für Mails und OG in `public/logo-sgbr.svg` und `public/logo-sgbr-white.svg`, Favicon `src/app/icon.png`.
-- **Farben:** Hauptfarbe `#17415B` (Logofarbe). Komponenten nutzen nur semantische Tokens: `bg`, `surface`, `band`, `text`, `muted`, `line`, `rule`, `accent`, `accent-hover`, `on-accent`, `danger`. Dunkle Werte unter `.dark` (auch verschachtelt, z. B. der Footer). Keine fest weissen Flächen, ausser hinter Firmenlogos.
+- **Farben:** Hauptfarbe `#17415B` (Logofarbe). Komponenten nutzen nur semantische Tokens: `bg`, `surface`, `band`, `text`, `muted`, `line`, `rule`, `accent`, `accent-hover`, `on-accent`, `danger`, `success` (nur Kursgewinne). Dunkle Werte unter `.dark` (auch verschachtelt, z. B. der Footer). Keine fest weissen Flächen, ausser hinter Firmenlogos.
 - **Breiten:** `container-page` (1280 px), `container-wide` (1040 px, grosse Bilder), `container-reading` (720 px, Lesetext).
 
 ### Typo-Skala (Utilities in `globals.css`)
@@ -99,10 +99,11 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 
 | Komponente | Datei | Hinweise |
 | --- | --- | --- |
-| Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
-| Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile, drei Linkspalten |
+| Kopf | `src/components/layout/SiteHeader.tsx` | Datum, Börsenkurse (`MarketBar.tsx`, nur breite Bildschirme), Werkzeuge (Suche, Sprache als Dropdown, Hell/Dunkel, Menü), Logo zentriert, Rubrikenleiste mit Linien; kompakter Sticky-Header beim Scrollen (`StickyHeader.tsx`) |
+| Themen-Menü | `layout/TopicsMenu.tsx` | „Themen“ in der Rubrikenleiste und im Sticky-Header klappt eine Fläche über die volle Breite auf: eine Spalte pro Haupt-Thema mit seinen Unterthemen, unten „Alle Themen“. Öffnet bei Mausberührung oder per Pfeil-Button (Touch, Tastatur), Esc und Klick daneben schliessen. Im Menü-Drawer stehen die Haupt-Themen unter „Themen“ |
+| Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile (Einwilligung so breit wie Feld und Button zusammen), drei Linkspalten |
 | Artikel-Teaser | `cards/ArticleCard.tsx` | Varianten `lead`, `standard`, `horizontal`, `compact` (mit Rangnummer); immer Dachzeile, Titel, Kurzzusammenfassung, Byline |
-| Themen | `topics/TopicsExplorer.tsx` | Übersicht und Themenseite in einem Aufbau, damit nichts springt: Suche, Art, Themen-Chips, Raster |
+| Themen | `topics/TopicsExplorer.tsx` | Übersicht und Themenseite in einem Aufbau, damit nichts springt: Suche, Art, Themen-Chips, darunter in eigener Zeile „Nach Unterthema filtern“ mit den Unterthemen, Raster |
 | Event | `events/EventRow.tsx` | `EventCard` für kommende Events (Karten nebeneinander), `EventRow` für vergangene (Liste): Datumsblock, Speaker, Zeit und Ort mit Icons, Logo auf fester Fläche (`LogoPlate`). Karte und Zeile sind als Ganzes klickbar |
 | Formular-Pop-up | `forms/FormDialog.tsx` | Bewerbungen öffnen sich als Dialog (`FormDialogButton` mehrfach pro Seite möglich, Link auf `#apply-form` öffnet ihn direkt) |
 | Seitenzahlen | `ui/Pagination.tsx` | höchstens 5 Zahlen um die aktuelle Seite, Pfeile für vor/zurück (`src/lib/pagination.ts`) |
