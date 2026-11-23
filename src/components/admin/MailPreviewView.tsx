@@ -27,10 +27,13 @@ export async function MailPreviewView({ initPageResult, searchParams }: AdminVie
       style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 24, padding: '40px 60px' }}
     >
       <div>
-        <h1 style={{ marginTop: 0 }}>Mail-Vorschau</h1>
-        <p style={{ fontSize: 13 }}>
-          Lokal ohne RESEND_API_KEY werden Mails nicht verschickt, sondern hier gezeigt (Ordner
-          .mail-preview/).
+        <h1 style={{ marginTop: 0 }}>Mail-Vorschau (nur lokal)</h1>
+        <p style={{ fontSize: 13, lineHeight: 1.5 }}>
+          Hier landen alle Mails, die die Website verschicken würde: Bestätigungen der
+          Newsletter-Anmeldung, Testversände, Newsletter und Formular-Mails. Auf dem
+          Entwicklungsrechner ist kein Versanddienst (Resend) eingerichtet, deshalb geht nichts
+          wirklich raus. So lässt sich gefahrlos prüfen, wie eine Mail aussieht. Auf der echten
+          Website ist Resend eingerichtet, dann gibt es diese Seite nicht.
         </p>
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {mails.map((mail) => (

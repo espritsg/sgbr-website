@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { contentAccess } from '@/access/permissions'
+import { seoTab } from '@/fields/seoTab'
 import { slugField } from '@/fields/slug'
 import { wpIdField } from '@/fields/wpId'
 import { defaultEditor } from '@/lib/richtext/editors'
@@ -21,64 +22,80 @@ export const Issues: CollectionConfig = {
   versions: contentVersions(),
   fields: [
     {
-      name: 'title',
-      type: 'text',
-      required: true,
-      localized: true,
-      label: { de: 'Titel', en: 'Title' },
-    },
-    {
-      name: 'tagline',
-      type: 'text',
-      localized: true,
-      label: { de: 'Unterzeile', en: 'Tagline' },
-      admin: {
-        description: {
-          de: 'z. B. „Who owns tomorrow’s market?“',
-          en: 'e.g. "Who owns tomorrow’s market?"',
-        },
-      },
-    },
-    {
-      name: 'description',
-      type: 'textarea',
-      localized: true,
-      label: { de: 'Beschreibung', en: 'Description' },
-    },
-    {
-      name: 'foreword',
-      type: 'richText',
-      localized: true,
-      editor: defaultEditor,
-      label: { de: 'Vorwort', en: 'Foreword' },
-    },
-    {
-      type: 'row',
-      fields: [
-        { name: 'cover', type: 'upload', relationTo: 'media', label: { de: 'Cover', en: 'Cover' } },
+      type: 'tabs',
+      tabs: [
         {
-          name: 'pdf',
-          type: 'upload',
-          relationTo: 'media',
-          label: 'PDF',
-          filterOptions: { mimeType: { equals: 'application/pdf' } },
+          label: { de: 'Inhalt', en: 'Content' },
+          fields: [
+            {
+              name: 'title',
+              type: 'text',
+              required: true,
+              localized: true,
+              label: { de: 'Titel', en: 'Title' },
+            },
+            {
+              name: 'tagline',
+              type: 'text',
+              localized: true,
+              label: { de: 'Unterzeile', en: 'Tagline' },
+              admin: {
+                description: {
+                  de: 'z. B. „Who owns tomorrow’s market?“',
+                  en: 'e.g. "Who owns tomorrow’s market?"',
+                },
+              },
+            },
+            {
+              name: 'description',
+              type: 'textarea',
+              localized: true,
+              label: { de: 'Beschreibung', en: 'Description' },
+            },
+            {
+              name: 'foreword',
+              type: 'richText',
+              localized: true,
+              editor: defaultEditor,
+              label: { de: 'Vorwort', en: 'Foreword' },
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'cover',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: { de: 'Cover', en: 'Cover' },
+                },
+                {
+                  name: 'pdf',
+                  type: 'upload',
+                  relationTo: 'media',
+                  label: 'PDF',
+                  filterOptions: { mimeType: { equals: 'application/pdf' } },
+                },
+              ],
+            },
+            {
+              name: 'editors',
+              type: 'relationship',
+              relationTo: 'team-members',
+              hasMany: true,
+              label: { de: 'Redaktion', en: 'Editors' },
+            },
+            {
+              name: 'articles',
+              type: 'join',
+              collection: 'posts',
+              on: 'issue',
+              label: { de: 'Artikel', en: 'Articles' },
+              defaultSort: 'publishedAt',
+            },
+          ],
         },
+        seoTab(),
       ],
-    },
-    {
-      name: 'editors',
-      type: 'relationship',
-      relationTo: 'team-members',
-      hasMany: true,
-      label: { de: 'Redaktion', en: 'Editors' },
-    },
-    {
-      name: 'articles',
-      type: 'join',
-      collection: 'posts',
-      on: 'issue',
-      label: { de: 'Artikel', en: 'Articles' },
-      defaultSort: 'publishedAt',
     },
     slugField(),
     {

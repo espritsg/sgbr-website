@@ -81,6 +81,10 @@ export const ImageTextBlock: Block = {
       options: [
         { label: { de: 'links', en: 'left' }, value: 'left' },
         { label: { de: 'rechts', en: 'right' }, value: 'right' },
+        {
+          label: { de: 'volle Breite, Text darunter', en: 'full width, text below' },
+          value: 'full',
+        },
       ],
     },
   ],

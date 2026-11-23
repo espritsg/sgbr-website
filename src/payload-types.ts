@@ -253,6 +253,14 @@ export interface Post {
    * Optional: cut-out portrait, only on the issue page.
    */
   issueImage?: (number | null) | Media;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   /**
    * Part of the URL. Generated from the title if empty. Do not change after publishing.
    */
@@ -270,14 +278,6 @@ export interface Post {
    * Used by the migration only.
    */
   wpId?: number | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -422,10 +422,6 @@ export interface Event {
   applicationDeadline?: string | null;
   gallery?: (number | Media)[] | null;
   recap?: (number | null) | Post;
-  /**
-   * Part of the URL. Generated from the title if empty. Do not change after publishing.
-   */
-  slug: string;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -434,6 +430,10 @@ export interface Event {
      */
     image?: (number | null) | Media;
   };
+  /**
+   * Part of the URL. Generated from the title if empty. Do not change after publishing.
+   */
+  slug: string;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -638,10 +638,6 @@ export interface Page {
   id: number;
   title: string;
   layout?: (RichTextBlock | TeamGridBlock | ContactFormBlock | ImageTextBlock | CtaBlock)[] | null;
-  /**
-   * Part of the URL. Generated from the title if empty. Do not change after publishing.
-   */
-  slug: string;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -650,6 +646,10 @@ export interface Page {
      */
     image?: (number | null) | Media;
   };
+  /**
+   * Part of the URL. Generated from the title if empty. Do not change after publishing.
+   */
+  slug: string;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -722,7 +722,7 @@ export interface ImageTextBlock {
     };
     [k: string]: unknown;
   };
-  imagePosition?: ('left' | 'right') | null;
+  imagePosition?: ('left' | 'right' | 'full') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'imageText';
@@ -825,6 +825,14 @@ export interface Issue {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   /**
    * Part of the URL. Generated from the title if empty. Do not change after publishing.
    */
@@ -835,14 +843,6 @@ export interface Issue {
    * Used by the migration only.
    */
   wpId?: number | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1527,11 +1527,6 @@ export interface PostsSelect<T extends boolean = true> {
   topics?: T;
   issue?: T;
   issueImage?: T;
-  slug?: T;
-  publishedAt?: T;
-  originalLanguage?: T;
-  summaryNeedsReview?: T;
-  wpId?: T;
   meta?:
     | T
     | {
@@ -1539,6 +1534,11 @@ export interface PostsSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
+  publishedAt?: T;
+  originalLanguage?: T;
+  summaryNeedsReview?: T;
+  wpId?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1576,10 +1576,6 @@ export interface IssuesSelect<T extends boolean = true> {
   pdf?: T;
   editors?: T;
   articles?: T;
-  slug?: T;
-  year?: T;
-  format?: T;
-  wpId?: T;
   meta?:
     | T
     | {
@@ -1587,6 +1583,10 @@ export interface IssuesSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
+  year?: T;
+  format?: T;
+  wpId?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1607,7 +1607,6 @@ export interface EventsSelect<T extends boolean = true> {
   applicationDeadline?: T;
   gallery?: T;
   recap?: T;
-  slug?: T;
   meta?:
     | T
     | {
@@ -1615,6 +1614,7 @@ export interface EventsSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1666,7 +1666,6 @@ export interface PagesSelect<T extends boolean = true> {
         imageText?: T | ImageTextBlockSelect<T>;
         cta?: T | CtaBlockSelect<T>;
       };
-  slug?: T;
   meta?:
     | T
     | {
@@ -1674,6 +1673,7 @@ export interface PagesSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

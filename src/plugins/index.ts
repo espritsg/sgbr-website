@@ -27,7 +27,8 @@ export function plugins(): Plugin[] {
     ...storagePlugins(),
 
     seoPlugin({
-      collections: ['posts', 'pages', 'issues', 'events'],
+      // Fields are placed by hand in a separate SEO tab (src/fields/seoTab.ts).
+      collections: [],
       uploadsCollection: 'media',
       tabbedUI: false,
       generateTitle: ({ doc }) => {

@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { contentAccess } from '@/access/permissions'
 import { localeSelect } from '@/fields/localeSelect'
+import { seoTab } from '@/fields/seoTab'
 import { slugField } from '@/fields/slug'
 import { wpIdField } from '@/fields/wpId'
 import { articleEditor } from '@/lib/richtext/editors'
@@ -149,6 +150,7 @@ export const Posts: CollectionConfig = {
             },
           ],
         },
+        seoTab(),
       ],
     },
     slugField(),

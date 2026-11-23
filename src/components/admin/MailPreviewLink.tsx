@@ -9,7 +9,7 @@ export function MailPreviewLink({ user }: ServerProps) {
   if (isResendEnabled() || !canSeeMailPreview(user)) return null
   return (
     <Link href="/admin/mail-preview" style={{ display: 'block', padding: '8px 0', fontSize: 13 }}>
-      ✉ Mail-Vorschau
+      ✉ Mail-Vorschau (nur lokal)
     </Link>
   )
 }

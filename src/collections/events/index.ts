@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { contentAccess } from '@/access/permissions'
+import { seoTab } from '@/fields/seoTab'
 import { slugField } from '@/fields/slug'
 import { defaultEditor } from '@/lib/richtext/editors'
 
@@ -142,6 +143,7 @@ export const Events: CollectionConfig = {
             },
           ],
         },
+        seoTab(),
       ],
     },
     slugField('slug'),
