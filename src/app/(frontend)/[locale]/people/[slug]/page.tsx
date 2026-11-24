@@ -72,9 +72,7 @@ export default async function PersonPage({ params }: Props) {
               </p>
             )}
             {person.bio && (
-              <p className="mt-5 max-w-2xl whitespace-pre-line leading-relaxed text-muted">
-                {person.bio}
-              </p>
+              <p className="mt-5 whitespace-pre-line leading-relaxed text-muted">{person.bio}</p>
             )}
             {person.linkedin && (
               <a

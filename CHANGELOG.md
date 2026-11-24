@@ -6,6 +6,8 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ### Geändert (2026-11-24)
 
+- Artikel: Lesefortschritt als Linie an der Unterkante der Kopfleiste beim Scrollen.
+- Personenseite: Beschreibung nutzt die ganze Breite neben dem Foto.
 - Startseite: Gibt es weniger als drei kommende Speaker Events, füllen die letzten vergangenen die Reihe auf (markiert als „Vergangenes Event“ mit Jahr).
 
 ### Geändert (2026-11-23, Admin und Mails)

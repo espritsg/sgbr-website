@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { ArticleCard } from '@/components/cards/ArticleCard'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
+import { ReadingProgress } from '@/components/layout/ReadingProgress'
 import { RichText } from '@/components/richtext/RichText'
 import { Byline } from '@/components/ui/Byline'
 import { ArrowLeft, ArrowRight } from '@/components/ui/icons'
@@ -136,12 +137,15 @@ export default async function ArticlePage({ params }: Props) {
       )}
 
       <div className="container-reading py-10" lang={post.originalLanguage}>
-        <RichText
-          data={post.content}
-          locale={locale}
-          className="prose prose-lg max-w-none text-text dark:prose-invert prose-headings:font-serif prose-headings:tracking-tight prose-p:leading-[1.75] prose-a:text-accent prose-a:underline-offset-2 prose-strong:text-text"
-          labels={{ question: t('question'), answer: t('answer'), download: t('download') }}
-        />
+        <ReadingProgress targetId="article-body" />
+        <div id="article-body">
+          <RichText
+            data={post.content}
+            locale={locale}
+            className="prose prose-lg max-w-none text-text dark:prose-invert prose-headings:font-serif prose-headings:tracking-tight prose-p:leading-[1.75] prose-a:text-accent prose-a:underline-offset-2 prose-strong:text-text"
+            labels={{ question: t('question'), answer: t('answer'), download: t('download') }}
+          />
+        </div>
 
         {people.length > 0 && (
           <aside className="mt-12 border-t border-line pt-6">
