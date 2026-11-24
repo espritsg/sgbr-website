@@ -4,6 +4,10 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-24)
+
+- Startseite: Gibt es weniger als drei kommende Speaker Events, füllen die letzten vergangenen die Reihe auf (markiert als „Vergangenes Event“ mit Jahr).
+
 ### Geändert (2026-11-23, Admin und Mails)
 
 - Admin: SGBR-Logo auf der Anmeldeseite, SGBR-Zeichen im Menü und als Favicon; Mail-Vorschau zusätzlich als Karte im Dashboard.

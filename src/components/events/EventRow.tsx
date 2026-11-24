@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 import { Link } from '@/i18n/navigation'
 import { SITE_TIME_ZONE } from '@/lib/dates'
-import { applicationState } from '@/lib/events'
+import { applicationState, isPastEvent } from '@/lib/events'
 import { formatTime } from '@/lib/format'
 import type { Event, Media, Person } from '@/payload-types'
 
@@ -128,6 +128,7 @@ export async function EventCard({ event }: { event: Event }) {
   const date = dateParts(event.startsAt, locale)
   const dinner = event.applicationFor !== 'event' && applicationState(event).state === 'open'
   const applyOpen = applicationState(event).state === 'open'
+  const isPast = isPastEvent(event)
   return (
     <article className="group relative flex h-full flex-col border border-line p-5 transition-colors duration-200 hover:border-text sm:p-6">
       <div className="flex items-start justify-between gap-4">
@@ -143,6 +144,12 @@ export async function EventCard({ event }: { event: Event }) {
         </time>
         <LogoPlate logo={speaker?.organizationLogo} className="h-14 w-32" />
       </div>
+      {/* Past events only appear here to fill the homepage row; label them clearly. */}
+      {isPast && (
+        <p className="kicker mt-6 -mb-4 text-muted!">
+          {t('pastEvent')} · {new Date(event.startsAt).getUTCFullYear()}
+        </p>
+      )}
       <h3 className="headline-md mt-6">
         <Link
           href={`/events/${event.slug}`}

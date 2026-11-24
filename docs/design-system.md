@@ -104,7 +104,7 @@ Ein ruhiges, eckiges Zeitungsdesign nach dem Muster von NYT (Raster, Linien), FA
 | Footer | `SiteFooter.tsx` | dunkel mit weissem Logo, Newsletter-Zeile (Einwilligung so breit wie Feld und Button zusammen), drei Linkspalten |
 | Artikel-Teaser | `cards/ArticleCard.tsx` | Varianten `lead`, `standard`, `horizontal`, `compact` (mit Rangnummer); immer Dachzeile, Titel, Kurzzusammenfassung, Byline |
 | Themen | `topics/TopicsExplorer.tsx` | Übersicht und Themenseite in einem Aufbau, damit nichts springt: Suche, Art, Themen-Chips, darunter in eigener Zeile „Nach Unterthema filtern“ mit den Unterthemen, Raster |
-| Event | `events/EventRow.tsx` | `EventCard` für kommende Events (Karten nebeneinander), `EventRow` für vergangene (Liste): Datumsblock, Speaker, Zeit und Ort mit Icons, Logo auf fester Fläche (`LogoPlate`). Karte und Zeile sind als Ganzes klickbar |
+| Event | `events/EventRow.tsx` | `EventCard` für kommende Events (Karten nebeneinander; auf der Startseite immer eine volle Reihe von drei, fehlende Plätze mit den letzten vergangenen Events gefüllt, markiert mit „Vergangenes Event · Jahr“, Überschrift dann „Speaker Events“), `EventRow` für vergangene (Liste): Datumsblock, Speaker, Zeit und Ort mit Icons, Logo auf fester Fläche (`LogoPlate`). Karte und Zeile sind als Ganzes klickbar |
 | Formular-Pop-up | `forms/FormDialog.tsx` | Bewerbungen öffnen sich als Dialog (`FormDialogButton` mehrfach pro Seite möglich, Link auf `#apply-form` öffnet ihn direkt) |
 | Seitenzahlen | `ui/Pagination.tsx` | höchstens 5 Zahlen um die aktuelle Seite, Pfeile für vor/zurück (`src/lib/pagination.ts`) |
 | Ausgabe | `cards/IssueCard.tsx` | Cover oder typografischer Platzhalter mit Logo |

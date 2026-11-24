@@ -19,6 +19,9 @@ import {
 } from '@/lib/data/queries'
 import type { Issue, Post } from '@/payload-types'
 
+/** Speaker events on the homepage: one row of cards. */
+const EVENT_SLOTS = 3
+
 export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ locale: AppLocale }> }
@@ -47,11 +50,15 @@ export default async function HomePage({ params }: Props) {
   const secondary = rest.slice(0, 2)
   const ranked = rest.slice(2, 7)
 
-  const [upcoming, issues, topics] = await Promise.all([
-    getEvents(locale, 'upcoming', 4),
+  const [upcoming, past, issues, topics] = await Promise.all([
+    getEvents(locale, 'upcoming', EVENT_SLOTS),
+    getEvents(locale, 'past', EVENT_SLOTS),
     getIssues(locale),
     homepage.showTopicSection ? getTopics(locale) : Promise.resolve([]),
   ])
+  // One full row: upcoming events first, filled up with the most recent past ones.
+  const events = [...upcoming, ...past].slice(0, EVENT_SLOTS)
+  const showsPast = events.length > upcoming.length
   const archive = issues.filter((issue) => issue.id !== currentIssue?.id).slice(0, 6)
 
   const shown = new Set(stories.slice(0, 7).map((post) => post.id))
@@ -114,12 +121,12 @@ export default async function HomePage({ params }: Props) {
       {/* 2. Speaker events */}
       <Reveal as="section" className="container-page mt-16">
         <SectionHeader
-          title={t('upcomingEvents')}
+          title={showsPast ? t('events') : t('upcomingEvents')}
           link={{ href: '/events', label: t('allEvents') }}
         />
-        {upcoming.length ? (
+        {events.length ? (
           <EventCardGrid>
-            {upcoming.map((event) => (
+            {events.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
           </EventCardGrid>

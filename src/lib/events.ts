@@ -23,3 +23,8 @@ export function applicationState(
   if (deadline && time > new Date(deadline).getTime()) return { state: 'closed' }
   return { state: 'open', deadline: event.applicationDeadline ?? null }
 }
+
+/** Whether the event has started (same cut as the upcoming/past split in the queries). */
+export function isPastEvent(event: Pick<Event, 'startsAt'>, now: Date = new Date()): boolean {
+  return new Date(event.startsAt).getTime() <= now.getTime()
+}

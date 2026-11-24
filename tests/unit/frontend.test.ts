@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { embedSrc } from '@/components/richtext/Embed'
-import { applicationState } from '@/lib/events'
+import { applicationState, isPastEvent } from '@/lib/events'
 import { fileUrl, imageSrc } from '@/lib/media'
 import { bylineFor } from '@/lib/posts'
 import { documentPath } from '@/lib/preview'
@@ -117,5 +117,16 @@ describe('SEO and preview paths', () => {
     expect(documentPath('posts', 'a', 'de')).toBe('/de/article/a')
     expect(documentPath('pages', 'about', 'en')).toBe('/en/about')
     expect(documentPath('topics', 'x', 'en')).toBeNull()
+  })
+})
+
+describe('isPastEvent', () => {
+  const now = new Date('2026-11-24T12:00:00Z')
+  it('counts started events as past', () => {
+    expect(isPastEvent({ startsAt: '2026-11-23T16:00:00Z' }, now)).toBe(true)
+    expect(isPastEvent({ startsAt: '2026-11-24T12:00:00Z' }, now)).toBe(true)
+  })
+  it('keeps later events upcoming', () => {
+    expect(isPastEvent({ startsAt: '2026-12-15T14:30:00Z' }, now)).toBe(false)
   })
 })

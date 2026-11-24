@@ -45,7 +45,8 @@
     "byTopic": "From our topics",
     "allEvents": "All speaker events",
     "allIssues": "All issues",
-    "allTopics": "All topics"
+    "allTopics": "All topics",
+    "events": "Speaker events"
   },
   "article": {
     "interviewWith": "Interview with {names}",
@@ -114,7 +115,8 @@
     "profile": "Speaker profile",
     "kicker": "Speaker Event",
     "back": "All speaker events",
-    "applicationsOpen": "Applications open"
+    "applicationsOpen": "Applications open",
+    "pastEvent": "Past event"
   },
   "people": {
     "interviews": "Interviews",
