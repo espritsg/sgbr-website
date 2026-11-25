@@ -4,6 +4,16 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-25, Newsletter mit Resend als Quelle)
+
+- Abonnenten liegen nur noch in Resend ([ADR 0021](docs/entscheidungen/0021-resend-als-quelle.md)): Kontakte mit Sprache, Quelle und Einwilligungszeit, ein Segment pro Sprache, ein Topic pro Interesse. Collections `subscribers` und `newsletter-deliveries` entfernt (Migrationen `newsletter_ohne_abonnenten`, `resend_broadcasts`).
+- Double-Opt-in ohne gespeicherte Anmeldungen: verschlüsselter Bestätigungslink, 7 Tage gültig; erst der Klick legt den Kontakt in Resend an.
+- Newsletter gehen als Resend-Broadcasts raus (einer pro Sprache, erst Entwurf, dann senden, nie doppelt); „Erneut senden“ nach Fehlern. Statt Versandfortschritt zeigt der Newsletter die Broadcast-IDs.
+- Abmelden und Einstellungen über die Seite von Resend; eigene Einstellungsseite, Abmelde-Endpunkte, Bounce-Webhook, Selbstaufruf und Löschjob für Unbestätigte entfallen, ebenso `RESEND_WEBHOOK_SECRET`.
+- Neu: `npm run resend:setup` und die Variablen `RESEND_SEGMENT_EN`, `RESEND_SEGMENT_DE`, `RESEND_TOPIC_NEWSLETTER`, `RESEND_TOPIC_EVENTS`. MailPoet-Import der finalen Migration schreibt nach Resend.
+- Lokal ohne `RESEND_API_KEY` ersetzt `.mail-preview/audience.json` Resend.
+- Code liegt jetzt im GitHub-Repo `espritsg/sgbr-website`.
+
 ### Geändert (2026-11-24)
 
 - Artikel: Lesefortschritt als Linie an der Unterkante der Kopfleiste beim Scrollen.

@@ -1,9 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { ArrowLink, PageTitle } from '@/components/ui/Section'
+import { PageTitle } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
 import { confirm } from '@/lib/newsletter/subscriptions'
-import { getPayloadClient } from '@/lib/payload'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { robots: { index: false } }
@@ -16,20 +15,11 @@ export default async function ConfirmPage({ params, searchParams }: Props) {
   setRequestLocale(locale)
   const { token } = await searchParams
   const t = await getTranslations('newsletter')
-  const subscriber = await confirm(await getPayloadClient(), token)
+  const subscriber = await confirm(token)
   return (
-    <>
-      <PageTitle
-        title={subscriber ? t('confirmTitle') : t('title')}
-        intro={subscriber ? t('confirmText') : t('confirmInvalid')}
-      />
-      <div className="container-page">
-        {subscriber?.preferencesToken && (
-          <ArrowLink href={`/newsletter/preferences?token=${subscriber.preferencesToken}`}>
-            {t('preferencesTitle')}
-          </ArrowLink>
-        )}
-      </div>
-    </>
+    <PageTitle
+      title={subscriber ? t('confirmTitle') : t('title')}
+      intro={subscriber ? t('confirmText') : t('confirmInvalid')}
+    />
   )
 }

@@ -2,7 +2,6 @@ import type { TaskConfig } from 'payload'
 
 import { purgeExpiredSubmissions } from '@/lib/forms/retention'
 import { runDueNewsletters } from '@/lib/newsletter/sending'
-import { purgeUnconfirmed } from '@/lib/newsletter/subscriptions'
 import { purgeRateLimits } from '@/lib/rateLimit'
 
 const JOB_LOG_DAYS = 90
@@ -14,9 +13,7 @@ const JOB_LOG_DAYS = 90
 export const dailyMaintenanceTask: TaskConfig<{
   input: Record<string, never>
   output: {
-    newslettersStarted: number
-    newslettersContinued: number
-    unconfirmedSubscribersDeleted: number
+    newslettersSent: number
     submissionsDeleted: number
     applicationFilesDeleted: number
     rateLimitEntriesDeleted: number
@@ -28,9 +25,7 @@ export const dailyMaintenanceTask: TaskConfig<{
   retries: 1,
   inputSchema: [],
   outputSchema: [
-    { name: 'newslettersStarted', type: 'number' },
-    { name: 'newslettersContinued', type: 'number' },
-    { name: 'unconfirmedSubscribersDeleted', type: 'number' },
+    { name: 'newslettersSent', type: 'number' },
     { name: 'submissionsDeleted', type: 'number' },
     { name: 'applicationFilesDeleted', type: 'number' },
     { name: 'rateLimitEntriesDeleted', type: 'number' },
@@ -38,8 +33,7 @@ export const dailyMaintenanceTask: TaskConfig<{
   ],
   handler: async ({ req }) => {
     const { payload } = req
-    const newsletters = await runDueNewsletters(payload)
-    const unconfirmed = await purgeUnconfirmed(payload)
+    const newslettersSent = await runDueNewsletters(payload)
     const submissions = await purgeExpiredSubmissions(payload)
     const rateLimits = await purgeRateLimits(payload)
     const before = new Date(Date.now() - JOB_LOG_DAYS * 86400_000).toISOString()
@@ -48,9 +42,7 @@ export const dailyMaintenanceTask: TaskConfig<{
       where: { and: [{ completedAt: { less_than: before } }] },
     })
     const output = {
-      newslettersStarted: newsletters.started,
-      newslettersContinued: newsletters.continued,
-      unconfirmedSubscribersDeleted: unconfirmed,
+      newslettersSent,
       submissionsDeleted: submissions.submissions,
       applicationFilesDeleted: submissions.files,
       rateLimitEntriesDeleted: rateLimits,

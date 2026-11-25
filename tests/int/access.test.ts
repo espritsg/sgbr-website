@@ -185,7 +185,6 @@ describe('content (posts as representative, same rules for all content collectio
 
 describe('collections with restricted visibility', () => {
   const cases: Array<[CollectionSlug, Record<Role | 'public', boolean>]> = [
-    ['subscribers', { admin: true, board: true, editor: false, advisory: false, public: false }],
     [
       'form-submissions',
       { admin: true, board: true, editor: false, advisory: false, public: false },
@@ -210,19 +209,6 @@ describe('collections with restricted visibility', () => {
       },
     )
   }
-
-  it('subscribers cannot be created through the API, not even by the board', async () => {
-    for (const role of ['board', 'editor', 'advisory', 'public'] as const) {
-      const ok = await allowed(() =>
-        payload.create({
-          collection: 'subscribers',
-          data: { email: `x-${role}@example.com`, locale: 'en', status: 'pending' },
-          ...asUser(role),
-        }),
-      )
-      expect(ok, role).toBe(false)
-    }
-  })
 
   it.each([
     ['admin', true],

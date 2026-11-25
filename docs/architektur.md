@@ -61,15 +61,14 @@ Alles Zeitgesteuerte läuft über die Payload Jobs Queue, ausgelöst von **einem
 | Job | Auslöser |
 | --- | --- |
 | Geplantes Veröffentlichen von Artikeln, Events, Newslettern | täglicher Cron |
-| Unbestätigte Abonnenten nach 7 Tagen löschen | täglicher Cron |
 | Bewerbungen und Lebensläufe nach Frist löschen | täglicher Cron |
 | Abgelaufene Rate-Limit-Einträge löschen | täglicher Cron |
-| Newsletter-Versand in Paketen, fortsetzbar | Button „Senden“, dann Selbstaufruf bis fertig; Cron fängt Abbrüche auf |
+| Newsletter senden (Broadcasts bei Resend) | Button „Senden“, sofort; geplante am Morgen per Cron |
 
 - Cron: einmal täglich um 05:00 UTC (06:00 Winterzeit Zürich, 07:00 Sommerzeit), Takt nur in `vercel.json`. Mit Vercel Pro kann der Takt erhöht werden, sonst ändert sich nichts.
 - Geplantes Veröffentlichen geht deshalb am Morgen des geplanten Tages live, nicht auf die Minute.
 - Endpunkt `/api/cron/run-jobs`, geschützt mit `CRON_SECRET`.
-- Umsetzung: Task `dailyMaintenance` (`src/jobs/dailyMaintenance.ts`) erledigt Newsletter, Abonnenten, Einsendungen und Rate-Limits und schreibt die Zahlen ins Job-Protokoll. `runDailyJobs` (`src/jobs/runJobs.ts`) reiht ihn ein und führt alle fälligen Jobs aus, auch `schedulePublish` von Payload. Aufgerufen von `GET /api/cron/run-jobs` (Vercel Cron) und `npm run jobs`.
+- Umsetzung: Task `dailyMaintenance` (`src/jobs/dailyMaintenance.ts`) erledigt geplante Newsletter, Einsendungen und Rate-Limits und schreibt die Zahlen ins Job-Protokoll. `runDailyJobs` (`src/jobs/runJobs.ts`) reiht ihn ein und führt alle fälligen Jobs aus, auch `schedulePublish` von Payload. Aufgerufen von `GET /api/cron/run-jobs` (Vercel Cron) und `npm run jobs`.
 - Lokal führt der Dev-Server fällige Jobs alle 5 Minuten aus (`jobs.autoRun`, nur im Dev-Modus), also auch geplantes Veröffentlichen. Die tägliche Wartung lokal mit `npm run jobs`.
 - Erledigte Jobs bleiben als Protokoll 90 Tage stehen (`deleteJobOnComplete: false`), sichtbar für den Admin unter Einstellungen → Hintergrund-Jobs.
 

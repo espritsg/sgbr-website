@@ -5,7 +5,7 @@ description: Newsletter-Versand läuft sofort im Request, setzt sich per Selbsta
 # 0017: Newsletter-Versand ohne Warteschlangen-Dienst
 
 - Datum: 2026-11-22
-- Status: angenommen
+- Status: ersetzt durch [0021](0021-resend-als-quelle.md) (Versand als Resend-Broadcasts, kein Selbstaufruf mehr)
 
 ## Kontext
 

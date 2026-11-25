@@ -21,7 +21,7 @@ Entschieden 2026-11-22: beide Sprachen mit Präfix, Artikel unter `/article/`.
 | `/{l}/events`, `/{l}/events/{slug}` | Speaker Events, ein Event mit Bewerbungsformular |
 | `/{l}/people/{slug}` | Person mit allen Interviews und Events |
 | `/{l}/newsletter`, `/{l}/newsletter/{slug}` | Anmeldung und Archiv, eine Ausgabe |
-| `/{l}/newsletter/confirm?token=`, `/{l}/newsletter/preferences?token=` | Anmeldung bestätigen, Interessen ändern oder abmelden |
+| `/{l}/newsletter/confirm?token=` | Anmeldung bestätigen (Einstellungen und Abmelden: Seite von Resend) |
 | `/{l}/about`, `/{l}/contact`, `/{l}/imprint`, `/{l}/privacy` | Seiten |
 | `/{l}/search?q=` | Suche |
 | `/files/{dateiname}` | Download von PDFs und Bildern, ohne Sprachpräfix |

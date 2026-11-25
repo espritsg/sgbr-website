@@ -6,6 +6,7 @@
 import type { Payload } from 'payload'
 
 import type { Role } from '@/access/roles'
+import { localAudience, type Interest } from '@/lib/newsletter/audience'
 import { plainTextToLexical } from '@/lib/richtext/plain'
 
 import { APPLICATION_FILE_MAX_BYTES } from '../../collections/application-files/assertPdf'
@@ -200,7 +201,7 @@ const PRIVACY_DRAFT_SECTIONS = `
 <h2>[Draft] Statistics</h2>
 <p>We use Vercel Web Analytics to collect anonymous usage statistics (e.g. page views). No cookies are set and no personal profiles are created. This replaces Matomo, which was used on the previous website.</p>
 <h2>[Draft] Newsletter</h2>
-<p>If you subscribe to our newsletter, we store your email address, optionally your first name, your interests, the language of the signup and the time of your consent. You confirm your subscription through a link (double opt-in); unconfirmed signups are deleted after seven days. Emails are sent through Resend. You can change your preferences or unsubscribe at any time through the link in every email. After unsubscribing we keep your address with the status "unsubscribed" so that we do not contact you again.</p>
+<p>If you subscribe to our newsletter, we store your email address, optionally your first name, your interests, the language of the signup and the time of your consent and confirmation. You confirm your subscription through a link (double opt-in); before that click nothing is stored, and the link expires after seven days. The list of subscribers is kept and the emails are sent by the email service Resend (USA) on our behalf. You can change your preferences or unsubscribe at any time through the link in every email. After unsubscribing your address stays marked as "unsubscribed" so that we do not contact you again.</p>
 <h2>[Draft] Forms and applications</h2>
 <p>When you use a form on this website (e.g. the contact form or an application for a speaker event), we process the data you enter. Applications may include a CV as a PDF file. Only the editorial board can access submissions and files. Submissions and uploaded files are deleted automatically six months after the event (or six months after submission for forms without an event).</p>
 `
@@ -480,42 +481,42 @@ export async function seedNewsletters(payload: Payload) {
   )
 }
 
-export async function seedSubscribers(payload: Payload) {
+/**
+ * Three test contacts in the local stand-in for Resend (ADR 0007, 0021). Never written
+ * to a real Resend account: with RESEND_API_KEY set this does nothing.
+ */
+export async function seedSubscribers(report: ImportReport) {
+  if (process.env.RESEND_API_KEY) {
+    report.notes.push('RESEND_API_KEY gesetzt: keine Test-Abonnenten angelegt (nur lokal).')
+    return
+  }
   const now = new Date().toISOString()
-  const subscribers = [
+  const contacts = [
     {
       email: 'reader.en@example.com',
       firstName: 'Ada',
       locale: 'en' as const,
-      interests: ['newsletter', 'events'],
+      interests: ['newsletter', 'events'] as Interest[],
     },
     {
       email: 'leserin.de@example.com',
       firstName: 'Clara',
       locale: 'de' as const,
-      interests: ['newsletter'],
+      interests: ['newsletter'] as Interest[],
     },
     {
       email: 'events.only@example.com',
-      firstName: undefined,
       locale: 'en' as const,
-      interests: ['events'],
+      interests: ['events'] as Interest[],
     },
   ]
-  for (const subscriber of subscribers) {
-    await upsert(
-      payload,
-      'subscribers',
-      { field: 'email', value: subscriber.email },
-      {
-        ...subscriber,
-        status: 'confirmed',
-        source: 'admin',
-        consentAt: now,
-        confirmedAt: now,
-        preferencesToken: crypto.randomUUID().replace(/-/g, ''),
-      },
-    )
+  for (const contact of contacts) {
+    await localAudience.createIfMissing({
+      ...contact,
+      source: 'admin',
+      consentAt: now,
+      confirmedAt: now,
+    })
   }
 }
 

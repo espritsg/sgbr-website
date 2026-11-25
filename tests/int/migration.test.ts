@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { readLocalAudience } from '@/lib/newsletter/audience'
 import { runMigration } from '@/scripts/lib/migration'
 import { parseWxr } from '@/scripts/lib/wxr'
 
@@ -95,13 +96,12 @@ describe('final migration with the sample export', () => {
   })
 
   it('takes only confirmed MailPoet subscribers and plain redirects', async () => {
-    const subscribers = await payload.find({
-      collection: 'subscribers',
-      where: { source: { equals: 'mailpoet-import' } },
-    })
-    expect(subscribers.docs.map((s) => s.email)).toEqual(['reader@example.com'])
-    expect(subscribers.docs[0]).toMatchObject({
-      status: 'confirmed',
+    const { contacts } = await readLocalAudience()
+    const imported = contacts.filter((contact) => contact.source === 'mailpoet-import')
+    expect(imported.map((contact) => contact.email)).toEqual(['reader@example.com'])
+    expect(imported[0]).toMatchObject({
+      locale: 'en',
+      interests: ['newsletter'],
       consentAt: '2025-11-01T09:00:00.000Z',
     })
     const redirects = await payload.find({
@@ -122,22 +122,15 @@ describe('final migration with the sample export', () => {
     })
     const countAll = async () =>
       Promise.all(
-        (
-          [
-            'posts',
-            'people',
-            'media',
-            'issues',
-            'events',
-            'subscribers',
-            'redirects',
-            'topics',
-          ] as const
-        ).map((c) => payload.count({ collection: c }).then((r) => r.totalDocs)),
+        (['posts', 'people', 'media', 'issues', 'events', 'redirects', 'topics'] as const).map(
+          (c) => payload.count({ collection: c }).then((r) => r.totalDocs),
+        ),
       )
     const before = await countAll()
+    const contactsBefore = (await readLocalAudience()).contacts.length
     await runMigration(payload, { dir, offline: true })
     expect(await countAll()).toEqual(before)
+    expect((await readLocalAudience()).contacts).toHaveLength(contactsBefore)
     expect((await findPost('ada-muster-on-curiosity')).summary).toBe('Checked by the editors.')
   }, 120_000)
 })

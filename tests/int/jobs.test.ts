@@ -59,7 +59,7 @@ describe('daily jobs', () => {
       log?: Array<{ output?: Record<string, number> }>
     }
     expect(job.completedAt).toBeTruthy()
-    expect(job.log?.at(-1)?.output).toHaveProperty('unconfirmedSubscribersDeleted')
+    expect(job.log?.at(-1)?.output).toHaveProperty('newslettersSent')
   })
 })
 

@@ -21,7 +21,7 @@ npm run import:dev -- 198     # alle Artikel (oder IMPORT_LIMIT=198)
   - Team, Mission und Teamfoto aus `/about/` (`sgbr-about-*`). Imprint und Datenschutz aus der Seite `impressum`, Kontakttext aus `contact`.
 - Beliebig oft wiederholbar, auch auf leerer Datenbank: Artikel über `wpId`, alles andere über `slug`, Dateien über `legacyPath`.
 - Testdaten für neue Teile: Kontaktformular, Bewerbungsformular mit PDF-Upload (am nächsten kommenden Event, Bewerbung ab sofort offen), ein Newsletter-Entwurf, ein versendeter Beispiel-Newsletter im Archiv, drei bestätigte Test-Abonnenten (`@example.com`), Globals, je ein Benutzer pro Rolle (`admin@sgbr.local`, `board@…`, `editor@…`, `advisory@…`, Passwort nur aus `DEV_SEED_PASSWORD`).
-- Fehlt öffentlich: Entwürfe, SEO-Felder, Weiterleitungen, Abonnenten. Für die Entwicklung egal.
+- Fehlt öffentlich: Entwürfe, SEO-Felder, Weiterleitungen, Abonnenten. Für die Entwicklung egal. Test-Kontakte landen nur im lokalen Ersatz für Resend (`.mail-preview/audience.json`), nie in einem echten Resend-Konto.
 - Quelle änderbar mit `DEV_IMPORT_SOURCE` (Standard `https://stgallenbusinessreview.com`).
 
 ### Gemeinsame Zuordnungslogik
@@ -68,7 +68,7 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 | SEO-Titel und -Beschreibungen | im WXR-Export als Post-Meta (`rank_math_title`, `rank_math_description`) | XML |
 | Bilder und PDFs | Ordner `wp-content/uploads/` per FTP aus All-Inkl, oder per Skript über die Datei-URLs aus dem Export | Dateien |
 | Weiterleitungen | Plugin Redirection → Import/Export | JSON oder CSV |
-| Newsletter-Abonnenten | MailPoet → Abonnenten → Exportieren, nur bestätigte | CSV |
+| Newsletter-Abonnenten | MailPoet → Abonnenten → Exportieren, nur bestätigte (landen als Kontakte in Resend) | CSV |
 | Speaker Events, Ausgaben | JSON-Feeds mit `?sgbr_feed=1` (wie im Dev-Import) | JSON |
 | Team | fest im Child-Theme, Seite `/about/` | HTML |
 
@@ -81,9 +81,14 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 ```bash
 # Ordner mit den Exporten (nie ins Repo legen, nach der Migration löschen):
 #   export.xml  mailpoet.csv  redirection.json  uploads/  (optional: feeds/issues.json, feeds/events.json, about.html)
+# Abonnenten gehen nach Resend: dafür RESEND_API_KEY und die vier RESEND_SEGMENT_*/RESEND_TOPIC_*-IDs
+# setzen (ohne sie landen sie nur im lokalen Ersatz .mail-preview/audience.json).
 DATABASE_URL=<Produktions-DB> BLOB_READ_WRITE_TOKEN=<Token> ANTHROPIC_API_KEY=<optional> \
+  RESEND_API_KEY=<…> RESEND_SEGMENT_EN=<…> RESEND_SEGMENT_DE=<…> RESEND_TOPIC_NEWSLETTER=<…> RESEND_TOPIC_EVENTS=<…> \
   MIGRATION_DIR=/pfad/zu/wp-export npm run migrate:wp
 ```
+
+Am einfachsten: `vercel env pull .env.production.local` und die Werte daraus übernehmen (Datei ist in `.gitignore`, danach löschen).
 
 - Ohne `feeds/` und `about.html` holt das Skript Feeds und About-Seite von der alten Seite (nur lesend). `MIGRATION_OFFLINE=1` verbietet jeden Netzzugriff.
 - Dateien kommen aus `uploads/`, fehlen sie dort, werden sie über die URL aus dem Export geladen.

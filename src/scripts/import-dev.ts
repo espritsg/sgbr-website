@@ -205,7 +205,7 @@ async function main(limit: number) {
 
   console.log('→ Testdaten: Newsletter, Abonnenten, Benutzer')
   await seedNewsletters(payload)
-  await seedSubscribers(payload)
+  await seedSubscribers(report)
   await seedUsers(payload, report)
 
   printReport(report, media)

@@ -1,13 +1,12 @@
 import type { Endpoint } from 'payload'
 
 import { canSendNewsletter, canSendTestNewsletter } from '@/access/actions'
-import { continueInBackground } from '@/endpoints/newsletter'
+import { AudienceError } from '@/lib/newsletter/audience'
 import {
   countRecipients,
   NewsletterError,
-  processNewsletter,
+  sendNewsletter,
   sendTest,
-  startSending,
 } from '@/lib/newsletter/sending'
 
 const json = (body: unknown, status = 200) => Response.json(body, { status })
@@ -27,10 +26,14 @@ export const newsletterAdminEndpoints: Endpoint[] = [
       const id = idOf(req.routeParams?.id)
       if (!id) return json({ error: 'invalid id' }, 400)
       const newsletter = await req.payload.findByID({ collection: 'newsletters', id, depth: 0 })
-      return json({
-        recipients: await countRecipients(req.payload, newsletter.audience),
-        status: newsletter.status,
-      })
+      try {
+        return json({ recipients: (await countRecipients()).total, status: newsletter.status })
+      } catch (error) {
+        // Resend not reachable or not set up: show the reason in the sidebar.
+        if (error instanceof AudienceError)
+          return json({ recipients: null, status: newsletter.status, error: error.message })
+        throw error
+      }
     },
   },
   {
@@ -54,11 +57,7 @@ export const newsletterAdminEndpoints: Endpoint[] = [
       const id = idOf(req.routeParams?.id)
       if (!id) return json({ error: 'invalid id' }, 400)
       try {
-        const started = await startSending(req.payload, id)
-        // Send right away; if the time budget is not enough, continue in the background.
-        const done = await processNewsletter(req.payload, id, 40_000)
-        if (!done) continueInBackground(id)
-        return json({ ok: true, ...started, done })
+        return json({ ok: true, ...(await sendNewsletter(req.payload, id)) })
       } catch (error) {
         if (error instanceof NewsletterError) return json({ error: error.message }, error.status)
         throw error

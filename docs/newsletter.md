@@ -1,52 +1,60 @@
 ---
-description: Spec Newsletter der SGBR-Website (Variante A: Abonnenten, Double-Opt-in, Versand und Archiv in Payload, Resend nur als Versanddienst)
-aktualisiert: 2026-11-22
+description: Spec Newsletter der SGBR-Website: Resend als Liste der Abonnenten (Kontakte, Segmente, Topics), Double-Opt-in, Texte und Archiv in Payload, Versand als Broadcasts
+aktualisiert: 2026-11-25
 ---
 
 # Newsletter
 
-Entschieden 2026-11-22: **Variante A.** Payload ist die einzige Datenquelle. Resend verschickt nur.
+Entschieden 2026-11-25 ([ADR 0021](entscheidungen/0021-resend-als-quelle.md)): **Resend ist die einzige Liste der Abonnenten** und verschickt die Newsletter als Broadcasts. Payload enthält die Newsletter-Texte und das Archiv, aber keine Abonnenten.
+
+## In Resend
+
+| Was | Wofür |
+| --- | --- |
+| Kontakt | E-Mail, `first_name`, Felder `locale`, `source` (footer, popup, newsletter-page, mailpoet-import, admin), `consent_at`, `confirmed_at` |
+| Segment „SGBR – English“ / „SGBR – Deutsch“ | Sprache des Abonnenten, jeder Kontakt in genau einem |
+| Topic „Newsletter“ / „Event invitations“ | Interessen; Standard opt-out, bei der Anmeldung opt-in |
+| Abmeldeseite von Resend | Interessen ändern, ganz abmelden (Link in jeder Mail) |
+| Unterdrückungsliste von Resend | Bounces und Spam-Beschwerden, automatisch |
+
+Einrichten mit `npm run resend:setup`, die ausgegebenen IDs kommen als `RESEND_SEGMENT_EN`, `RESEND_SEGMENT_DE`, `RESEND_TOPIC_NEWSLETTER`, `RESEND_TOPIC_EVENTS` in Vercel ([deployment.md](deployment.md)).
 
 ## Anmeldung
 
 - Formular im Footer, auf `/{l}/newsletter` und optional als Popup (an/aus in `site-settings`, Verzögerung einstellbar, heute 10 s).
 - Felder: E-Mail (Pflicht), Vorname (optional), Interessen: `newsletter` (monatlich) und `events` (Einladungen zu Speaker Events), Einwilligung mit Link zur Datenschutzerklärung.
 - Schutz: Honeypot-Feld und Begrenzung der Anfragen pro IP.
-- Double-Opt-in: Anmeldung legt Abonnent `pending` an und schickt eine Bestätigungsmail. Erst der Link setzt `confirmed`. Unbestätigte nach 7 Tagen löschen.
-- Gleiche Adresse erneut: keine Fehlermeldung nach aussen (sonst verrät man, wer angemeldet ist), nur neue Bestätigungsmail, falls noch `pending`.
+- **Double-Opt-in:** Die Anmeldung speichert nichts, sie schickt nur die Bestätigungsmail. Die Angaben stecken verschlüsselt im Link (7 Tage gültig, Schlüssel aus `PAYLOAD_SECRET`). Erst der Klick legt den Kontakt in Resend an, mit Zeitpunkt von Einwilligung und Bestätigung.
+- Gleiche Adresse erneut: gleiche Antwort nach aussen, neue Bestätigungsmail. Bestätigt sie, wird der Kontakt wieder angemeldet, die Sprache übernommen und die gewählten Interessen hinzugefügt (frühere bleiben).
 - Sprache der Mails nach der Sprache der Seite, auf der angemeldet wurde.
 
 ## Abmeldung und Einstellungen
 
-- Jede Mail hat einen persönlichen Abmeldelink und die Header `List-Unsubscribe` und `List-Unsubscribe-Post` (Abmeldung mit einem Klick im Mailprogramm).
-- Seite `/{l}/newsletter/preferences?token=…`: Interessen ändern oder ganz abmelden, ohne Login.
-- Abmelden setzt `unsubscribed` und löscht nichts, damit die Adresse nicht erneut angeschrieben wird.
+- Jede Mail hat den persönlichen Link von Resend (`{{{RESEND_UNSUBSCRIBE_URL}}}`, im Footer der Mail als „Einstellungen“ und „Abmelden“). Dort lassen sich die Topics einzeln abbestellen oder alles. Eigene Header lassen sich bei Broadcasts nicht setzen; ob Resend `List-Unsubscribe` (Abmelden mit einem Klick im Mailprogramm) selbst setzt, beim ersten echten Broadcast in den Mail-Headern prüfen.
+- Abgemeldete bleiben in Resend als „unsubscribed“ und bekommen nichts mehr.
 
 ## Versand
 
 - Newsletter werden im Admin als Dokument der Collection `newsletters` geschrieben (Datenmodell: [datenmodell.md](datenmodell.md)).
-- Zielgruppe pro Versand: Interesse `newsletter` oder `events`.
-- Buttons im Admin: **Testversand** an die eigene Adresse (alle Rollen mit Schreibrecht) und **Senden** (nur Admin und Editorial Board, mit Bestätigungsdialog, zeigt die Empfängerzahl).
-- Versand über die Batch-API von Resend, höchstens 100 Mails pro Aufruf, Rate-Limit von Resend beachten.
-- Muss fortsetzbar sein: bricht der Versand ab, bekommt beim nächsten Lauf niemand die Mail doppelt (Fortschritt speichern, Idempotency-Key pro Paket). Startet sofort per Button und setzt sich selbst fort, siehe „Hintergrund-Jobs“ in [architektur.md](architektur.md).
-- Status des Newsletters: `draft` → `sending` → `sent` oder `failed`. Gespeichert: Versandzeit, Empfängerzahl, Fehler.
+- Zielgruppe pro Versand: Interesse `newsletter` oder `events` (= Topic).
+- Buttons im Admin: **Testversand** an die eigene Adresse (alle Rollen mit Schreibrecht) und **Senden** (nur Admin und Editorial Board, mit Bestätigungsdialog). Die Zahl im Dialog ist eine Obergrenze: alle angemeldeten Kontakte beider Sprachen; welche davon das Topic haben, filtert Resend.
+- **Senden** legt pro Sprache mit Kontakten einen Broadcast an: Segment der Sprache, Topic der Zielgruppe, Inhalt in dieser Sprache (leere Felder fallen auf die andere Sprache zurück).
+- **Nie doppelt:** Broadcast zuerst als Entwurf anlegen, ID im Newsletter speichern (`resend.broadcastEn`/`broadcastDe`), dann senden. Ein Neuversuch sendet einen gespeicherten Entwurf, lässt einen schon gesendeten in Ruhe.
+- Status: `draft` → `sent` oder `failed` (Fehler unter `resend.lastError`, „Erneut senden“ schickt nur, was fehlt). Gespeichert: Versandzeit, Empfänger-Obergrenze, Broadcast-IDs.
+- Geplanter Versand (`scheduledFor`, Tag): der tägliche Cron sendet am Morgen ([ADR 0013](entscheidungen/0013-newsletter-versand.md)).
 - Mail-Vorlage im SGBR-Design (Logo, eckig, Navy, immer hell; `src/emails/layout.ts`), HTML und Textversion, Inhalt aus dem Lexical-Text. Dieselbe Vorlage für Bestätigungs- und Formular-Mails ([redaktion.md](redaktion.md#mail-vorlage)).
-- Nach dem Versand erscheint der Newsletter verzögert im Archiv auf `/{l}/newsletter/{slug}` (siehe unten).
-
-## Rückmeldungen von Resend
-
-- Webhook für Bounces und Spam-Beschwerden setzt den Abonnenten auf `bounced` bzw. `complained`. Signatur prüfen.
+- Zustellung, Öffnungen und Klicks: in Resend unter Broadcasts.
 
 ## Technik und Konten
 
-- Eigene Absender-Subdomain, z. B. `news.stgallenbusinessreview.com`, damit Newsletter-Probleme nicht die normalen Mails treffen. DNS-Einträge für Resend bei All-Inkl setzen, MX für Microsoft 365 nicht anfassen.
-- Umgebungsvariablen: `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `NEWSLETTER_FROM`, `NEWSLETTER_REPLY_TO`.
-- Preise und Limits von Resend vor dem Livegang prüfen.
+- Eigene Absender-Subdomain `news.stgallenbusinessreview.com` für Broadcasts, damit Newsletter-Probleme nicht die normalen Mails treffen. DNS-Einträge für Resend bei All-Inkl setzen, MX für Microsoft 365 nicht anfassen.
+- Umgebungsvariablen: `RESEND_API_KEY` (Full access, weil Kontakte und Broadcasts), die vier IDs oben, `NEWSLETTER_FROM`, `NEWSLETTER_REPLY_TO`.
+- Tarif (Stand 2026-11-25): Marketing gratis bis 1000 Kontakte und 3 Segmente, Broadcasts zählen nicht zum Tageslimit der Einzelmails. Vor dem Livegang prüfen.
 
 ## Übergang
 
 - Der erste Newsletter im Dezember 2026 geht noch über MailPoet.
-- Bei der finalen Migration nur bestätigte MailPoet-Abonnenten übernehmen, mit Anmeldedatum als `consentAt`.
+- Bei der finalen Migration nur bestätigte MailPoet-Abonnenten übernehmen: Kontakt in Resend, Sprache `en`, Topic Newsletter, Anmeldedatum als `consent_at`. Bestehende Kontakte bleiben unverändert.
 
 ## Archiv (entschieden 2026-11-22)
 
@@ -57,32 +65,25 @@ Entschieden 2026-11-22: **Variante A.** Payload ist die einzige Datenquelle. Res
 
 | Teil | Datei |
 | --- | --- |
-| Anmeldung, Bestätigen, Einstellungen, Abmelden, Löschen nach 7 Tagen | `src/lib/newsletter/subscriptions.ts` |
-| Versand (Schnappschuss, Pakete, Fortsetzen, Testversand, Planung) | `src/lib/newsletter/sending.ts` |
-| Öffentliche Endpunkte `/api/newsletter/…` | `src/endpoints/newsletter.ts` |
+| Resend (Kontakte, Segmente, Topics, Broadcasts) und lokaler Ersatz | `src/lib/newsletter/audience.ts` |
+| Verschlüsselter Bestätigungslink | `src/lib/newsletter/signupToken.ts` |
+| Anmeldung und Bestätigung | `src/lib/newsletter/subscriptions.ts` |
+| Versand als Broadcasts, Testversand, Planung | `src/lib/newsletter/sending.ts` |
+| Öffentlicher Endpunkt `/api/newsletter/subscribe` | `src/endpoints/newsletter.ts` |
 | Admin-Endpunkte `/api/newsletters/:id/recipients`, `/test`, `/send` | `src/collections/newsletters/endpoints.ts` |
 | Buttons im Admin (Seitenleiste des Newsletters) | `src/components/admin/NewsletterActions.tsx` |
 | Mail-Vorlagen (HTML und Text, immer hell) | `src/emails/` |
-| Resend bzw. lokale Vorschau | `src/lib/email/` |
-| Seiten `/newsletter`, `/newsletter/{slug}`, `/confirm`, `/preferences` | `src/app/(frontend)/[locale]/newsletter/` |
+| Einzelmails über Resend bzw. lokale Vorschau | `src/lib/email/` |
+| Seiten `/newsletter`, `/newsletter/{slug}`, `/confirm` | `src/app/(frontend)/[locale]/newsletter/` |
+| Einrichtung in Resend | `src/scripts/resend-setup.ts` (`npm run resend:setup`) |
 
 ### Endpunkte
 
 | Endpunkt | Wofür |
 | --- | --- |
 | `POST /api/newsletter/subscribe` | Anmeldung. Honeypot `website`, max. 10 Anfragen pro IP in 10 Minuten. Antwortet immer gleich. |
-| `POST /api/newsletter/preferences` | Interessen ändern (`token`, `interests`) oder abmelden (`unsubscribe: true`) |
-| `POST /api/newsletter/unsubscribe?token=` | Abmelden mit einem Klick aus dem Mailprogramm (Header `List-Unsubscribe`, `List-Unsubscribe-Post`) |
-| `POST /api/newsletter/webhook` | Resend: `email.bounced` → `bounced`, `email.complained` → `complained`. Signatur (Svix) mit `RESEND_WEBHOOK_SECRET` geprüft. |
-| `POST /api/newsletter/continue` | Setzt einen Versand fort, nur mit `Authorization: Bearer $CRON_SECRET` |
+| `GET /api/newsletters/:id/recipients` | Obergrenze der Empfänger (Admin-Seitenleiste) |
+| `POST /api/newsletters/:id/test?locale=` | Testversand an die eigene Adresse |
+| `POST /api/newsletters/:id/send` | Senden (Admin, Board) |
 
-### Ablauf beim Senden
-
-1. **Senden** (Admin, Board) zeigt die Empfängerzahl im Bestätigungsdialog.
-2. Beim Start entsteht für jeden Empfänger ein Eintrag in der versteckten Collection `newsletter-deliveries`, nummeriert in Paketen à 100. Wer sich danach abmeldet, wird übersprungen.
-3. Pakete gehen einzeln an die Batch-API von Resend, mit Idempotency-Key `newsletter-{id}-batch-{n}`. Erst nach Erfolg wird das Paket als gesendet markiert. Bricht der Lauf ab, schickt der nächste Lauf dasselbe Paket mit demselben Schlüssel, Resend verschickt es nicht doppelt.
-4. Läuft die Zeit einer Funktion ab (Budget ~40 s), ruft sich der Versand über `/api/newsletter/continue` selbst wieder auf ([ADR 0017](entscheidungen/0017-newsletter-selbstaufruf.md)). Der tägliche Cron setzt abgebrochene Versände fort.
-5. Fehler 429/5xx: Abbruch, später erneut. Nach 3 Versuchen oder bei anderen Fehlern werden die Empfänger des Pakets als fehlgeschlagen markiert. Status am Ende `sent` (oder `failed`, wenn niemand erreicht wurde).
-6. Sprache: Jeder Empfänger bekommt den Newsletter in seiner Sprache (`locale`), leere Felder fallen auf die andere Sprache zurück.
-
-Lokal ohne `RESEND_API_KEY` landen alle Mails in `.mail-preview/` und unter `/admin/mail-preview` (nur Admin).
+Lokal ohne `RESEND_API_KEY`: Kontakte landen in `.mail-preview/audience.json`, jeder Broadcast als eine Mail in `.mail-preview/` und unter `/admin/mail-preview` (nur Admin). Der Dev-Import legt drei Test-Kontakte nur dort an.

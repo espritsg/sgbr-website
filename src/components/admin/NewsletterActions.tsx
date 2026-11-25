@@ -3,37 +3,42 @@
 import { Button, useAuth, useDocumentInfo, useLocale, useTranslation } from '@payloadcms/ui'
 import { useCallback, useEffect, useState } from 'react'
 
-type Status = 'draft' | 'sending' | 'sent' | 'failed'
+type Status = 'draft' | 'sent' | 'failed'
+type Info = { recipients: number | null; status: Status; error?: string }
 
 const texts = {
   de: {
     title: 'Versand',
     saveFirst: 'Bitte zuerst speichern.',
-    recipients: (n: number) => `${n} Empfänger (bestätigt, passende Interessen)`,
+    recipients: (n: number) =>
+      `Höchstens ${n} Empfänger (Resend schickt nur an Kontakte mit passendem Thema)`,
     test: 'Testversand an mich',
     testDone: (to: string) => `Testversand an ${to} verschickt.`,
     send: 'Senden',
     confirm: (n: number) =>
-      `Newsletter jetzt an ${n} Empfänger senden? Das lässt sich nicht rückgängig machen.`,
-    sending: 'Wird versendet …',
-    sent: 'Versendet.',
-    resume: 'Versand läuft. Er setzt sich selbst fort.',
-    failed: 'Versand fehlgeschlagen. Details unter „Versandfortschritt“.',
+      `Newsletter jetzt an höchstens ${n} Empfänger senden? Das lässt sich nicht rückgängig machen.`,
+    sending: 'Wird an Resend übergeben …',
+    sent: 'An Resend übergeben. Zustellung und Statistik siehe Resend.',
+    failed:
+      'Versand fehlgeschlagen (Details im Reiter „Versand“ unter Resend). Erneut senden schickt nur, was noch fehlt.',
+    retry: 'Erneut senden',
     error: 'Fehler',
     onlyTest: 'Senden dürfen nur Admin und Editorial Board.',
   },
   en: {
     title: 'Sending',
     saveFirst: 'Please save first.',
-    recipients: (n: number) => `${n} recipients (confirmed, matching interests)`,
+    recipients: (n: number) => `At most ${n} recipients (Resend only sends to matching topics)`,
     test: 'Send test to me',
     testDone: (to: string) => `Test sent to ${to}.`,
     send: 'Send',
-    confirm: (n: number) => `Send this newsletter to ${n} recipients now? This cannot be undone.`,
-    sending: 'Sending …',
-    sent: 'Sent.',
-    resume: 'Sending is in progress and continues on its own.',
-    failed: 'Sending failed. See "Sending progress".',
+    confirm: (n: number) =>
+      `Send this newsletter to at most ${n} recipients now? This cannot be undone.`,
+    sending: 'Handing over to Resend …',
+    sent: 'Handed over to Resend. Delivery and statistics: see Resend.',
+    failed:
+      'Sending failed (details in the "Sending" tab under Resend). Sending again only sends what is missing.',
+    retry: 'Send again',
     error: 'Error',
     onlyTest: 'Only admin and editorial board can send.',
   },
@@ -49,6 +54,7 @@ export function NewsletterActions() {
   const role = (user as { role?: string } | null)?.role
   const canSend = role === 'admin' || role === 'board'
   const [recipients, setRecipients] = useState<number | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [status, setStatus] = useState<Status>('draft')
   const [message, setMessage] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -56,13 +62,14 @@ export function NewsletterActions() {
   const load = useCallback(async () => {
     if (!id) return null
     const response = await fetch(`/api/newsletters/${id}/recipients`, { credentials: 'include' })
-    return response.ok ? ((await response.json()) as { recipients: number; status: Status }) : null
+    return response.ok ? ((await response.json()) as Info) : null
   }, [id])
 
-  const apply = (data: { recipients: number; status: Status } | null) => {
+  const apply = (data: Info | null) => {
     if (!data) return
     setRecipients(data.recipients)
     setStatus(data.status)
+    setLoadError(data.error ?? null)
   }
 
   useEffect(() => {
@@ -97,7 +104,7 @@ export function NewsletterActions() {
     })
     const data = await response.json().catch(() => ({}))
     if (!response.ok) setMessage(`${t.error}: ${data.error ?? response.status}`)
-    else setMessage(data.done ? t.sent : t.resume)
+    else setMessage(t.sent)
     setBusy(false)
     apply(await load())
   }
@@ -115,15 +122,15 @@ export function NewsletterActions() {
       {recipients !== null && (
         <p style={{ margin: '0 0 12px', fontSize: 13 }}>{t.recipients(recipients)}</p>
       )}
-      {status === 'sending' && <p style={{ fontSize: 13 }}>{t.resume}</p>}
+      {loadError && <p style={{ fontSize: 13 }}>{loadError}</p>}
       {status === 'failed' && <p style={{ fontSize: 13 }}>{t.failed}</p>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         <Button buttonStyle="secondary" size="small" onClick={test} disabled={busy}>
           {t.test}
         </Button>
-        {canSend && status === 'draft' && (
+        {canSend && status !== 'sent' && (
           <Button buttonStyle="primary" size="small" onClick={send} disabled={busy || !recipients}>
-            {t.send}
+            {status === 'failed' ? t.retry : t.send}
           </Button>
         )}
       </div>

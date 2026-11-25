@@ -159,7 +159,6 @@ export function plugins(): Plugin[] {
         { slug: 'events', import: false },
         { slug: 'topics', import: false },
         { slug: 'team-members', import: false },
-        { slug: 'subscribers', import: false },
         { slug: 'form-submissions', import: false },
       ],
       overrideExportCollection: ({ collection }) => ({

@@ -54,14 +54,11 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 
 **`newsletters`** (URL `/{l}/newsletter/{slug}`, Details: [newsletter.md](newsletter.md))
 - Reiter Inhalt: `title` L · `subject` L · `previewText` L · `intro` L · `content` L · `featuredPosts` → posts
-- Reiter Versand: `audience` (newsletter, events) · `scheduledFor` (optional, nur Admin/Board, [ADR 0013](entscheidungen/0013-newsletter-versand.md)) · `status` (draft, sending, sent, failed; nur vom System gesetzt) · `sentAt` · `recipientCount` · `progress` (Pakete, Fehler; nur lesen)
+- Reiter Versand: `audience` (newsletter, events) · `scheduledFor` (optional, nur Admin/Board, [ADR 0013](entscheidungen/0013-newsletter-versand.md)) · `status` (draft, sent, failed; nur vom System gesetzt) · `sentAt` · `recipientCount` (Obergrenze) · `resend` (`broadcastEn`, `broadcastDe`, `lastError`; nur lesen)
 - Reiter Archiv: `showInArchive` (Standard an) · `archiveDelayDays` (Standard 30, 0 = sofort) · `archiveVisibleFrom` (berechnet aus `sentAt` + Verzögerung)
 - Versionen ohne Entwürfe: veröffentlicht wird ein Newsletter durch den Versand.
 
-**`subscribers`** (nicht öffentlich)
-- `email` (eindeutig, klein geschrieben) · `firstName` · `locale` · `interests` (newsletter, events) · `status` (pending, confirmed, unsubscribed, bounced, complained)
-- `consentAt`, `confirmedAt`, `unsubscribedAt` · `source` (footer, popup, newsletter-page, mailpoet-import, admin)
-- `confirmToken`, `preferencesToken`: versteckt, über die API nie lesbar.
+**Abonnenten** liegen nicht in Payload, sondern als Kontakte in Resend (Felder, Segmente und Topics: [newsletter.md](newsletter.md), [ADR 0021](entscheidungen/0021-resend-als-quelle.md)).
 
 ## Formulare (Plugin `form-builder`)
 
@@ -73,7 +70,7 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 
 - `redirects`: Einzelfälle, die die Redaktion anlegt (Ziel: Artikel, Seiten, Ausgaben, Events, Personen, Themen oder URL).
 - `search`: Suchindex für Artikel, Ausgaben, Events, Personen, pro Sprache, mit `slug` und `excerpt`.
-- `exports`, `imports`: Import/Export-Plugin. Export für Artikel, Personen, Ausgaben, Events, Themen, Team, Abonnenten und Einsendungen. Import ist ausgeschaltet.
+- `exports`, `imports`: Import/Export-Plugin. Export für Artikel, Personen, Ausgaben, Events, Themen, Team und Einsendungen (Abonnenten: Export in Resend). Import ist ausgeschaltet.
 - `payload-mcp-api-keys`: API-Keys für MCP, nur Admin. Bleibt im Schema, auch wenn MCP aus ist.
 - `payload-jobs`: Hintergrund-Jobs ([architektur.md](architektur.md)).
 

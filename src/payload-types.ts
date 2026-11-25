@@ -77,8 +77,6 @@ export interface Config {
     pages: Page;
     media: Media;
     newsletters: Newsletter;
-    subscribers: Subscriber;
-    'newsletter-deliveries': NewsletterDelivery;
     'application-files': ApplicationFile;
     'rate-limits': RateLimit;
     users: User;
@@ -117,8 +115,6 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     newsletters: NewslettersSelect<false> | NewslettersSelect<true>;
-    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
-    'newsletter-deliveries': NewsletterDeliveriesSelect<false> | NewsletterDeliveriesSelect<true>;
     'application-files': ApplicationFilesSelect<false> | ApplicationFilesSelect<true>;
     'rate-limits': RateLimitsSelect<false> | RateLimitsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -882,17 +878,18 @@ export interface Newsletter {
   featuredPosts?: (number | Post)[] | null;
   audience: 'newsletter' | 'events';
   /**
-   * Optional. Sending starts on the morning of this day (daily run). Admin and Editorial Board only.
+   * Optional. Sent on the morning of this day (daily run). Admin and Editorial Board only.
    */
   scheduledFor?: string | null;
-  status: 'draft' | 'sending' | 'sent' | 'failed';
+  status: 'draft' | 'sent' | 'failed';
   sentAt?: string | null;
   recipientCount?: number | null;
-  progress?: {
-    totalBatches?: number | null;
-    sentBatches?: number | null;
-    failedRecipients?: number | null;
-    startedAt?: string | null;
+  /**
+   * IDs of the broadcasts in Resend (one per language). Recipients, opens and clicks: see Resend.
+   */
+  resend?: {
+    broadcastEn?: string | null;
+    broadcastDe?: string | null;
     lastError?: string | null;
   };
   showInArchive?: boolean | null;
@@ -908,42 +905,6 @@ export interface Newsletter {
    * Part of the URL. Generated from the title if empty. Do not change after publishing.
    */
   slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscribers".
- */
-export interface Subscriber {
-  id: number;
-  email: string;
-  firstName?: string | null;
-  locale: 'en' | 'de';
-  interests?: ('newsletter' | 'events')[] | null;
-  status: 'pending' | 'confirmed' | 'unsubscribed' | 'bounced' | 'complained';
-  consentAt?: string | null;
-  confirmedAt?: string | null;
-  unsubscribedAt?: string | null;
-  source?: ('footer' | 'popup' | 'newsletter-page' | 'mailpoet-import' | 'admin') | null;
-  confirmToken?: string | null;
-  preferencesToken?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "newsletter-deliveries".
- */
-export interface NewsletterDelivery {
-  id: number;
-  newsletter: number | Newsletter;
-  subscriber: number | Subscriber;
-  batch: number;
-  status: 'pending' | 'sent' | 'failed';
-  attempts?: number | null;
-  messageId?: string | null;
-  error?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1425,14 +1386,6 @@ export interface PayloadLockedDocument {
         value: number | Newsletter;
       } | null)
     | ({
-        relationTo: 'subscribers';
-        value: number | Subscriber;
-      } | null)
-    | ({
-        relationTo: 'newsletter-deliveries';
-        value: number | NewsletterDelivery;
-      } | null)
-    | ({
         relationTo: 'application-files';
         value: number | ApplicationFile;
       } | null)
@@ -1820,53 +1773,17 @@ export interface NewslettersSelect<T extends boolean = true> {
   status?: T;
   sentAt?: T;
   recipientCount?: T;
-  progress?:
+  resend?:
     | T
     | {
-        totalBatches?: T;
-        sentBatches?: T;
-        failedRecipients?: T;
-        startedAt?: T;
+        broadcastEn?: T;
+        broadcastDe?: T;
         lastError?: T;
       };
   showInArchive?: T;
   archiveDelayDays?: T;
   archiveVisibleFrom?: T;
   slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscribers_select".
- */
-export interface SubscribersSelect<T extends boolean = true> {
-  email?: T;
-  firstName?: T;
-  locale?: T;
-  interests?: T;
-  status?: T;
-  consentAt?: T;
-  confirmedAt?: T;
-  unsubscribedAt?: T;
-  source?: T;
-  confirmToken?: T;
-  preferencesToken?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "newsletter-deliveries_select".
- */
-export interface NewsletterDeliveriesSelect<T extends boolean = true> {
-  newsletter?: T;
-  subscriber?: T;
-  batch?: T;
-  status?: T;
-  attempts?: T;
-  messageId?: T;
-  error?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2491,9 +2408,7 @@ export interface CollectionsWidget {
 export interface TaskDailyMaintenance {
   input?: unknown;
   output: {
-    newslettersStarted?: number | null;
-    newslettersContinued?: number | null;
-    unconfirmedSubscribersDeleted?: number | null;
+    newslettersSent?: number | null;
     submissionsDeleted?: number | null;
     applicationFilesDeleted?: number | null;
     rateLimitEntriesDeleted?: number | null;
@@ -2519,8 +2434,6 @@ export interface TaskCreateCollectionExport {
       | 'pages'
       | 'media'
       | 'newsletters'
-      | 'subscribers'
-      | 'newsletter-deliveries'
       | 'application-files'
       | 'rate-limits'
       | 'users'

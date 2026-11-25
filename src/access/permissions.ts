@@ -85,14 +85,6 @@ export const newsletterAccess: CollectionAccess = {
   delete: isPublisher,
 }
 
-/** Subscribers are created only through the signup endpoint (Local API). */
-export const subscriberAccess: CollectionAccess = {
-  read: isPublisher,
-  create: isAdmin,
-  update: isAdmin,
-  delete: isAdmin,
-}
-
 /** Forms are built by publishers; everyone logged in can see them (e.g. to link an event). */
 export const formAccess: CollectionAccess = {
   read: isLoggedIn,

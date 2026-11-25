@@ -12,7 +12,7 @@ import { computeArchiveVisibleFrom } from './hooks'
 const onlySenders: FieldAccess = ({ req }) => canSendNewsletter(req.user)
 
 /**
- * Newsletters: written here, sent through Resend in batches (docs/newsletter.md).
+ * Newsletters: written here, sent as Resend broadcasts, one per language (docs/newsletter.md).
  * After sending, they appear in the archive with a delay (`archiveDelayDays`).
  */
 export const Newsletters: CollectionConfig = {
@@ -116,8 +116,8 @@ export const Newsletters: CollectionConfig = {
               admin: {
                 date: { pickerAppearance: 'dayOnly' },
                 description: {
-                  de: 'Optional. Der Versand startet am Morgen dieses Tages (täglicher Lauf). Nur Admin und Editorial Board.',
-                  en: 'Optional. Sending starts on the morning of this day (daily run). Admin and Editorial Board only.',
+                  de: 'Optional. Wird am Morgen dieses Tages versendet (täglicher Lauf). Nur Admin und Editorial Board.',
+                  en: 'Optional. Sent on the morning of this day (daily run). Admin and Editorial Board only.',
                 },
               },
             },
@@ -130,7 +130,6 @@ export const Newsletters: CollectionConfig = {
               label: { de: 'Status', en: 'Status' },
               options: [
                 { label: { de: 'Entwurf', en: 'Draft' }, value: 'draft' },
-                { label: { de: 'Wird versendet', en: 'Sending' }, value: 'sending' },
                 { label: { de: 'Versendet', en: 'Sent' }, value: 'sent' },
                 { label: { de: 'Fehlgeschlagen', en: 'Failed' }, value: 'failed' },
               ],
@@ -150,40 +149,32 @@ export const Newsletters: CollectionConfig = {
                 {
                   name: 'recipientCount',
                   type: 'number',
-                  label: { de: 'Empfänger', en: 'Recipients' },
+                  label: { de: 'Empfänger (höchstens)', en: 'Recipients (at most)' },
                   access: { create: () => false, update: () => false },
                   admin: { readOnly: true, width: '50%' },
                 },
               ],
             },
             {
-              name: 'progress',
+              name: 'resend',
               type: 'group',
-              label: { de: 'Versandfortschritt', en: 'Sending progress' },
+              label: { de: 'Resend', en: 'Resend' },
               access: { create: () => false, update: () => false },
-              admin: { readOnly: true },
+              admin: {
+                readOnly: true,
+                description: {
+                  de: 'IDs der Broadcasts in Resend (ein Broadcast pro Sprache). Empfänger, Öffnungen und Klicks siehe Resend.',
+                  en: 'IDs of the broadcasts in Resend (one per language). Recipients, opens and clicks: see Resend.',
+                },
+              },
               fields: [
                 {
                   type: 'row',
                   fields: [
-                    {
-                      name: 'totalBatches',
-                      type: 'number',
-                      label: { de: 'Pakete gesamt', en: 'Total batches' },
-                    },
-                    {
-                      name: 'sentBatches',
-                      type: 'number',
-                      label: { de: 'Pakete versendet', en: 'Batches sent' },
-                    },
-                    {
-                      name: 'failedRecipients',
-                      type: 'number',
-                      label: { de: 'Fehler', en: 'Failed' },
-                    },
+                    { name: 'broadcastEn', type: 'text', label: 'Broadcast EN' },
+                    { name: 'broadcastDe', type: 'text', label: 'Broadcast DE' },
                   ],
                 },
-                { name: 'startedAt', type: 'date', label: { de: 'Gestartet', en: 'Started' } },
                 {
                   name: 'lastError',
                   type: 'textarea',

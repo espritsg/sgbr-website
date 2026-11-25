@@ -40,7 +40,7 @@ import {
 } from './media'
 import { parseRedirection } from './redirection'
 import { seedForms, seedGlobals, seedPages } from './seed'
-import { createToken } from '@/lib/newsletter/tokens'
+import { getAudience } from '@/lib/newsletter/audience'
 import { upsert } from './upsert'
 import { parseWxr, wpDateToIso, type WxrItem } from './wxr'
 
@@ -299,10 +299,12 @@ export async function runMigration(
     }
   }
 
-  // 8. Newsletter subscribers: only confirmed MailPoet subscribers (docs/newsletter.md)
+  // 8. Newsletter subscribers: only confirmed MailPoet subscribers, written to Resend
+  //    (or the local stand-in without RESEND_API_KEY). Existing contacts stay untouched.
   const csv = await readOptional(path.join(options.dir, 'mailpoet.csv'))
   if (csv) {
     log('Abonnenten')
+    const audience = getAudience()
     let skipped = 0
     for (const row of parseCsv(csv)) {
       const email = column(row, 'email', 'e-mail').toLowerCase()
@@ -311,30 +313,19 @@ export async function runMigration(
         skipped++
         continue
       }
-      const existing = await payload.find({
-        collection: 'subscribers',
-        where: { email: { equals: email } },
-        limit: 1,
-      })
-      if (existing.docs[0]) continue
       const consent = column(row, 'subscribed', 'confirmed', 'created', 'angemeldet')
       const consentAt = parseLocalDate(consent) ?? new Date().toISOString()
-      await payload.create({
-        collection: 'subscribers',
-        data: {
-          email,
-          firstName: column(row, 'first', 'vorname') || undefined,
-          locale: 'en',
-          interests: ['newsletter'],
-          status: 'confirmed',
-          source: 'mailpoet-import',
-          consentAt,
-          confirmedAt: consentAt,
-          preferencesToken: createToken(),
-        },
+      const result = await audience.createIfMissing({
+        email,
+        firstName: column(row, 'first', 'vorname') || undefined,
+        locale: 'en',
+        interests: ['newsletter'],
+        source: 'mailpoet-import',
+        consentAt,
+        confirmedAt: consentAt,
       })
       report.counts.subscribers ??= { created: 0, updated: 0 }
-      report.counts.subscribers.created++
+      if (result === 'created') report.counts.subscribers.created++
     }
     if (skipped)
       report.notes.push(

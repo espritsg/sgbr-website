@@ -1,112 +1,104 @@
-import crypto from 'crypto'
 import type { Payload } from 'payload'
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import {
+  getAudience,
+  localAudience,
+  readLocalAudience,
+  resetLocalAudience,
+  UNSUBSCRIBE_PLACEHOLDER,
+} from '@/lib/newsletter/audience'
+import { sealSignup } from '@/lib/newsletter/signupToken'
 
 import { getTestPayload } from '../helpers/payload'
 
-// Record every batch instead of sending; tests can make a batch fail.
-const sentBatches: Array<{ key: string; to: string[] }> = []
-let failOnBatchKey: string | null = null
-vi.mock('@/lib/email/batch', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@/lib/email/batch')>()
-  return {
-    ...original,
-    sendNewsletterBatch: vi.fn(
-      async (mails: Array<{ to: string; headers?: Record<string, string> }>, key: string) => {
-        if (key === failOnBatchKey) return { ok: false, error: 'simulated 503', retryable: true }
-        sentBatches.push({ key, to: mails.map((mail) => mail.to) })
-        expect(mails[0].headers?.['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click')
-        return { ok: true, ids: mails.map((_, index) => `msg-${key}-${index}`) }
-      },
-    ),
-  }
-})
-
-const { processNewsletter, startSending, countRecipients } =
-  await import('@/lib/newsletter/sending')
-const { subscribe, confirm, unsubscribe, updatePreferences, purgeUnconfirmed, findByToken } =
-  await import('@/lib/newsletter/subscriptions')
+const { sendNewsletter, countRecipients } = await import('@/lib/newsletter/sending')
+const { subscribe, confirm } = await import('@/lib/newsletter/subscriptions')
 const { newsletterEndpoints } = await import('@/endpoints/newsletter')
 
 let payload: Payload
+let sentMails: Array<{ to: string; html: string }> = []
 
 beforeAll(async () => {
   payload = await getTestPayload()
 })
 
 beforeEach(() => {
-  sentBatches.length = 0
-  failOnBatchKey = null
+  sentMails = []
+  vi.spyOn(payload, 'sendEmail').mockImplementation(async (message) => {
+    sentMails.push({ to: String(message.to), html: String(message.html) })
+    return {}
+  })
 })
 
-async function getSubscriber(email: string) {
-  const result = await payload.find({
-    collection: 'subscribers',
-    where: { email: { equals: email } },
-    showHiddenFields: true,
-  })
-  return result.docs[0]
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+/** The token from the confirmation link in the last mail to `email`. */
+function tokenFromMail(email: string): string {
+  const mail = sentMails.filter((item) => item.to === email).at(-1)
+  const match = mail?.html.match(/confirm\?token=([A-Za-z0-9_%-]+)/)
+  if (!match) throw new Error(`no confirmation mail to ${email}`)
+  return decodeURIComponent(match[1])
 }
 
+const contact = async (email: string) =>
+  (await readLocalAudience()).contacts.find((item) => item.email === email)
+
 describe('double opt-in', () => {
-  it('creates a pending subscriber and confirms with the token', async () => {
-    expect(
-      await subscribe(payload, {
-        email: 'Ada@Example.com ',
-        locale: 'de',
-        source: 'footer',
-        interests: ['events'],
-      }),
-    ).toBe('created')
-    const pending = await getSubscriber('ada@example.com')
-    expect(pending.status).toBe('pending')
-    expect(pending.locale).toBe('de')
-    expect(pending.interests).toEqual(['events'])
-    expect(pending.consentAt).toBeTruthy()
-
-    const confirmed = await confirm(payload, pending.confirmToken)
-    expect(confirmed?.status).toBe('confirmed')
-    // Opening the link again stays fine.
-    expect((await confirm(payload, pending.confirmToken))?.status).toBe('confirmed')
-    expect(await confirm(payload, 'not-a-valid-token-xxxxxxxx')).toBeNull()
+  beforeAll(async () => {
+    await resetLocalAudience()
   })
 
-  it('does not reveal known addresses and does not change confirmed ones', async () => {
-    expect(
-      await subscribe(payload, { email: 'ada@example.com', locale: 'en', source: 'popup' }),
-    ).toBe('unchanged')
-    expect((await getSubscriber('ada@example.com')).locale).toBe('de')
-    await subscribe(payload, { email: 'bo@example.com', locale: 'en', source: 'footer' })
-    const firstToken = (await getSubscriber('bo@example.com')).confirmToken
-    expect(
-      await subscribe(payload, { email: 'bo@example.com', locale: 'en', source: 'footer' }),
-    ).toBe('resent')
-    expect((await getSubscriber('bo@example.com')).confirmToken).not.toBe(firstToken)
-  })
-
-  it('changes interests and unsubscribes without deleting', async () => {
-    const ada = await getSubscriber('ada@example.com')
-    expect(
-      (await updatePreferences(payload, ada.preferencesToken, ['newsletter', 'events']))?.interests,
-    ).toEqual(['newsletter', 'events'])
-    expect(await unsubscribe(payload, ada.preferencesToken)).toBe(true)
-    const after = await getSubscriber('ada@example.com')
-    expect(after.status).toBe('unsubscribed')
-    expect(after.unsubscribedAt).toBeTruthy()
-    expect(await findByToken(payload, 'preferencesToken', ada.preferencesToken)).toBeTruthy()
-  })
-
-  it('deletes unconfirmed signups after 7 days', async () => {
-    await subscribe(payload, { email: 'old@example.com', locale: 'en', source: 'footer' })
-    const old = await getSubscriber('old@example.com')
-    await payload.update({
-      collection: 'subscribers',
-      id: old.id,
-      data: { consentAt: new Date(Date.now() - 8 * 86400_000).toISOString() },
+  it('stores nothing before the click, then writes the contact', async () => {
+    await subscribe(payload, {
+      email: 'Ada@Example.com ',
+      locale: 'de',
+      source: 'footer',
+      interests: ['events'],
     })
-    expect(await purgeUnconfirmed(payload)).toBeGreaterThanOrEqual(1)
-    expect(await getSubscriber('old@example.com')).toBeUndefined()
-    expect(await getSubscriber('bo@example.com')).toBeTruthy()
+    expect(sentMails).toHaveLength(1)
+    expect(await contact('ada@example.com')).toBeUndefined()
+
+    const token = tokenFromMail('ada@example.com')
+    expect(await confirm(token)).toEqual({ email: 'ada@example.com', locale: 'de' })
+    expect(await contact('ada@example.com')).toMatchObject({
+      locale: 'de',
+      interests: ['events'],
+      source: 'footer',
+      unsubscribed: false,
+    })
+    // Opening the link again stays fine and does not duplicate.
+    expect(await confirm(token)).toBeTruthy()
+    expect((await readLocalAudience()).contacts).toHaveLength(1)
+  })
+
+  it('rejects forged and expired links', async () => {
+    expect(await confirm('not-a-valid-token-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')).toBeNull()
+    const token = sealSignup(
+      {
+        email: 'late@example.com',
+        locale: 'en',
+        interests: ['newsletter'],
+        source: 'footer',
+        consentAt: new Date().toISOString(),
+      },
+      Date.now() - 8 * 86_400_000,
+    )
+    expect(await confirm(token)).toBeNull()
+    expect(await contact('late@example.com')).toBeUndefined()
+  })
+
+  it('a new signup adds interests and never removes earlier ones', async () => {
+    await subscribe(payload, {
+      email: 'ada@example.com',
+      locale: 'de',
+      source: 'popup',
+      interests: ['newsletter'],
+    })
+    await confirm(tokenFromMail('ada@example.com'))
+    expect((await contact('ada@example.com'))?.interests.sort()).toEqual(['events', 'newsletter'])
   })
 })
 
@@ -121,7 +113,7 @@ describe('signup endpoint', () => {
 
   it('answers the same for new and known addresses and ignores bots', async () => {
     const known = await call(
-      { email: 'bo@example.com', consent: true, locale: 'en' },
+      { email: 'ada@example.com', consent: true, locale: 'en' },
       '203.0.113.1',
     )
     const fresh = await call(
@@ -135,7 +127,7 @@ describe('signup endpoint', () => {
       '203.0.113.3',
     )
     expect(bot.status).toBe(200)
-    expect(await getSubscriber('bot@example.com')).toBeUndefined()
+    expect(sentMails.some((mail) => mail.to === 'bot@example.com')).toBe(false)
     expect((await call({ email: 'x@example.com', consent: false }, '203.0.113.4')).status).toBe(400)
   })
 
@@ -150,22 +142,20 @@ describe('signup endpoint', () => {
   })
 })
 
-describe('sending', () => {
+describe('sending as broadcasts', () => {
   let newsletterId: number
 
   beforeAll(async () => {
+    await resetLocalAudience()
     const now = new Date().toISOString()
-    for (let i = 0; i < 205; i++) {
-      await payload.create({
-        collection: 'subscribers',
-        data: {
-          email: `reader${i}@example.org`,
-          locale: i % 2 ? 'de' : 'en',
-          interests: i < 200 ? ['newsletter'] : ['events'],
-          status: 'confirmed',
-          consentAt: now,
-          preferencesToken: crypto.randomBytes(24).toString('base64url'),
-        },
+    for (let i = 0; i < 6; i++) {
+      await localAudience.createIfMissing({
+        email: `reader${i}@example.org`,
+        locale: i % 2 ? 'de' : 'en',
+        interests: i < 5 ? ['newsletter'] : ['events'],
+        source: 'admin',
+        consentAt: now,
+        confirmedAt: now,
       })
     }
     const newsletter = await payload.create({
@@ -181,36 +171,43 @@ describe('sending', () => {
     newsletterId = newsletter.id
   })
 
-  it('counts only confirmed subscribers with the matching interest', async () => {
-    expect(await countRecipients(payload, 'newsletter')).toBe(200)
+  it('counts contacts per language as an upper bound', async () => {
+    expect(await countRecipients()).toEqual({ en: 3, de: 3, total: 6 })
   })
 
-  it('resumes after an interrupted batch without sending anything twice', async () => {
-    const { recipients, batches } = await startSending(payload, newsletterId)
-    expect(recipients).toBe(200)
-    expect(batches).toBe(2)
-    await expect(startSending(payload, newsletterId)).rejects.toThrow(/already/)
+  it('retries after an error without sending anything twice', async () => {
+    const audience = getAudience()
+    const realSend = audience.sendBroadcast
+    let failDe = true
+    vi.spyOn(audience, 'sendBroadcast').mockImplementation(async (id) => {
+      if (failDe && id.endsWith('-de')) throw new Error('simulated 503')
+      return realSend(id)
+    })
 
-    failOnBatchKey = `newsletter-${newsletterId}-batch-1`
-    expect(await processNewsletter(payload, newsletterId)).toBe(false)
+    await expect(sendNewsletter(payload, newsletterId)).rejects.toThrow(/DE: simulated/)
     let doc = await payload.findByID({ collection: 'newsletters', id: newsletterId })
-    expect(doc.status).toBe('sending')
-    expect(doc.progress?.sentBatches).toBe(1)
-    expect(doc.progress?.lastError).toContain('simulated')
+    expect(doc.status).toBe('failed')
+    expect(doc.resend?.broadcastEn).toBeTruthy()
+    expect(doc.resend?.broadcastDe).toBeTruthy()
+    expect(doc.resend?.lastError).toContain('simulated')
 
-    failOnBatchKey = null
-    expect(await processNewsletter(payload, newsletterId)).toBe(true)
+    failDe = false
+    const result = await sendNewsletter(payload, newsletterId)
+    expect(result.broadcasts).toHaveLength(2)
     doc = await payload.findByID({ collection: 'newsletters', id: newsletterId })
     expect(doc.status).toBe('sent')
     expect(doc.sentAt).toBeTruthy()
+    expect(doc.resend?.lastError).toBeFalsy()
 
-    const all = sentBatches.flatMap((batch) => batch.to)
-    expect(all).toHaveLength(200)
-    expect(new Set(all).size).toBe(200)
-    expect(sentBatches.map((batch) => batch.key)).toEqual([
-      `newsletter-${newsletterId}-batch-0`,
-      `newsletter-${newsletterId}-batch-1`,
+    const { broadcasts } = await readLocalAudience()
+    // One broadcast per language, each sent once; DE reused the stored draft.
+    expect(broadcasts.map((item) => [item.locale, item.state, item.recipients])).toEqual([
+      ['en', 'sent', 3],
+      ['de', 'sent', 2],
     ])
+    expect(broadcasts[0].html).toContain(UNSUBSCRIBE_PLACEHOLDER)
+
+    await expect(sendNewsletter(payload, newsletterId)).rejects.toThrow(/already/)
   })
 
   it('shows the newsletter in the archive only after the delay', async () => {
@@ -235,46 +232,5 @@ describe('sending', () => {
       data: { showInArchive: false },
     })
     expect(await visible()).toBe(0)
-  })
-})
-
-describe('Resend webhook', () => {
-  const endpoint = newsletterEndpoints.find((e) => e.path === '/newsletter/webhook')!
-  const secretBytes = crypto.randomBytes(24)
-  process.env.RESEND_WEBHOOK_SECRET = `whsec_${secretBytes.toString('base64')}`
-
-  const call = (body: string, signature: string) => {
-    const id = 'msg_1'
-    const timestamp = String(Math.floor(Date.now() / 1000))
-    const valid = crypto
-      .createHmac('sha256', secretBytes)
-      .update(`${id}.${timestamp}.${body}`)
-      .digest('base64')
-    return endpoint.handler({
-      payload,
-      headers: new Headers({
-        'svix-id': id,
-        'svix-timestamp': timestamp,
-        'svix-signature': `v1,${signature || valid}`,
-      }),
-      text: async () => body,
-    } as never) as Promise<Response>
-  }
-
-  it('rejects wrong signatures', async () => {
-    const response = await call(
-      JSON.stringify({ type: 'email.bounced', data: { to: ['reader1@example.org'] } }),
-      'invalid',
-    )
-    expect(response.status).toBe(401)
-  })
-
-  it('marks bounced addresses', async () => {
-    const response = await call(
-      JSON.stringify({ type: 'email.bounced', data: { to: ['reader1@example.org'] } }),
-      '',
-    )
-    expect(response.status).toBe(200)
-    expect((await getSubscriber('reader1@example.org')).status).toBe('bounced')
   })
 })

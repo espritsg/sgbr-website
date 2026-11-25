@@ -38,11 +38,11 @@ Details: [rollen.md](rollen.md).
 
 1. **Newsletter → Neu**: Titel, Betreff, Vorschautext, Einleitung, Text (z. B. Gastbeitrag) und empfohlene Artikel eintragen. Zielgruppe wählen: monatlicher Newsletter oder Event-Einladungen.
 2. Speichern, dann rechts **Testversand an mich**. Die Mail kommt an die eigene Adresse, mit „[TEST]“ im Betreff. Das dürfen auch Editors.
-3. **Senden** (nur Admin und Editorial Board): Der Dialog zeigt die Anzahl der Empfänger. Nach dem Bestätigen geht der Versand sofort los und läuft von selbst weiter, auch wenn man die Seite schliesst.
-4. Statt sofort zu senden, lässt sich unter „Versand“ ein **geplanter Versand** (Tag) eintragen. Er startet am Morgen dieses Tages.
+3. **Senden** (nur Admin und Editorial Board): Der Dialog zeigt die höchstmögliche Zahl der Empfänger. Nach dem Bestätigen übergibt die Website den Newsletter an Resend (ein Broadcast pro Sprache), Resend verschickt ihn. Zustellung, Öffnungen und Klicks stehen in Resend unter Broadcasts.
+4. Statt sofort zu senden, lässt sich unter „Versand“ ein **geplanter Versand** (Tag) eintragen. Er geht am Morgen dieses Tages raus. Schlägt ein Versand fehl, steht der Grund unter „Versand → Resend“; **Erneut senden** schickt nur, was noch fehlt.
 5. Im Archiv auf der Website erscheint der Newsletter standardmässig **30 Tage** nach dem Versand (einstellbar unter „Archiv“, 0 = sofort, oder ganz ausblenden).
 
-Abonnenten melden sich selbst an und bestätigen per Mail. Abgemeldete bleiben in der Liste (Status „Abgemeldet“), damit sie nicht wieder angeschrieben werden. Die Liste sehen nur Admin und Editorial Board, Export über **Exportieren** in der Liste.
+Abonnenten melden sich selbst an und bestätigen per Mail. Die Liste liegt in **Resend** (Audience → Contacts), nicht im Admin; Zugang haben Admin und Editorial Board mit eigenem Resend-Login. Abgemeldete bleiben dort als „Unsubscribed“ und bekommen nichts mehr. Export als CSV in Resend.
 
 ## Formulare und Bewerbungen
 

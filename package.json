@@ -23,6 +23,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "import:dev": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/import-dev.ts",
     "check:redirects": "tsx src/scripts/check-redirects.ts",
+    "resend:setup": "tsx src/scripts/resend-setup.ts",
     "jobs": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/run-jobs.ts",
     "build:vercel": "cross-env NODE_OPTIONS=--no-deprecation payload migrate && npm run build",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
