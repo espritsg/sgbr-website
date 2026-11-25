@@ -15,7 +15,7 @@ Die Spec ging davon aus, dass der Form Builder keinen Datei-Upload hat. Version 
 
 - Eingebauten Feldtyp `upload` nutzen, einzige erlaubte Ziel-Collection ist `application-files`. Kein Eigenbau.
 - `application-files`: nur PDF (Prüfung der Dateisignatur `%PDF-`, nicht nur des Dateinamens), **max. 4 MB statt 5 MB**, wegen der Grenze von 4,5 MB pro Anfrage auf Vercel.
-- Speicher mit `BLOB_READ_WRITE_TOKEN`: eigener kleiner Adapter `src/lib/storage/privateBlobAdapter.ts` mit `access: 'private'`. Dateien gibt es nur über `/api/application-files/file/{name}`. Diese Route prüft vorher die Leserechte (nur Admin und Board). Ohne Token liegen sie lokal im Ordner `application-files/`, ausserhalb von `public/`.
+- Speicher in einem **eigenen privaten Blob-Store** (`BLOB_PRIVATE_READ_WRITE_TOKEN`; Vercel legt öffentlich/privat pro Store fest, seit 2026-11-25), Bilder im öffentlichen Store (`BLOB_READ_WRITE_TOKEN`). Eigener kleiner Adapter `src/lib/storage/privateBlobAdapter.ts` mit `access: 'private'`. Dateien gibt es nur über `/api/application-files/file/{name}`. Diese Route prüft vorher die Leserechte (nur Admin und Board). Ohne Token liegen sie lokal im Ordner `application-files/`, ausserhalb von `public/`.
 - Kein zusätzlicher S3-Dienst nötig.
 
 ## Folgen

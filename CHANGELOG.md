@@ -4,6 +4,10 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-25, Dateispeicher)
+
+- Zwei Blob-Stores, weil Vercel öffentlich/privat pro Store festlegt: Bilder im öffentlichen (`BLOB_READ_WRITE_TOKEN`), Lebensläufe im privaten (`BLOB_PRIVATE_READ_WRITE_TOKEN`, neu). Fehlt der private Token auf Vercel, bricht der Build mit Hinweis ab ([ADR 0012](docs/entscheidungen/0012-bewerbungsdateien.md)).
+
 ### Geändert (2026-11-25, Newsletter mit Resend als Quelle)
 
 - Abonnenten liegen nur noch in Resend ([ADR 0021](docs/entscheidungen/0021-resend-als-quelle.md)): Kontakte mit Sprache, Quelle und Einwilligungszeit, ein Segment pro Sprache, ein Topic pro Interesse. Collections `subscribers` und `newsletter-deliveries` entfernt (Migrationen `newsletter_ohne_abonnenten`, `resend_broadcasts`).

@@ -83,7 +83,7 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 #   export.xml  mailpoet.csv  redirection.json  uploads/  (optional: feeds/issues.json, feeds/events.json, about.html)
 # Abonnenten gehen nach Resend: dafür RESEND_API_KEY und die vier RESEND_SEGMENT_*/RESEND_TOPIC_*-IDs
 # setzen (ohne sie landen sie nur im lokalen Ersatz .mail-preview/audience.json).
-DATABASE_URL=<Produktions-DB> BLOB_READ_WRITE_TOKEN=<Token> ANTHROPIC_API_KEY=<optional> \
+DATABASE_URL=<Produktions-DB> BLOB_READ_WRITE_TOKEN=<Token> BLOB_PRIVATE_READ_WRITE_TOKEN=<Token> ANTHROPIC_API_KEY=<optional> \
   RESEND_API_KEY=<…> RESEND_SEGMENT_EN=<…> RESEND_SEGMENT_DE=<…> RESEND_TOPIC_NEWSLETTER=<…> RESEND_TOPIC_EVENTS=<…> \
   MIGRATION_DIR=/pfad/zu/wp-export npm run migrate:wp
 ```

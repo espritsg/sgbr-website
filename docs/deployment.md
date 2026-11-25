@@ -17,7 +17,8 @@ Alle Variablen stehen mit Kommentar in [`.env.example`](../.env.example). In Ver
 | `PAYLOAD_SECRET` | ja | Schlüssel für Payload, zufällig, mind. 32 Zeichen: `openssl rand -hex 32`. Nie ändern, sonst sind alle angemeldet ab. |
 | `NEXT_PUBLIC_SERVER_URL` | ja | öffentliche Adresse ohne `/` am Ende: `https://stgallenbusinessreview.com` (Preview: Vorschau-URL) |
 | `CRON_SECRET` | ja | zufällig. Vercel schickt es beim Cron als `Authorization: Bearer …`. |
-| `BLOB_READ_WRITE_TOKEN` | ja | setzt Vercel beim Verbinden eines Blob-Stores |
+| `BLOB_READ_WRITE_TOKEN` | ja | öffentlicher Blob-Store (Bilder, Ausgaben-PDFs); setzt Vercel beim Verbinden |
+| `BLOB_PRIVATE_READ_WRITE_TOKEN` | ja | privater Blob-Store (Lebensläufe); beim Verbinden Präfix `BLOB_PRIVATE` wählen. Fehlt er auf Vercel, bricht der Build mit Hinweis ab |
 | `RESEND_API_KEY` | für Mails | Resend, Berechtigung **Full access**; ohne Key gehen keine Mails raus (nur Log) |
 | `RESEND_SEGMENT_EN`, `RESEND_SEGMENT_DE` | für Newsletter | IDs der Sprach-Segmente, aus `npm run resend:setup` |
 | `RESEND_TOPIC_NEWSLETTER`, `RESEND_TOPIC_EVENTS` | für Newsletter | IDs der Topics, aus `npm run resend:setup` |
@@ -34,7 +35,9 @@ Nur lokal: `DATABASE_URL_TEST`, `DEV_SEED_PASSWORD`, `UPLOADS_DIR`, `MAIL_PREVIE
 1. **GitHub:** Repo `espritsg/sgbr-website` (erledigt).
 2. **Vercel:** New Project → Repo importieren. Framework Next.js wird erkannt. Build-Befehl kommt aus `vercel.json`: `npm run build:vercel` (`payload migrate`, dann `next build`). Node-Version aus `package.json` (`engines`, 24).
 3. **Neon:** Vercel → Storage → Neon verbinden (Region Frankfurt `eu-central-1`). Für Preview-Deployments Neon-Branching einschalten, damit Vorschauen nicht auf die Produktionsdaten schreiben.
-4. **Blob:** Vercel → Storage → Blob-Store anlegen (Region Frankfurt), mit dem Projekt verbinden. Lebensläufe werden mit `access: 'private'` gespeichert ([ADR 0012](entscheidungen/0012-bewerbungsdateien.md)).
+4. **Blob, zwei Stores** (Region Frankfurt; Zugriff lässt sich später nicht ändern, [ADR 0012](entscheidungen/0012-bewerbungsdateien.md)):
+   - `sgbr-media`, Zugriff **Public**, verbinden mit Standard-Präfix → `BLOB_READ_WRITE_TOKEN`
+   - `sgbr-bewerbungen`, Zugriff **Private**, verbinden mit Präfix **`BLOB_PRIVATE`** → `BLOB_PRIVATE_READ_WRITE_TOKEN`
 5. **Variablen** aus der Tabelle oben setzen.
 6. **Deploy.** Beim ersten Build legt `payload migrate` alle Tabellen an.
 7. **Ersten Benutzer anlegen:** `https://…/admin` öffnen, „Ersten Benutzer erstellen“. Er wird automatisch Admin. Weitere Benutzer legt der Admin an.
@@ -46,7 +49,7 @@ Nur lokal: `DATABASE_URL_TEST`, `DEV_SEED_PASSWORD`, `UPLOADS_DIR`, `MAIL_PREVIE
 1. Konto bei Resend (ESPRIT), zwei Domains anlegen:
    - `stgallenbusinessreview.com` für normale Mails (Absender `editorial@…`)
    - `news.stgallenbusinessreview.com` für die Newsletter-Broadcasts (eigene Subdomain, damit Newsletter-Probleme die normalen Mails nicht treffen)
-2. Die DNS-Einträge, die Resend anzeigt (DKIM `resend._domainkey`, MX und SPF auf der Unter-Subdomain `send.`), bei **All-Inkl** eintragen. **Die MX-Einträge der Hauptdomain (Microsoft 365) nicht anfassen**, den bestehenden SPF-Eintrag der Hauptdomain auch nicht.
+2. Die DNS-Einträge, die Resend anzeigt, bei **All-Inkl** eintragen: pro Domain TXT `resend._domainkey` (DKIM) und CNAME `rsend` und `send` auf `…forge.rmta.net` (Stand 2026-11-25; bei `news.` mit Zusatz `.news`). **MX (Microsoft 365) und SPF der Hauptdomain nicht anfassen.**
 3. API-Key erzeugen, Berechtigung **Full access** (Kontakte, Segmente, Broadcasts) → `RESEND_API_KEY`.
 4. Einmalig lokal: `RESEND_API_KEY=re_… npm run resend:setup`. Legt die Segmente „SGBR – English“ und „SGBR – Deutsch“, die Topics „Newsletter“ und „Event invitations“ und die Kontaktfelder an und gibt die vier IDs aus → in Vercel eintragen. Wiederholbar.
 5. Kein Webhook nötig: Abmeldungen, Bounces und Spam-Beschwerden verwaltet Resend selbst.
