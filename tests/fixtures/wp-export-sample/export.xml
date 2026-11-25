@@ -24,7 +24,7 @@
 <wp:post_id>2</wp:post_id><wp:post_date_gmt><![CDATA[2025-03-01 08:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[ueber-die-zukunft-der-schweiz]]></wp:post_name>
 <wp:status><![CDATA[publish]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[post]]></wp:post_type>
 <category domain="category" nicename="uncategorized"><![CDATA[Uncategorized]]></category><wp:postmeta><wp:meta_key><![CDATA[rank_math_title]]></wp:meta_key><wp:meta_value><![CDATA[%title% %sep% %sitename%]]></wp:meta_value></wp:postmeta></item><item><title><![CDATA[A draft]]></title><link>https://stgallenbusinessreview.com/a-draft/</link><dc:creator><![CDATA[ada-muster]]></dc:creator>
-<content:encoded><![CDATA[<p>Draft text that is long enough to be a paragraph of its own for the summary.</p>]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
+<content:encoded><![CDATA[<p>Draft text that is long enough to be a paragraph of its own for the summary. A second sentence makes it a real draft.</p>]]></content:encoded><excerpt:encoded><![CDATA[]]></excerpt:encoded>
 <wp:post_id>3</wp:post_id><wp:post_date_gmt><![CDATA[0000-00-00 00:00:00]]></wp:post_date_gmt><wp:post_name><![CDATA[a-draft]]></wp:post_name>
 <wp:status><![CDATA[draft]]></wp:status><wp:post_parent>0</wp:post_parent><wp:post_type><![CDATA[post]]></wp:post_type>
 <category domain="category" nicename="politics"><![CDATA[Politics]]></category></item><item><title><![CDATA[Trashed]]></title><link>https://stgallenbusinessreview.com/trashed/</link><dc:creator><![CDATA[ada-muster]]></dc:creator>

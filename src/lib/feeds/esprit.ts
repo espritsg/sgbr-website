@@ -3,6 +3,7 @@
  * (docs/esprit-feed.md). Same keys, key order and types as the old WordPress feeds;
  * the URL values point to the new pages (ADR 0003). Contract: tests/int/esprit-feed.test.ts.
  */
+import { ISSUE_SORT } from '@/lib/data/issueOrder'
 import type { Payload } from 'payload'
 
 import { formatFeedDate, formatFeedTime, isoWithOffset, isUpcoming } from '@/lib/dates'
@@ -94,7 +95,7 @@ export async function buildIssuesFeed(payload: Payload, now = new Date()): Promi
     collection: 'issues',
     locale: 'en',
     overrideAccess: false,
-    sort: '-year',
+    sort: ISSUE_SORT,
     limit: 500,
     depth: 1,
   })

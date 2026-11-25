@@ -4,6 +4,13 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-25, finale Migration)
+
+- Migration mit den echten Exporten geprobt und angepasst ([migration.md](docs/migration.md)): Originalnamen der Exporte, deutscher MailPoet-Export (globaler Status, Anmeldezeiten), leere und doppelte Entwürfe ausgelassen, doppelte WordPress-Konten einer Person zusammengeführt (mit Weiterleitung der alten Autoren-Adresse), technische Konten nicht als Person, Funktion aus dem Anzeigenamen ins Feld Rolle.
+- Personenseiten prüfen bei unbekanntem Slug die Weiterleitungen aus dem Admin.
+- Ausgaben überall gleich sortiert (Jahr, dann zuletzt angelegt); Reihenfolge innerhalb eines Jahres wie auf der alten Seite.
+- Neu: `npm run summaries -- export|apply` für Zusammenfassungen ohne API-Key.
+
 ### Geändert (2026-11-25, Dateispeicher)
 
 - Vercel-Funktionen laufen in Frankfurt (`regions: ["fra1"]` in `vercel.json`), neben Datenbank und Dateien.

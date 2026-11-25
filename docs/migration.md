@@ -88,7 +88,13 @@ DATABASE_URL=<Produktions-DB> BLOB_READ_WRITE_TOKEN=<Token> BLOB_PRIVATE_READ_WR
   MIGRATION_DIR=/pfad/zu/wp-export npm run migrate:wp
 ```
 
-Am einfachsten: `vercel env pull .env.production.local` und die Werte daraus übernehmen (Datei ist in `.gitignore`, danach löschen).
+Vercel gibt Werte vom Typ „Secret“ nicht heraus (`vercel env pull` liefert nur `[SENSITIVE]`). Datenbank-URL aus Neon, Blob-Tokens aus Vercel → Storage → Store (Tab `.env.local`, „Show secret“), Resend-Key neu in Resend erzeugen; in eine Datei ausserhalb des Repos legen und danach löschen.
+
+- Die Exporte dürfen ihre Originalnamen behalten (`*.WordPress.*.xml`, `MailPoet*.csv`, `redirection*.json`).
+- MailPoet: Massgebend ist der **globale** Status (deutsch „Globaler Status“), nicht der Listen-Status; Anmelde- und Bestätigungszeit aus „Abonnement-Zeit“ und „Bestätigungs-Zeit“.
+- Entwürfe, die leer sind (unter 100 Zeichen Text) oder einen veröffentlichten Artikel mit gleichem Titel doppeln, werden ausgelassen (stehen im Bericht).
+- Personen: Mehrere WordPress-Konten mit gleichem Namen werden eine Person (kürzester Slug), die alten Autoren-Adressen der übrigen Konten bekommen eine Weiterleitung. Technische Konten (`it-vorstand`, `admin` …) werden keine Person; ihre Artikel stehen im Bericht. Funktionen im Anzeigenamen („Joe Kaeser - CEO, Siemens AG“) landen im Feld Rolle.
+- Ausgaben werden in umgekehrter Feed-Reihenfolge angelegt, damit die Reihenfolge innerhalb eines Jahres wie auf der alten Seite bleibt (`ISSUE_SORT`: Jahr, dann zuletzt angelegt).
 
 - Ohne `feeds/` und `about.html` holt das Skript Feeds und About-Seite von der alten Seite (nur lesend). `MIGRATION_OFFLINE=1` verbietet jeden Netzzugriff.
 - Dateien kommen aus `uploads/`, fehlen sie dort, werden sie über die URL aus dem Export geladen.
@@ -119,6 +125,7 @@ Am einfachsten: `vercel env pull .env.production.local` und die Werte daraus üb
 - Schon vorhandene Zusammenfassungen nie überschreiben, damit wiederholte Läufe nichts zerstören.
 - Ohne API-Key: erster sinnvoller Absatz, gekürzt, ebenfalls markiert.
 - Gilt auch für den Dev-Import, wenn ein Key gesetzt ist.
+- Ohne API-Key in einer Claude-Code-Sitzung (so geschehen 2026-11-25): `npm run summaries -- export <datei>` schreibt die Texte aller Artikel, Claude schreibt Zusammenfassung, Art (Interview/Gastbeitrag) und für Artikel ohne Thema ein Haupt-Thema, `npm run summaries -- apply <datei>` spielt sie ein. Nur Artikel mit „Zusammenfassung prüfen“ werden geändert, die Markierung bleibt.
 
 ## Ausgangslage der alten Seite (Analyse 2026-11-22)
 

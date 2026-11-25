@@ -2,10 +2,10 @@
  * Final migration from the WordPress exports (docs/migration.md, phase 2).
  * Uses the same mapping as the dev import (importers.ts); only the sources differ.
  *
- * Expected folder (MIGRATION_DIR):
- *   export.xml               WordPress export "All content" (WXR), required
- *   mailpoet.csv             MailPoet subscribers export (only confirmed ones are taken)
- *   redirection.json|.csv    export of the plugin "Redirection"
+ * Expected folder (MIGRATION_DIR); the original file names of the exports work too:
+ *   export.xml               WordPress export "All content" (WXR), required (or *.WordPress.*.xml)
+ *   mailpoet.csv             MailPoet subscribers export (or MailPoet*.csv); only confirmed ones
+ *   redirection.json|.csv    export of the plugin "Redirection" (or redirection*.json|csv)
  *   uploads/                 copy of wp-content/uploads (otherwise files are downloaded)
  *   feeds/issues.json        /issues/?sgbr_feed=1 (otherwise fetched from the old site)
  *   feeds/events.json        /category/speaker-events/?sgbr_feed=1 (same)
@@ -65,10 +65,42 @@ async function readOptional(file: string): Promise<string | null> {
   return (await exists(file)) ? fs.readFile(file, 'utf8') : null
 }
 
+/** `name` in `dir`, otherwise the first file matching `pattern` (original export names). */
+export async function findExport(dir: string, name: string, pattern: RegExp): Promise<string> {
+  const exact = path.join(dir, name)
+  if (await exists(exact)) return exact
+  const match = (await fs.readdir(dir)).sort().find((file) => pattern.test(file))
+  return match ? path.join(dir, match) : exact
+}
+
 /** Rank Math titles often contain variables like %title% %sep%; those are left out. */
 function seoText(value: string | undefined): string | undefined {
   if (!value || value.includes('%')) return undefined
   return value.trim() || undefined
+}
+
+/** WordPress accounts used by the editors themselves, not by an interview partner. */
+export function isSystemAccount(name: string | undefined): boolean {
+  return /^(it-vorstand|admin|administrator|redaktion|editor|sgbr|wordpress)$/i.test(
+    (name ?? '').trim(),
+  )
+}
+
+/**
+ * WordPress display names often carry the role: "Joe Kaeser - CEO, Siemens AG",
+ * "Daniel Kueng, CEO - Switzerland Global Enterprise". Splits at the first " - ",
+ * " – " or ", " (hyphens inside names have no spaces). Names of several people
+ * ("A & B", "A und B") stay as they are.
+ */
+export function splitNameAndRole(displayName: string): { name: string; role?: string } {
+  const clean = displayName.replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
+  const match = clean.match(/^(.+?)(?:\s[-–]\s|,\s)(.+)$/)
+  if (!match) return { name: clean }
+  const [, name, role] = match
+  // Only when the first part looks like a name (2–6 words, no "&").
+  const words = name.split(' ')
+  if (words.length < 2 || words.length > 6 || /&| und | and /.test(name)) return { name: clean }
+  return { name: name.trim(), role: role.replace(/\s[-–]\s/g, ', ').trim() }
 }
 
 /** MailPoet writes dates without time zone in the site's time (Zurich). */
@@ -105,18 +137,48 @@ export async function runMigration(
   }
   const log = (message: string) => console.log(`→ ${message}`)
 
-  const xml = await fs.readFile(path.join(options.dir, 'export.xml'), 'utf8')
+  const xml = await fs.readFile(
+    await findExport(options.dir, 'export.xml', /\.wordpress\..*\.xml$/i),
+    'utf8',
+  )
   const wxr = parseWxr(xml)
   const attachments = new Map(
     wxr.items.filter((item) => item.type === 'attachment').map((item) => [item.id, item]),
   )
-  const posts = wxr.items.filter(
+  const allPosts = wxr.items.filter(
     (item) => item.type === 'post' && item.status !== 'trash' && item.status !== 'auto-draft',
   )
+  // Drafts that are empty or an old copy of a published article (same title) are left out.
+  const normalizeTitle = (title: string) =>
+    title
+      .replace(/<[^>]+>|&[a-z#0-9]+;/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase()
+  const publishedTitles = new Set(
+    allPosts.filter((item) => item.status === 'publish').map((item) => normalizeTitle(item.title)),
+  )
+  const skippedDrafts: string[] = []
+  const posts = allPosts.filter((item) => {
+    if (item.status === 'publish') return true
+    const text = item.content
+      .replace(/<[^>]+>|\[[^\]]*\]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+    const reason =
+      text.length < 100
+        ? 'leer'
+        : publishedTitles.has(normalizeTitle(item.title))
+          ? 'Kopie eines veröffentlichten Artikels'
+          : null
+    if (reason) skippedDrafts.push(`${item.title || '(ohne Titel)'} [${item.id}]: ${reason}`)
+    return !reason
+  })
   const pages = wxr.items.filter((item) => item.type === 'page')
   log(
     `Export: ${posts.length} Artikel, ${pages.length} Seiten, ${attachments.size} Dateien, ${wxr.authors.length} Autoren`,
   )
+  for (const draft of skippedDrafts) report.notes.push(`Entwurf nicht übernommen: ${draft}`)
 
   // 1. Media: all files, so old /wp-content/uploads links keep working.
   log('Medien')
@@ -137,7 +199,9 @@ export async function runMigration(
 
   // 3. People from the authors (dc:creator); details from the public REST API if reachable.
   log('Personen')
-  const restUsers = new Map<string, { slug: string; description?: string; avatar?: string }>()
+  type RestUser = { slug: string; description?: string; avatar?: string }
+  // By display name; several accounts may share one (the same person twice).
+  const restUsers = new Map<string, RestUser[]>()
   const usersJson = await fetchText(`${sourceUrl}/wp-json/wp/v2/users?per_page=100`)
   if (usersJson) {
     for (let page = 1; ; page++) {
@@ -154,30 +218,69 @@ export async function runMigration(
             avatar_urls?: Record<string, string>
           }>)
         : []
-      for (const user of list)
-        restUsers.set(user.name, {
+      for (const user of list) {
+        const entries = restUsers.get(user.name) ?? []
+        entries.push({
           slug: user.slug,
           description: user.description,
           avatar: user.avatar_urls?.['96'],
         })
+        restUsers.set(user.name, entries)
+      }
       if (list.length < 100) break
     }
   }
   const personByLogin = new Map<string, { id: number; name: string }>()
+  // Group the authors of articles by name: some people had two WordPress accounts
+  // (one per interview) and become one person. Technical accounts become no person.
+  const groups = new Map<string, typeof wxr.authors>()
   for (const author of wxr.authors) {
     if (!posts.some((post) => post.creator === author.login)) continue
-    const rest = restUsers.get(author.displayName)
+    if (isSystemAccount(author.login) || isSystemAccount(author.displayName)) {
+      const count = posts.filter((post) => post.creator === author.login).length
+      report.notes.push(
+        `Konto „${author.displayName || author.login}“ ist keine Person: ${count} Artikel ohne Interviewpartner, bitte im Admin ergänzen.`,
+      )
+      continue
+    }
+    const nameKey = (author.displayName || author.login).trim().toLowerCase()
+    groups.set(nameKey, [...(groups.get(nameKey) ?? []), author])
+  }
+  for (const accounts of groups.values()) {
+    const author = accounts[0]
+    const { name, role } = splitNameAndRole(author.displayName || author.login)
+    const rest = restUsers.get(author.displayName) ?? []
+    // The shortest REST slug is the original one ("georges-kern", not "georges-kern-2").
+    const slugs = [...new Set(rest.map((user) => user.slug))].sort((a, b) => a.length - b.length)
+    const main = rest.find((user) => user.slug === slugs[0])
+    const withBio = rest.find((user) => user.description?.trim()) ?? main
+    const avatar = rest.find((user) => user.avatar?.includes('/wp-content/uploads/'))?.avatar
     const id = await importPerson(payload, media, report, {
       wpId: author.id,
-      name: author.displayName || author.login,
-      slug: rest?.slug || slugify(author.login),
-      bio: rest?.description,
-      photoUrl: rest?.avatar?.includes('/wp-content/uploads/')
-        ? originalImageUrl(rest.avatar)
-        : undefined,
-      photoFallbackUrl: rest?.avatar?.includes('/wp-content/uploads/') ? rest.avatar : undefined,
+      name,
+      role,
+      slug: slugs[0] || slugify(author.login),
+      bio: withBio?.description,
+      photoUrl: avatar ? originalImageUrl(avatar) : undefined,
+      photoFallbackUrl: avatar,
     })
-    personByLogin.set(author.login, { id, name: author.displayName || author.login })
+    const person = { id, name }
+    for (const account of accounts) personByLogin.set(account.login, person)
+    if (accounts.length > 1)
+      report.notes.push(`Person „${name}“: ${accounts.length} WordPress-Konten, zusammengeführt.`)
+    // Old author pages of the other accounts lead to the merged person.
+    for (const oldSlug of slugs.slice(1)) {
+      await upsert(
+        payload,
+        'redirects',
+        { field: 'from', value: `/author/${oldSlug}` },
+        {
+          from: `/author/${oldSlug}`,
+          to: { type: 'reference', reference: { relationTo: 'people', value: id } },
+          type: '301',
+        },
+      )
+    }
   }
 
   // 4. Team and issues (issues reference the editorial board)
@@ -273,8 +376,14 @@ export async function runMigration(
 
   // 7. Redirects from the Redirection plugin
   log('Weiterleitungen')
-  for (const fileName of ['redirection.json', 'redirection.csv']) {
-    const content = await readOptional(path.join(options.dir, fileName))
+  for (const extension of ['json', 'csv']) {
+    const file = await findExport(
+      options.dir,
+      `redirection.${extension}`,
+      new RegExp(`^redirection.*\\.${extension}$`, 'i'),
+    )
+    const fileName = path.basename(file)
+    const content = await readOptional(file)
     if (!content) continue
     for (const entry of parseRedirection(content, fileName)) {
       if (entry.regex || !entry.from || !entry.to) {
@@ -301,28 +410,39 @@ export async function runMigration(
 
   // 8. Newsletter subscribers: only confirmed MailPoet subscribers, written to Resend
   //    (or the local stand-in without RESEND_API_KEY). Existing contacts stay untouched.
-  const csv = await readOptional(path.join(options.dir, 'mailpoet.csv'))
+  const csv = await readOptional(
+    await findExport(options.dir, 'mailpoet.csv', /^mailpoet.*\.csv$/i),
+  )
   if (csv) {
     log('Abonnenten')
     const audience = getAudience()
     let skipped = 0
     for (const row of parseCsv(csv)) {
-      const email = column(row, 'email', 'e-mail').toLowerCase()
-      const status = column(row, 'status').toLowerCase()
+      const email = column(row, 'e-mail', 'email').toLowerCase()
+      // German exports have "Listen-Status" (per list) and "Globaler Status" (real state:
+      // unconfirmed, bounced, unsubscribed). The global status decides.
+      const status = column(row, 'globaler status', 'global status', 'status').toLowerCase()
       if (!email || !['subscribed', 'confirmed', 'abonniert'].includes(status)) {
         skipped++
         continue
       }
-      const consent = column(row, 'subscribed', 'confirmed', 'created', 'angemeldet')
-      const consentAt = parseLocalDate(consent) ?? new Date().toISOString()
+      const consent = column(row, 'abonnement-zeit', 'subscribed', 'created', 'angemeldet')
+      const confirmation = column(row, 'bestätigungs-zeit', 'confirmed')
+      const consentAt = parseLocalDate(consent) ?? parseLocalDate(confirmation)
+      if (!consentAt) {
+        report.notes.push('MailPoet-Eintrag ohne Anmeldedatum übersprungen.')
+        skipped++
+        continue
+      }
+      const confirmedAt = parseLocalDate(confirmation) ?? consentAt
       const result = await audience.createIfMissing({
         email,
-        firstName: column(row, 'first', 'vorname') || undefined,
+        firstName: column(row, 'vorname', 'first') || undefined,
         locale: 'en',
         interests: ['newsletter'],
         source: 'mailpoet-import',
         consentAt,
-        confirmedAt: consentAt,
+        confirmedAt,
       })
       report.counts.subscribers ??= { created: 0, updated: 0 }
       if (result === 'created') report.counts.subscribers.created++

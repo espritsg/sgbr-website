@@ -142,7 +142,7 @@ export async function importPerson(
   report: ImportReport,
   input: PersonInput,
 ): Promise<Id> {
-  const slug = input.slug || slugify(input.name)
+  let slug = input.slug || slugify(input.name)
   const bio = input.bio
     ? decodeEntities(input.bio)
         .replace(/\r\n/g, '\n')
@@ -177,8 +177,14 @@ export async function importPerson(
         draft: true,
       })
     : null
-  const effectiveWhere =
-    bySlug?.docs[0] && !bySlug.docs[0].wpId ? { field: 'slug', value: slug } : where
+  const sameSlug = bySlug?.docs[0]
+  const effectiveWhere = sameSlug && !sameSlug.wpId ? { field: 'slug', value: slug } : where
+  // Slug taken by another WordPress user (different person): make it unique.
+  if (sameSlug?.wpId && sameSlug.wpId !== input.wpId) {
+    slug = `${slug}-${input.wpId}`
+    data.slug = slug
+    report.notes.push(`Person „${data.name}“: Slug vergeben, neu ${slug}.`)
+  }
 
   const { doc, created } = await upsert(payload, 'people', effectiveWhere, data, { locale: 'en' })
   const localized: Record<string, unknown> = {}
@@ -425,7 +431,8 @@ export async function importIssues(
 ): Promise<IssueIds> {
   const ids: IssueIds = new Map()
 
-  for (const item of feed.digital) {
+  // Reverse: the issue created last comes first within a year (ISSUE_SORT).
+  for (const item of [...feed.digital].reverse()) {
     const slug = slugFromUrl(item.url)
     const pageHtml = await loadIssuePage(item.url)
     const page = pageHtml ? parseIssuePage(pageHtml) : { editorNames: [] as string[] }
@@ -458,7 +465,7 @@ export async function importIssues(
     count(report, 'issues', created)
   }
 
-  for (const item of feed.archive) {
+  for (const item of [...feed.archive].reverse()) {
     const slug = slugify(`${item.title}-${item.year}`)
     const pdf = await media.get({ url: item.url, alt: `${item.title} ${item.year}` })
     const cover = item.cover_url

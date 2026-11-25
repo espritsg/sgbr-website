@@ -1,6 +1,7 @@
 /**
  * All reads of the website. Server-only, through the Payload Local API.
  */
+import { ISSUE_SORT } from '@/lib/data/issueOrder'
 import type { Where } from 'payload'
 
 import type { AppLocale } from '@/i18n/routing'
@@ -176,7 +177,7 @@ export async function getIssues(locale: AppLocale): Promise<Issue[]> {
   const result = await payload.find({
     collection: 'issues',
     ...options,
-    sort: '-year',
+    sort: ISSUE_SORT,
     limit: 200,
     depth: 1,
   })
@@ -323,7 +324,7 @@ export async function getLatestDigitalIssue(locale: AppLocale): Promise<Issue | 
     collection: 'issues',
     ...options,
     where: { format: { equals: 'digital' } },
-    sort: '-year',
+    sort: ISSUE_SORT,
     limit: 1,
     depth: 1,
   })

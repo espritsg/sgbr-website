@@ -29,6 +29,7 @@
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:wp": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/migrate.ts",
+    "summaries": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/summaries.ts",
     "seed:forms": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/seed-forms.ts"
   },
   "dependencies": {

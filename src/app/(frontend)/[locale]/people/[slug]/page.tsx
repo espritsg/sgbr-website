@@ -9,6 +9,7 @@ import { LinkedinLogo } from '@/components/ui/icons'
 import { MediaImage } from '@/components/ui/MediaImage'
 import { SectionHeader } from '@/components/ui/Section'
 import type { AppLocale } from '@/i18n/routing'
+import { redirectFromCms } from '@/lib/data/cmsRedirects'
 import { getEventsByIds, getPerson, getPostsByIds } from '@/lib/data/queries'
 import { isMedia } from '@/lib/media'
 import { buildMetadata } from '@/lib/seo'
@@ -38,7 +39,11 @@ export default async function PersonPage({ params }: Props) {
   const { locale, slug } = await params
   setRequestLocale(locale)
   const person = await getPerson(locale, slug)
-  if (!person) notFound()
+  if (!person) {
+    // Old author URLs (/author/{slug}/ → here) of merged or renamed people.
+    await redirectFromCms([`/author/${slug}`, `/${locale}/people/${slug}`], locale)
+    notFound()
+  }
   const t = await getTranslations('people')
   const [articles, events] = await Promise.all([
     getPostsByIds(locale, idsOf(person.articles?.docs as never)),

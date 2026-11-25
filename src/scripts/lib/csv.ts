@@ -38,8 +38,15 @@ export function parseCsv(input: string): Record<string, string>[] {
   )
 }
 
-/** Finds the first column whose name contains one of the words. */
+/**
+ * Finds a column by name. The words are tried in order (the first word is the most
+ * specific); a column matches when its lower-case name contains the word.
+ */
 export function column(row: Record<string, string>, ...words: string[]): string {
-  const key = Object.keys(row).find((name) => words.some((word) => name.includes(word)))
-  return key ? row[key] : ''
+  const names = Object.keys(row)
+  for (const word of words) {
+    const key = names.find((name) => name.includes(word.toLowerCase()))
+    if (key) return row[key]
+  }
+  return ''
 }
