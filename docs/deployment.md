@@ -42,7 +42,8 @@ Nur lokal: `DATABASE_URL_TEST`, `DEV_SEED_PASSWORD`, `UPLOADS_DIR`, `MAIL_PREVIE
 6. **Deploy.** Beim ersten Build legt `payload migrate` alle Tabellen an.
 7. **Ersten Benutzer anlegen:** `https://…/admin` öffnen, „Ersten Benutzer erstellen“. Er wird automatisch Admin. Weitere Benutzer legt der Admin an.
 8. **Cron prüfen:** Vercel → Settings → Cron Jobs zeigt `/api/cron/run-jobs` täglich 05:00 UTC. „Run“ klicken, danach im Admin unter Einstellungen → Hintergrund-Jobs den Eintrag „Tägliche Wartung“ ansehen.
-9. **Laufzeit:** `vercel.json` erlaubt der Payload-API bis 300 Sekunden (`maxDuration`), für Newsletter-Versand und Migration. Auf Vercel Hobby prüfen, ob das Limit gilt.
+9. **Region:** `vercel.json` setzt die Funktionen auf `fra1` (Frankfurt), neben Neon und Blob. Sonst laufen sie in den USA und jede Datenbankabfrage geht über den Atlantik.
+10. **Laufzeit:** `vercel.json` erlaubt der Payload-API bis 300 Sekunden (`maxDuration`), für Newsletter-Versand und Migration. Auf Vercel Hobby prüfen, ob das Limit gilt.
 
 ## Resend (Mails, Newsletter, Abonnenten)
 

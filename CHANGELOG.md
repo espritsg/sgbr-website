@@ -6,6 +6,7 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ### Geändert (2026-11-25, Dateispeicher)
 
+- Vercel-Funktionen laufen in Frankfurt (`regions: ["fra1"]` in `vercel.json`), neben Datenbank und Dateien.
 - Zwei Blob-Stores, weil Vercel öffentlich/privat pro Store festlegt: Bilder im öffentlichen (`BLOB_READ_WRITE_TOKEN`), Lebensläufe im privaten (`BLOB_PRIVATE_READ_WRITE_TOKEN`, neu). Fehlt der private Token auf Vercel, bricht der Build mit Hinweis ab ([ADR 0012](docs/entscheidungen/0012-bewerbungsdateien.md)).
 
 ### Geändert (2026-11-25, Newsletter mit Resend als Quelle)
