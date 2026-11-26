@@ -38,7 +38,7 @@ Nur lokal: `DATABASE_URL_TEST`, `DEV_SEED_PASSWORD`, `UPLOADS_DIR`, `MAIL_PREVIE
 3. **Neon:** Vercel → Storage → Neon verbinden (Region Frankfurt `eu-central-1`). Für Preview-Deployments Neon-Branching einschalten, damit Vorschauen nicht auf die Produktionsdaten schreiben.
 4. **Cloudflare R2** ([ADR 0022](entscheidungen/0022-cloudflare-r2.md)): Konto, R2 aktivieren, zwei Buckets mit Jurisdiktion **EU**:
    - `sgbr-media`: Settings → Public Development URL (`r2.dev`) **Allow** → Adresse als `R2_PUBLIC_URL`; CORS Policy: `[{"AllowedOrigins":["*"],"AllowedMethods":["GET","PUT","HEAD"],"AllowedHeaders":["*"],"ExposeHeaders":["ETag"],"MaxAgeSeconds":3600}]` (Upload aus dem Admin direkt in den Bucket)
-   - `sgbr-bewerbungen`: privat lassen
+   - `sgbr-privat`: privat lassen
    - API-Token „Object Read & Write“ für beide Buckets → `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
 5. **Variablen** aus der Tabelle oben setzen.
 6. **Deploy.** Beim ersten Build legt `payload migrate` alle Tabellen an.
@@ -94,7 +94,7 @@ Aus dem Bau:
 - [ ] Design-Tokens einmal im Browser mit den berechneten Styles der alten Seite abgleichen ([ADR 0010](entscheidungen/0010-design-werte.md)).
 - [ ] Kategorien-Zuordnung alt → neu von der Redaktion bestätigen lassen ([migration.md](migration.md)).
 - [ ] Artikel ohne Haupt-Thema (Bericht der Migration) zuordnen, Zusammenfassungen prüfen (Liste „Zusammenfassung prüfen“).
-- [ ] Bewerbung mit PDF auf der Vorschau testen und prüfen, dass die Datei ohne Login nicht abrufbar ist (`/api/application-files/file/…` → 403, Bucket `sgbr-bewerbungen` ohne öffentliche Adresse).
+- [ ] Bewerbung mit PDF auf der Vorschau testen und prüfen, dass die Datei ohne Login nicht abrufbar ist (`/api/application-files/file/…` → 403, Bucket `sgbr-privat` ohne öffentliche Adresse).
 - [ ] Newsletter-Testversand und echte Anmeldung (Double-Opt-in) auf der Vorschau testen, Abmelden per Link und per Mailprogramm (One-Click).
 - [ ] `npm run check:redirects` gegen die Vorschau: 0 Fehler.
 - [ ] Feeds prüfen: `https://<vorschau>/issues/?sgbr_feed=1` und `/category/speaker-events/?sgbr_feed=1` liefern JSON.

@@ -15,7 +15,7 @@ Bei der finalen Migration hat Vercel Blob (Hobby) erst die Uploads abgelehnt (1 
 
 - **Cloudflare R2** (S3-kompatibel), Jurisdiktion EU, über `@payloadcms/storage-s3`. Gratis-Kontingent: 10 GB, 1 Mio. Schreib- und 10 Mio. Lesevorgänge pro Monat, keine Kosten für Datenübertragung.
 - Bucket `sgbr-media` (öffentlich): Bilder und Ausgaben-PDFs. Die Website und `/files/{name}` verweisen direkt auf `R2_PUBLIC_URL`. Upload im Admin direkt vom Browser nach R2 (vorsignierte URL, CORS auf dem Bucket), ohne die 4,5-MB-Grenze von Vercel.
-- Bucket `sgbr-bewerbungen` (privat): Lebensläufe, Präfix `application-files/`, nur über `/api/application-files/file/…` mit Zugriffsprüfung (Admin, Board). Der eigene Blob-Adapter entfällt.
+- Bucket `sgbr-privat` (privat): alle nicht öffentlichen Dateien, vorerst Lebensläufe, Präfix `application-files/`, nur über `/api/application-files/file/…` mit Zugriffsprüfung (Admin, Board). Der eigene Blob-Adapter entfällt.
 - Öffentliche Adresse vorerst die `r2.dev`-Adresse von Cloudflare. Cloudflare drosselt sie und empfiehlt sie nur für Entwicklung; hier ist die Last klein, weil `next/image` jedes Bild einmal pro Grösse holt und Vercel es danach aus dem Cache liefert. Eine eigene Adresse (z. B. `files.stgallenbusinessreview.com`) braucht DNS bei Cloudflare; Umstellen ist nur `R2_PUBLIC_URL`, die Dateien bleiben.
 - Ohne R2-Zugang (lokal, Tests) liegen Dateien auf der Platte ([ADR 0007](0007-lokal-ohne-konten.md)).
 

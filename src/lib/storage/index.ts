@@ -23,7 +23,7 @@ export function r2Config() {
     secretAccessKey,
     publicUrl: (process.env.R2_PUBLIC_URL || '').replace(/\/$/, ''),
     mediaBucket: process.env.R2_BUCKET_MEDIA || 'sgbr-media',
-    privateBucket: process.env.R2_BUCKET_PRIVATE || 'sgbr-bewerbungen',
+    privateBucket: process.env.R2_BUCKET_PRIVATE || 'sgbr-privat',
   }
 }
 

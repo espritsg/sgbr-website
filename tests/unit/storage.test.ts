@@ -26,7 +26,7 @@ describe('Cloudflare R2 storage', () => {
       enabled: true,
       endpoint: 'https://abc.eu.r2.cloudflarestorage.com',
       mediaBucket: 'sgbr-media',
-      privateBucket: 'sgbr-bewerbungen',
+      privateBucket: 'sgbr-privat',
     })
   })
 })

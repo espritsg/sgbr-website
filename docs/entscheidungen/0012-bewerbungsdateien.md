@@ -15,7 +15,7 @@ Die Spec ging davon aus, dass der Form Builder keinen Datei-Upload hat. Version 
 
 - Eingebauten Feldtyp `upload` nutzen, einzige erlaubte Ziel-Collection ist `application-files`. Kein Eigenbau.
 - `application-files`: nur PDF (Prüfung der Dateisignatur `%PDF-`, nicht nur des Dateinamens), **max. 4 MB statt 5 MB**, wegen der Grenze von 4,5 MB pro Anfrage auf Vercel.
-- Speicher: seit 2026-11-25 privater Bucket `sgbr-bewerbungen` in Cloudflare R2 ([ADR 0022](0022-cloudflare-r2.md)), Präfix `application-files/`. Dateien gibt es nur über `/api/application-files/file/{name}`, die Route prüft vorher die Leserechte (nur Admin und Board). Ohne R2-Zugang liegen sie lokal im Ordner `application-files/`, ausserhalb von `public/`.
+- Speicher: seit 2026-11-25 privater Bucket `sgbr-privat` in Cloudflare R2 ([ADR 0022](0022-cloudflare-r2.md)), Präfix `application-files/`. Dateien gibt es nur über `/api/application-files/file/{name}`, die Route prüft vorher die Leserechte (nur Admin und Board). Ohne R2-Zugang liegen sie lokal im Ordner `application-files/`, ausserhalb von `public/`.
 - Kein zusätzlicher S3-Dienst nötig.
 
 ## Folgen

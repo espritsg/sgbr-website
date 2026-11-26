@@ -7,7 +7,7 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 ### Geändert (2026-11-25, Dateispeicher Cloudflare R2)
 
 - Schema-Push nur noch bei lokaler Datenbank: Skripte gegen die Produktions-Datenbank markierten sie sonst als „Dev-Modus“, und der Vercel-Build brach bei `payload migrate` ab.
-- Bilder, Ausgaben-PDFs und Lebensläufe liegen in Cloudflare R2 statt Vercel Blob ([ADR 0022](docs/entscheidungen/0022-cloudflare-r2.md)): Vercel Blob Hobby sperrt bei Überschreitung (1 GB, 2000 Uploads/Monat) den ganzen Speicher. Paket `@payloadcms/storage-s3`, öffentlicher Bucket `sgbr-media`, privater Bucket `sgbr-bewerbungen`; eigener Blob-Adapter und `BLOB_*` entfallen, neu `R2_*`.
+- Bilder, Ausgaben-PDFs und Lebensläufe liegen in Cloudflare R2 statt Vercel Blob ([ADR 0022](docs/entscheidungen/0022-cloudflare-r2.md)): Vercel Blob Hobby sperrt bei Überschreitung (1 GB, 2000 Uploads/Monat) den ganzen Speicher. Paket `@payloadcms/storage-s3`, öffentlicher Bucket `sgbr-media`, privater Bucket `sgbr-privat`; eigener Blob-Adapter und `BLOB_*` entfallen, neu `R2_*`.
 
 ### Geändert (2026-11-25, finale Migration)
 
