@@ -7,6 +7,7 @@
  *
  * CHECK_SITEMAP: sitemap index of the old site (default: https://stgallenbusinessreview.com/sitemap_index.xml)
  * CHECK_EXTRA:   file with additional old paths, one per line (e.g. from the Redirection plugin export)
+ * CHECK_BYPASS:  Vercel protection bypass secret, for a deployment behind Vercel Authentication
  */
 import fs from 'fs'
 
@@ -14,6 +15,10 @@ const SITEMAP = process.env.CHECK_SITEMAP || 'https://stgallenbusinessreview.com
 const TARGET = (process.env.CHECK_TARGET || 'http://localhost:3000').replace(/\/$/, '')
 const USER_AGENT = 'Mozilla/5.0 (compatible; sgbr-redirect-check)'
 const MAX_HOPS = 5
+// Header only for the new site, never sent to the old one.
+const TARGET_HEADERS: Record<string, string> = process.env.CHECK_BYPASS
+  ? { 'x-vercel-protection-bypass': process.env.CHECK_BYPASS }
+  : {}
 
 async function getText(url: string): Promise<string> {
   const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
@@ -46,7 +51,8 @@ export async function follow(path: string): Promise<{ status: number; chain: str
   let url = `${TARGET}${path}`
   const chain = [path]
   for (let hop = 0; hop <= MAX_HOPS; hop++) {
-    const response = await fetch(url, { redirect: 'manual', headers: { 'User-Agent': USER_AGENT } })
+    const headers = url.startsWith(TARGET) ? { ...TARGET_HEADERS, 'User-Agent': USER_AGENT } : { 'User-Agent': USER_AGENT }
+    const response = await fetch(url, { redirect: 'manual', headers })
     const location = response.headers.get('location')
     if (response.status >= 300 && response.status < 400 && location) {
       url = new URL(location, url).toString()

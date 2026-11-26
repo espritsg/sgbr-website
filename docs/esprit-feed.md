@@ -48,7 +48,7 @@ Beispiele vom 2026-11-22 als Vertrag: [sgbr-feed-events-2026-11-22.json](../test
 | --- | --- |
 | `kind` | `digital` (in `digital`) oder `pdf` (in `archive`), aus `format` |
 | `year` | Jahr als String |
-| `title`, `description` | `title`, `tagline` in Englisch, sonst Fallback |
+| `title`, `description` | `title`, `description` (ohne Beschreibung: `tagline`) in Englisch, sonst Fallback |
 | `url` | digital: `https://stgallenbusinessreview.com/en/issues/{slug}`; pdf: absolute `/files/…`-URL des PDFs |
 | `cover_url` | Cover als absolute `/files/…`-URL, sonst `""` |
 

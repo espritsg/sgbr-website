@@ -76,6 +76,7 @@ beforeAll(async () => {
       slug: 'feed-digital',
       title: 'Feed Digital',
       tagline: 'Who owns it?',
+      description: 'Conversations on ownership.',
       year: 2099,
       format: 'digital',
       _status: 'published',
@@ -152,7 +153,7 @@ describe('issues feed', () => {
       kind: 'digital',
       year: '2099',
       title: 'Feed Digital',
-      description: 'Who owns it?',
+      description: 'Conversations on ownership.',
       url: 'https://stgallenbusinessreview.com/en/issues/feed-digital',
       cover_url: '',
     })

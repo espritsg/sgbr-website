@@ -67,7 +67,8 @@ export function issueToFeedItem(issue: Issue): IssueFeedItem {
     kind: digital ? 'digital' : 'pdf',
     year: String(issue.year),
     title: issue.title ?? '',
-    description: issue.tagline ?? issue.description ?? '',
+    // The old feed sent the description; the tagline only when there is none.
+    description: issue.description || issue.tagline || '',
     url: digital ? `${serverUrl()}/en/issues/${issue.slug}` : (fileUrl(issue.pdf, true) ?? ''),
     cover_url: fileUrl(issue.cover, true) ?? '',
   }
