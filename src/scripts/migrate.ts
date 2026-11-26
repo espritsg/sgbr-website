@@ -5,7 +5,8 @@
  *   MIGRATION_DIR=/path/to/wp-export npm run migrate:wp
  *
  * Optional: MIGRATION_SOURCE (old site, default https://stgallenbusinessreview.com),
- * MIGRATION_OFFLINE=1 (no network: files only from uploads/, feeds only from feeds/).
+ * MIGRATION_OFFLINE=1 (no network: files only from uploads/, feeds only from feeds/),
+ * MIGRATION_ALL_MEDIA=1 (also unused library files), MIGRATION_COMPRESS_PDFS=1 (shrink PDFs over 10 MB, default: originals).
  * Exports contain personal data (subscribers): never commit them, delete after the migration.
  */
 import config from '@payload-config'
@@ -32,6 +33,8 @@ try {
     dir,
     sourceUrl: process.env.MIGRATION_SOURCE,
     offline: process.env.MIGRATION_OFFLINE === '1',
+    allMedia: process.env.MIGRATION_ALL_MEDIA === '1',
+    compressPdfs: process.env.MIGRATION_COMPRESS_PDFS === '1',
   })
   printReport(report, media)
   process.exit(0)

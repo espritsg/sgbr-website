@@ -15,7 +15,7 @@ Die alte Seite läuft auf WordPress (Theme Fox mit Child-Theme) bei All-Inkl. Si
 
 - Next.js 16 (App Router) mit Payload CMS 3.94 in **einer** App, Admin unter `/admin`.
 - Postgres über `@payloadcms/db-postgres`, in Produktion bei Neon (Vercel Marketplace), lokal in Docker.
-- Dateien in Vercel Blob, Mails über Resend (seit [ADR 0021](0021-resend-als-quelle.md) auch Liste der Abonnenten), Statistik über Vercel Web Analytics.
+- Dateien in Vercel Blob (ersetzt durch Cloudflare R2, [ADR 0022](0022-cloudflare-r2.md)), Mails über Resend (seit [ADR 0021](0021-resend-als-quelle.md) auch Liste der Abonnenten), Statistik über Vercel Web Analytics.
 - Hosting auf Vercel. Payload 3 statt der Beta von Payload 4.
 
 ## Folgen

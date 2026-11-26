@@ -5,18 +5,18 @@ aktualisiert: 2026-11-22
 
 # Architektur
 
-Eine Next.js-App enthält Website und Payload CMS. Payload speichert in Postgres, Dateien in Vercel Blob, Mails gehen über Resend. Gehostet auf Vercel ([ADR 0001](entscheidungen/0001-stack.md)).
+Eine Next.js-App enthält Website und Payload CMS. Payload speichert in Postgres, Dateien in Cloudflare R2 ([ADR 0022](entscheidungen/0022-cloudflare-r2.md)), Mails gehen über Resend. Gehostet auf Vercel ([ADR 0001](entscheidungen/0001-stack.md)).
 
 ```
 Browser ──> Vercel (Next.js 16)
               ├─ /en, /de ........ Website (Server Components, Payload Local API)
               ├─ /admin, /api .... Payload CMS (Admin, REST, GraphQL)
-              ├─ /files/… ........ Dateien (leitet auf Vercel Blob bzw. lokale Platte)
+              ├─ /files/… ........ Dateien (leitet auf Cloudflare R2 bzw. lokale Platte)
               ├─ /issues/?sgbr_feed=1, /category/speaker-events/?sgbr_feed=1 ... JSON für espritsg.ch
               ├─ /api/cron/run-jobs  täglicher Vercel Cron → Payload Jobs
               └─ /api/market ....... Börsenkurse für den Kopf (ADR 0020)
             ├─> Postgres (Neon; lokal Docker)
-            ├─> Vercel Blob (Bilder, PDFs; lokal Ordner media/)
+            ├─> Cloudflare R2 (Bilder, PDFs, Lebensläufe; lokal Ordner media/)
             └─> Resend (Mails; lokal Konsole + .mail-preview/)
 ```
 
@@ -29,7 +29,7 @@ Browser ──> Vercel (Next.js 16)
 | Laufzeit | Node.js, Version in `.nvmrc` | 24.22.3 |
 | Datenbank | Postgres über `@payloadcms/db-postgres`; Produktion Neon, lokal Docker (Postgres 17) | |
 | Rich Text | Lexical (`@payloadcms/richtext-lexical`) | 3.94.1 |
-| Dateien | Vercel Blob (`@payloadcms/storage-vercel-blob`), ohne Token lokale Platte | 3.94.1 |
+| Dateien | Cloudflare R2 über `@payloadcms/storage-s3`, ohne Zugang lokale Platte | 3.94.1 |
 | Styling | Tailwind CSS mit Tokens per `@theme` | 4.3.5 |
 | Schriften | `next/font/google`: Inter, Cormorant Garamond (selbst gehostet) | |
 | Sprachen | Payload `localization` + `next-intl` | 4.15.3 |

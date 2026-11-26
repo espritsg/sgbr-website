@@ -4,12 +4,17 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-25, Dateispeicher Cloudflare R2)
+
+- Bilder, Ausgaben-PDFs und Lebensläufe liegen in Cloudflare R2 statt Vercel Blob ([ADR 0022](docs/entscheidungen/0022-cloudflare-r2.md)): Vercel Blob Hobby sperrt bei Überschreitung (1 GB, 2000 Uploads/Monat) den ganzen Speicher. Paket `@payloadcms/storage-s3`, öffentlicher Bucket `sgbr-media`, privater Bucket `sgbr-bewerbungen`; eigener Blob-Adapter und `BLOB_*` entfallen, neu `R2_*`.
+
 ### Geändert (2026-11-25, finale Migration)
 
 - Migration mit den echten Exporten geprobt und angepasst ([migration.md](docs/migration.md)): Originalnamen der Exporte, deutscher MailPoet-Export (globaler Status, Anmeldezeiten), leere und doppelte Entwürfe ausgelassen, doppelte WordPress-Konten einer Person zusammengeführt (mit Weiterleitung der alten Autoren-Adresse), technische Konten nicht als Person, Funktion aus dem Anzeigenamen ins Feld Rolle.
 - Personenseiten prüfen bei unbekanntem Slug die Weiterleitungen aus dem Admin.
 - Ausgaben überall gleich sortiert (Jahr, dann zuletzt angelegt); Reihenfolge innerhalb eines Jahres wie auf der alten Seite.
 - Neu: `npm run summaries -- export|apply` für Zusammenfassungen ohne API-Key.
+- Migration übernimmt nur verwendete Dateien; Ausgaben-PDFs im Original, optional komprimiert (`MIGRATION_COMPRESS_PDFS=1`). Neu: `npm run pdf:compress` zum Verkleinern neuer Ausgaben-PDFs.
 
 ### Geändert (2026-11-25, Dateispeicher)
 

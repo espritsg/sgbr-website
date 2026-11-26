@@ -34,6 +34,16 @@ Details: [rollen.md](rollen.md).
 - **Bild für die Ausgabenseite:** optional, freigestelltes Porträt, nur auf der Seite der Ausgabe.
 - Immer einen Alternativtext eintragen (kurz beschreiben, was zu sehen ist).
 
+## Ausgaben-PDFs
+
+Druck-PDFs einer Ausgabe haben oft 50–140 MB. Der Speicher (Cloudflare R2, 10 GB gratis) hätte Platz, aber Leserinnen und Leser laden das ganze PDF. Wer die Datei kleiner will, kann sie vor dem Hochladen für den Bildschirm verkleinern (Text bleibt scharf, Fotos 150 dpi, meist 70–85 % kleiner):
+
+```bash
+npm run pdf:compress -- Ausgabe-2026.pdf   # schreibt Ausgabe-2026-web.pdf
+```
+
+Braucht Ghostscript (macOS: `brew install ghostscript`). Im Admin dann die `-web.pdf` hochladen. Automatisch beim Upload geht das nicht: Der Upload läuft direkt vom Browser in den Speicher, und Vercel hat kein Ghostscript.
+
 ## Newsletter
 
 1. **Newsletter → Neu**: Titel, Betreff, Vorschautext, Einleitung, Text (z. B. Gastbeitrag) und empfohlene Artikel eintragen. Zielgruppe wählen: monatlicher Newsletter oder Event-Einladungen.

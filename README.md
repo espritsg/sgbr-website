@@ -19,7 +19,7 @@ npm run import:dev              # Inhalte von der öffentlichen Seite + Testdate
 npm run dev                     # http://localhost:3000, Admin unter /admin
 ```
 
-Ohne Konten für Resend, Vercel Blob oder Anthropic läuft alles lokal: Mails landen in der Konsole und in `.mail-preview/`, Dateien auf der Platte.
+Ohne Konten für Resend, Cloudflare R2 oder Anthropic läuft alles lokal: Mails landen in der Konsole und in `.mail-preview/`, Dateien auf der Platte.
 
 ## Wichtige Befehle
 
@@ -38,7 +38,7 @@ Ohne Konten für Resend, Vercel Blob oder Anthropic läuft alles lokal: Mails la
 
 ## Deploy
 
-Auf Vercel mit Neon (Postgres), Vercel Blob und Resend. Alle Variablen stehen in `.env.example`, Schritte und Checkliste für den Livegang in [docs/deployment.md](docs/deployment.md). Der Build auf Vercel (`npm run build:vercel`) führt zuerst die Datenbank-Migrationen aus, der tägliche Cron steht in `vercel.json`.
+Auf Vercel mit Neon (Postgres), Cloudflare R2 (Dateien) und Resend. Alle Variablen stehen in `.env.example`, Schritte und Checkliste für den Livegang in [docs/deployment.md](docs/deployment.md). Der Build auf Vercel (`npm run build:vercel`) führt zuerst die Datenbank-Migrationen aus, der tägliche Cron steht in `vercel.json`.
 
 ## Wegweiser
 

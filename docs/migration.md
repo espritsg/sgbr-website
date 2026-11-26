@@ -83,17 +83,19 @@ Mit Admin-Zugang zu WordPress Exporte nehmen und per Skript übertragen, kurz vo
 #   export.xml  mailpoet.csv  redirection.json  uploads/  (optional: feeds/issues.json, feeds/events.json, about.html)
 # Abonnenten gehen nach Resend: dafür RESEND_API_KEY und die vier RESEND_SEGMENT_*/RESEND_TOPIC_*-IDs
 # setzen (ohne sie landen sie nur im lokalen Ersatz .mail-preview/audience.json).
-DATABASE_URL=<Produktions-DB> BLOB_READ_WRITE_TOKEN=<Token> BLOB_PRIVATE_READ_WRITE_TOKEN=<Token> ANTHROPIC_API_KEY=<optional> \
+DATABASE_URL=<Produktions-DB> R2_ACCOUNT_ID=<…> R2_ACCESS_KEY_ID=<…> R2_SECRET_ACCESS_KEY=<…> R2_PUBLIC_URL=<…> ANTHROPIC_API_KEY=<optional> \
   RESEND_API_KEY=<…> RESEND_SEGMENT_EN=<…> RESEND_SEGMENT_DE=<…> RESEND_TOPIC_NEWSLETTER=<…> RESEND_TOPIC_EVENTS=<…> \
   MIGRATION_DIR=/pfad/zu/wp-export npm run migrate:wp
 ```
 
-Vercel gibt Werte vom Typ „Secret“ nicht heraus (`vercel env pull` liefert nur `[SENSITIVE]`). Datenbank-URL aus Neon, Blob-Tokens aus Vercel → Storage → Store (Tab `.env.local`, „Show secret“), Resend-Key neu in Resend erzeugen; in eine Datei ausserhalb des Repos legen und danach löschen.
+Vercel gibt Werte vom Typ „Secret“ nicht heraus (`vercel env pull` liefert nur `[SENSITIVE]`). Datenbank-URL aus Neon (Vercel → Storage → Tab `.env.local`, „Show secret“; enthält `&`, deshalb nicht per `source` in die Shell laden), R2-Token aus Cloudflare, Resend-Key neu in Resend erzeugen; in eine Datei ausserhalb des Repos legen und danach löschen.
 
 - Die Exporte dürfen ihre Originalnamen behalten (`*.WordPress.*.xml`, `MailPoet*.csv`, `redirection*.json`).
 - MailPoet: Massgebend ist der **globale** Status (deutsch „Globaler Status“), nicht der Listen-Status; Anmelde- und Bestätigungszeit aus „Abonnement-Zeit“ und „Bestätigungs-Zeit“.
 - Entwürfe, die leer sind (unter 100 Zeichen Text) oder einen veröffentlichten Artikel mit gleichem Titel doppeln, werden ausgelassen (stehen im Bericht).
 - Personen: Mehrere WordPress-Konten mit gleichem Namen werden eine Person (kürzester Slug), die alten Autoren-Adressen der übrigen Konten bekommen eine Weiterleitung. Technische Konten (`it-vorstand`, `admin` …) werden keine Person; ihre Artikel stehen im Bericht. Funktionen im Anzeigenamen („Joe Kaeser - CEO, Siemens AG“) landen im Feld Rolle.
+- **Nur verwendete Dateien** (Standard): Beitragsbilder, Bilder im Text, Personenfotos, Logos, Cover und Ausgaben-PDFs, beim Import der Inhalte geladen. Die alte Mediathek hat 2,9 GB, davon 1,7 GB ungenutzt (Druck- und Zwischenversionen). Alte Links auf ungenutzte Dateien geben danach 404 (kein Artikel verlinkt sie). `MIGRATION_ALL_MEDIA=1` übernimmt alles.
+- **Ausgaben-PDFs** gehen im Original hoch (R2 hat Platz). Mit `MIGRATION_COMPRESS_PDFS=1` werden PDFs über 10 MB vorher mit Ghostscript für den Bildschirm komprimiert (`src/scripts/lib/pdf.ts`, `/ebook`, Fotos 150 dpi, Text bleibt Text; Security 2017: 136 → 23 MB; braucht `gs`). Für neue Ausgaben: `npm run pdf:compress` ([redaktion.md](redaktion.md#ausgaben-pdfs)).
 - Ausgaben werden in umgekehrter Feed-Reihenfolge angelegt, damit die Reihenfolge innerhalb eines Jahres wie auf der alten Seite bleibt (`ISSUE_SORT`: Jahr, dann zuletzt angelegt).
 
 - Ohne `feeds/` und `about.html` holt das Skript Feeds und About-Seite von der alten Seite (nur lesend). `MIGRATION_OFFLINE=1` verbietet jeden Netzzugriff.

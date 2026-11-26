@@ -5,7 +5,7 @@ aktualisiert: 2026-11-25
 
 # Deployment
 
-Gehostet auf Vercel (Konto von ESPRIT). Postgres bei Neon über den Vercel Marketplace, Dateien in Vercel Blob, Mails und Liste der Abonnenten bei Resend ([ADR 0021](entscheidungen/0021-resend-als-quelle.md)). Der Code liegt im GitHub-Repo `espritsg/sgbr-website` (persönliches Konto von ESPRIT, weil Vercel Hobby keine Repos von GitHub-Organisationen importiert).
+Gehostet auf Vercel (Konto von ESPRIT). Postgres bei Neon über den Vercel Marketplace, Dateien in Cloudflare R2 ([ADR 0022](entscheidungen/0022-cloudflare-r2.md)), Mails und Liste der Abonnenten bei Resend ([ADR 0021](entscheidungen/0021-resend-als-quelle.md)). Der Code liegt im GitHub-Repo `espritsg/sgbr-website` (persönliches Konto von ESPRIT, weil Vercel Hobby keine Repos von GitHub-Organisationen importiert).
 
 ## Umgebungsvariablen
 
@@ -17,8 +17,9 @@ Alle Variablen stehen mit Kommentar in [`.env.example`](../.env.example). In Ver
 | `PAYLOAD_SECRET` | ja | Schlüssel für Payload, zufällig, mind. 32 Zeichen: `openssl rand -hex 32`. Nie ändern, sonst sind alle angemeldet ab. |
 | `NEXT_PUBLIC_SERVER_URL` | ja | öffentliche Adresse ohne `/` am Ende: `https://stgallenbusinessreview.com` (Preview: Vorschau-URL) |
 | `CRON_SECRET` | ja | zufällig. Vercel schickt es beim Cron als `Authorization: Bearer …`. |
-| `BLOB_READ_WRITE_TOKEN` | ja | öffentlicher Blob-Store (Bilder, Ausgaben-PDFs); setzt Vercel beim Verbinden |
-| `BLOB_PRIVATE_READ_WRITE_TOKEN` | ja | privater Blob-Store (Lebensläufe); beim Verbinden Präfix `BLOB_PRIVATE` wählen. Fehlt er auf Vercel, bricht der Build mit Hinweis ab |
+| `R2_ACCOUNT_ID` | ja | Cloudflare → R2 → Übersicht |
+| `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | ja | R2 → Manage API Tokens → „Object Read & Write“ für beide Buckets |
+| `R2_PUBLIC_URL` | ja | öffentliche Adresse von `sgbr-media` (`https://pub-….r2.dev` oder eigene Domain), ohne `/` am Ende |
 | `RESEND_API_KEY` | für Mails | Resend, Berechtigung **Full access**; ohne Key gehen keine Mails raus (nur Log) |
 | `RESEND_SEGMENT_EN`, `RESEND_SEGMENT_DE` | für Newsletter | IDs der Sprach-Segmente, aus `npm run resend:setup` |
 | `RESEND_TOPIC_NEWSLETTER`, `RESEND_TOPIC_EVENTS` | für Newsletter | IDs der Topics, aus `npm run resend:setup` |
@@ -35,14 +36,15 @@ Nur lokal: `DATABASE_URL_TEST`, `DEV_SEED_PASSWORD`, `UPLOADS_DIR`, `MAIL_PREVIE
 1. **GitHub:** Repo `espritsg/sgbr-website` (erledigt).
 2. **Vercel:** New Project → Repo importieren. Framework Next.js wird erkannt. Build-Befehl kommt aus `vercel.json`: `npm run build:vercel` (`payload migrate`, dann `next build`). Node-Version aus `package.json` (`engines`, 24).
 3. **Neon:** Vercel → Storage → Neon verbinden (Region Frankfurt `eu-central-1`). Für Preview-Deployments Neon-Branching einschalten, damit Vorschauen nicht auf die Produktionsdaten schreiben.
-4. **Blob, zwei Stores** (Region Frankfurt; Zugriff lässt sich später nicht ändern, [ADR 0012](entscheidungen/0012-bewerbungsdateien.md)):
-   - `sgbr-media`, Zugriff **Public**, verbinden mit Standard-Präfix → `BLOB_READ_WRITE_TOKEN`
-   - `sgbr-bewerbungen`, Zugriff **Private**, verbinden mit Präfix **`BLOB_PRIVATE`** → `BLOB_PRIVATE_READ_WRITE_TOKEN`
+4. **Cloudflare R2** ([ADR 0022](entscheidungen/0022-cloudflare-r2.md)): Konto, R2 aktivieren, zwei Buckets mit Jurisdiktion **EU**:
+   - `sgbr-media`: Settings → Public Development URL (`r2.dev`) **Allow** → Adresse als `R2_PUBLIC_URL`; CORS Policy: `[{"AllowedOrigins":["*"],"AllowedMethods":["GET","PUT","HEAD"],"AllowedHeaders":["*"],"ExposeHeaders":["ETag"],"MaxAgeSeconds":3600}]` (Upload aus dem Admin direkt in den Bucket)
+   - `sgbr-bewerbungen`: privat lassen
+   - API-Token „Object Read & Write“ für beide Buckets → `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
 5. **Variablen** aus der Tabelle oben setzen.
 6. **Deploy.** Beim ersten Build legt `payload migrate` alle Tabellen an.
 7. **Ersten Benutzer anlegen:** `https://…/admin` öffnen, „Ersten Benutzer erstellen“. Er wird automatisch Admin. Weitere Benutzer legt der Admin an.
 8. **Cron prüfen:** Vercel → Settings → Cron Jobs zeigt `/api/cron/run-jobs` täglich 05:00 UTC. „Run“ klicken, danach im Admin unter Einstellungen → Hintergrund-Jobs den Eintrag „Tägliche Wartung“ ansehen.
-9. **Region:** `vercel.json` setzt die Funktionen auf `fra1` (Frankfurt), neben Neon und Blob. Sonst laufen sie in den USA und jede Datenbankabfrage geht über den Atlantik.
+9. **Region:** `vercel.json` setzt die Funktionen auf `fra1` (Frankfurt), neben Neon. Sonst laufen sie in den USA und jede Datenbankabfrage geht über den Atlantik.
 10. **Laufzeit:** `vercel.json` erlaubt der Payload-API bis 300 Sekunden (`maxDuration`), für Newsletter-Versand und Migration. Auf Vercel Hobby prüfen, ob das Limit gilt.
 
 ## Resend (Mails, Newsletter, Abonnenten)
@@ -67,7 +69,7 @@ Nur lokal: `DATABASE_URL_TEST`, `DEV_SEED_PASSWORD`, `UPLOADS_DIR`, `MAIL_PREVIE
 Ablauf und Befehle in [migration.md](migration.md), Phase 2. Kurz:
 
 1. In WordPress nichts mehr ändern. Exporte ziehen: WXR („Alle Inhalte“), MailPoet (nur bestätigte), Redirection, `wp-content/uploads` per FTP.
-2. Lokal gegen die Produktionsdatenbank und das echte Resend: `DATABASE_URL=<Neon> BLOB_READ_WRITE_TOKEN=<…> RESEND_API_KEY=<…>` plus die vier Resend-IDs, `MIGRATION_DIR=… npm run migrate:wp` (Befehl in [migration.md](migration.md)).
+2. Lokal gegen die Produktionsdatenbank und das echte Resend: `DATABASE_URL=<Neon>`, die `R2_*`-Werte, `RESEND_API_KEY=<…>` plus die vier Resend-IDs, `MIGRATION_DIR=… npm run migrate:wp` (Befehl in [migration.md](migration.md)).
 3. Bericht durchgehen, Exporte mit Personendaten danach löschen.
 4. `CHECK_TARGET=https://<vorschau> npm run check:redirects` muss 0 Fehler melden.
 
@@ -92,7 +94,7 @@ Aus dem Bau:
 - [ ] Design-Tokens einmal im Browser mit den berechneten Styles der alten Seite abgleichen ([ADR 0010](entscheidungen/0010-design-werte.md)).
 - [ ] Kategorien-Zuordnung alt → neu von der Redaktion bestätigen lassen ([migration.md](migration.md)).
 - [ ] Artikel ohne Haupt-Thema (Bericht der Migration) zuordnen, Zusammenfassungen prüfen (Liste „Zusammenfassung prüfen“).
-- [ ] Bewerbung mit PDF auf der Vorschau testen und prüfen, dass die Blob-URL der Datei ohne Login nicht abrufbar ist.
+- [ ] Bewerbung mit PDF auf der Vorschau testen und prüfen, dass die Datei ohne Login nicht abrufbar ist (`/api/application-files/file/…` → 403, Bucket `sgbr-bewerbungen` ohne öffentliche Adresse).
 - [ ] Newsletter-Testversand und echte Anmeldung (Double-Opt-in) auf der Vorschau testen, Abmelden per Link und per Mailprogramm (One-Click).
 - [ ] `npm run check:redirects` gegen die Vorschau: 0 Fehler.
 - [ ] Feeds prüfen: `https://<vorschau>/issues/?sgbr_feed=1` und `/category/speaker-events/?sgbr_feed=1` liefern JSON.

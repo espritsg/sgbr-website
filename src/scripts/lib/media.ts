@@ -55,6 +55,10 @@ export type MediaImporterOptions = {
   uploadsDir?: string
   /** Never download (tests, migration without internet). */
   offline?: boolean
+  /** Shrinks PDFs before the upload (final migration, src/scripts/lib/pdf.ts). */
+  compressPdf?: (data: Buffer) => Promise<{ data: Buffer; compressed: boolean }>
+  /** Called with the URL and sizes of each compressed PDF (report). */
+  onCompressed?: (url: string, before: number, after: number) => void
 }
 
 export function createMediaImporter(
@@ -112,6 +116,14 @@ export function createMediaImporter(
 
     const name = decodeURIComponent(path.basename(new URL(source.url).pathname))
     const mimetype = MIME[path.extname(name).toLowerCase()] ?? 'application/octet-stream'
+    if (mimetype === 'application/pdf' && options.compressPdf) {
+      const before = data.length
+      const result = await options.compressPdf(data)
+      if (result.compressed) {
+        data = result.data
+        options.onCompressed?.(source.url, before, data.length)
+      }
+    }
     try {
       const doc = await payload.create({
         collection: 'media',

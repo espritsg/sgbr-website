@@ -4,6 +4,7 @@ import path from 'path'
 import { describe, expect, it } from 'vitest'
 
 import { column, parseCsv } from '@/scripts/lib/csv'
+import { compressPdf } from '@/scripts/lib/pdf'
 import {
   findExport,
   isSystemAccount,
@@ -92,5 +93,14 @@ describe('WordPress authors', () => {
     expect(isSystemAccount('it-vorstand')).toBe(true)
     expect(isSystemAccount('Admin')).toBe(true)
     expect(isSystemAccount('Georges Kern')).toBe(false)
+  })
+})
+
+describe('PDF compression', () => {
+  it('leaves small files and non-PDFs unchanged', async () => {
+    const small = Buffer.from('%PDF-1.4 small')
+    expect(await compressPdf(small)).toEqual({ data: small, compressed: false })
+    const notPdf = Buffer.alloc(11 * 1024 * 1024, 1)
+    expect((await compressPdf(notPdf)).compressed).toBe(false)
   })
 })

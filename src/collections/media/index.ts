@@ -9,7 +9,7 @@ import { contentGroup } from '../shared'
 
 /**
  * Images and PDFs. Public URL is /files/{filename} (docs/urls-und-weiterleitungen.md).
- * Without BLOB_READ_WRITE_TOKEN files are stored in ./media.
+ * Without R2 credentials files are stored in ./media (ADR 0022).
  */
 export const Media: CollectionConfig = {
   slug: 'media',

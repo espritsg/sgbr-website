@@ -27,7 +27,7 @@ Dieses Repo ist die Website der St. Gallen Business Review (SGBR): Next.js 16 (A
 
 - Keine Secrets im Repo. `.env` ist lokal und in `.gitignore`.
 - Neue Variable immer auch in `.env.example` (mit Kommentar) und in [docs/deployment.md](docs/deployment.md).
-- Lokal läuft alles ohne externe Konten: ohne `RESEND_API_KEY` keine echten Mails (Konsole und `.mail-preview/`), ohne `BLOB_READ_WRITE_TOKEN` Dateien auf der Platte, ohne `ANTHROPIC_API_KEY` keine KI-Zusammenfassungen.
+- Lokal läuft alles ohne externe Konten: ohne `RESEND_API_KEY` keine echten Mails (Konsole und `.mail-preview/`), ohne R2-Zugang (`R2_*`) Dateien auf der Platte, ohne `ANTHROPIC_API_KEY` keine KI-Zusammenfassungen.
 
 ## Arbeitsweise
 

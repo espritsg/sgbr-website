@@ -38,6 +38,7 @@ import {
   originalImageUrl,
   type MediaImporter,
 } from './media'
+import { compressPdf, hasGhostscript } from './pdf'
 import { parseRedirection } from './redirection'
 import { seedForms, seedGlobals, seedPages } from './seed'
 import { getAudience } from '@/lib/newsletter/audience'
@@ -50,6 +51,13 @@ export type MigrationOptions = {
   sourceUrl?: string
   /** No network access at all (tests). */
   offline?: boolean
+  /**
+   * Also import media files no content uses (default: only used ones, imported on
+   * demand; Vercel Blob Hobby allows 1 GB). Old links to unused files then give 404.
+   */
+  allMedia?: boolean
+  /** Compress PDFs over 10 MB with Ghostscript before the upload (default: if gs exists). */
+  compressPdfs?: boolean
   userAgent?: string
 }
 
@@ -122,9 +130,15 @@ export async function runMigration(
   const sourceUrl = (options.sourceUrl || 'https://stgallenbusinessreview.com').replace(/\/$/, '')
   const userAgent = options.userAgent || 'Mozilla/5.0 (compatible; sgbr-migration)'
   const uploadsDir = path.join(options.dir, 'uploads')
+  const compress = Boolean(options.compressPdfs) && (await hasGhostscript())
   const media = createMediaImporter(payload, userAgent, {
     uploadsDir: (await exists(uploadsDir)) ? uploadsDir : undefined,
     offline: options.offline,
+    compressPdf: compress ? (data) => compressPdf(data) : undefined,
+    onCompressed: (url, before, after) =>
+      report.notes.push(
+        `PDF komprimiert: ${path.basename(url)} ${(before / 1e6).toFixed(0)} → ${(after / 1e6).toFixed(0)} MB`,
+      ),
   })
   const fetchText = async (url: string) => {
     if (options.offline) return null
@@ -180,10 +194,11 @@ export async function runMigration(
   )
   for (const draft of skippedDrafts) report.notes.push(`Entwurf nicht übernommen: ${draft}`)
 
-  // 1. Media: all files, so old /wp-content/uploads links keep working.
-  log('Medien')
+  // 1. Media. By default only files that content uses, imported on demand below.
+  //    With allMedia: every file of the library, so all old upload links keep working.
+  log(options.allMedia ? 'Medien (alle)' : 'Medien: nur verwendete, beim Import der Inhalte')
   const mediaIds = new Map<number, number>()
-  for (const attachment of attachments.values()) {
+  for (const attachment of options.allMedia ? attachments.values() : []) {
     const id = await media.get({
       url: attachment.attachmentUrl,
       alt: attachment.meta._wp_attachment_image_alt || undefined,
@@ -191,7 +206,7 @@ export async function runMigration(
     })
     if (id) mediaIds.set(attachment.id, id)
   }
-  report.counts.media = { created: mediaIds.size, updated: 0 }
+  if (options.allMedia) report.counts.media = { created: mediaIds.size, updated: 0 }
 
   // 2. Topics
   log('Themen')

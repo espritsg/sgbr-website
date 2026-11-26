@@ -29,7 +29,7 @@ Node.js: Version steht in `.nvmrc` und `package.json` (`engines`). Bei einem Wec
 
 - Neon macht Point-in-Time-Backups (je nach Plan einige Tage). Vor grösseren Änderungen in Neon einen Branch als Sicherung anlegen.
 - Export als Backup im Admin: in den Listen (Artikel, Personen, Ausgaben, Events, Themen, Team, Einsendungen) **Exportieren** als CSV oder JSON. Abonnenten: in Resend unter Contacts als CSV exportieren.
-- Dateien liegen in Vercel Blob. Für eine Kopie: `vercel blob list` bzw. ein kleines Skript mit `@vercel/blob` `list()`.
+- Dateien liegen in Cloudflare R2 (Buckets `sgbr-media`, `sgbr-bewerbungen`). Für eine Kopie: `rclone` oder `aws s3 sync` mit dem R2-Endpunkt und einem API-Token.
 
 ## Hintergrund-Jobs
 

@@ -25,7 +25,7 @@ aktualisiert: 2026-11-22
 ## Sichtbarkeit und Datenschutz
 
 - Einsendungen und hochgeladene Dateien sehen nur **Admin und Editorial Board**. Editors und Advisory Board nicht (entschieden 2026-11-22).
-- Lebensläufe dürfen nicht öffentlich abrufbar sein. Eigene Upload-Collection `application-files` mit Zugriffsschutz. Geprüft: `@vercel/blob` 2.3 kann private Blobs, das offizielle Payload-Paket nicht. Deshalb ein eigener kleiner Adapter ([ADR 0012](entscheidungen/0012-bewerbungsdateien.md)).
+- Lebensläufe dürfen nicht öffentlich abrufbar sein. Eigene Upload-Collection `application-files` mit Zugriffsschutz. Privater Bucket in Cloudflare R2, nur über die Datei-Route von Payload mit Zugriffsprüfung ([ADR 0012](entscheidungen/0012-bewerbungsdateien.md), [ADR 0022](entscheidungen/0022-cloudflare-r2.md)).
 - Formular zeigt einen Datenschutzhinweis mit Link.
 - Aufbewahrung (entschieden 2026-11-22): Einsendungen und Dateien werden **6 Monate nach dem Event automatisch gelöscht**. Frist pro Formular änderbar (`retentionMonths`). Bei Formularen ohne Event zählt das Einsendedatum.
 - Löschlauf täglich als Payload Job (siehe „Hintergrund-Jobs“ in [architektur.md](architektur.md)), mit Protokoll, wie viel gelöscht wurde.
@@ -38,7 +38,7 @@ aktualisiert: 2026-11-22
 | Schutz der Einsendungen (Honeypot, Rate-Limit, Event und Zeitfenster) | `src/lib/forms/submissionGuard.ts` |
 | Zeitfenster der Bewerbung | `src/lib/events.ts` (`applicationState`) |
 | Löschlauf nach Frist | `src/lib/forms/retention.ts` |
-| Private Dateien | `src/collections/application-files/`, `src/lib/storage/privateBlobAdapter.ts` |
+| Private Dateien | `src/collections/application-files/`, `src/lib/storage/index.ts` (privater R2-Bucket) |
 | Formular auf der Website | `src/components/forms/FormRenderer.tsx`, `FormClient.tsx` |
 
 - Die Website schickt Einsendungen als `multipart/form-data` an `POST /api/form-submissions`: Feld `_payload` (JSON mit `form`, `event`, `submissionData`, `honeypot`) plus die Dateien unter dem Namen des Upload-Felds.

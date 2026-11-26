@@ -49,12 +49,12 @@ describe('media URLs', () => {
     expect(fileUrl(media({ filename: 'x.pdf' }), true)).toBe('http://localhost:3000/files/x.pdf')
     expect(fileUrl(5)).toBeNull()
   })
-  it('makes local image URLs relative and keeps blob URLs', () => {
+  it('makes local image URLs relative and keeps storage URLs', () => {
     expect(imageSrc(media({ url: 'http://localhost:3000/api/media/file/a.jpg' }))).toBe(
       '/api/media/file/a.jpg',
     )
-    expect(imageSrc(media({ url: 'https://abc.public.blob.vercel-storage.com/a.jpg' }))).toBe(
-      'https://abc.public.blob.vercel-storage.com/a.jpg',
+    expect(imageSrc(media({ url: 'https://pub-abc.r2.dev/a.jpg' }))).toBe(
+      'https://pub-abc.r2.dev/a.jpg',
     )
     expect(imageSrc(media({ url: '/x.jpg', sizes: { card: { url: '/x-800.jpg' } } }), 'card')).toBe(
       '/x-800.jpg',

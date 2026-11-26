@@ -17,8 +17,13 @@ const nextConfig: NextConfig = {
   redirects: async () => legacyRedirects(),
   images: {
     localPatterns: [{ pathname: '/api/media/file/**' }, { pathname: '/files/**' }],
-    // Media on Vercel Blob (public store).
-    remotePatterns: [{ protocol: 'https', hostname: '*.public.blob.vercel-storage.com' }],
+    // Media on Cloudflare R2 (public bucket, ADR 0022); a custom domain goes here too.
+    remotePatterns: [
+      { protocol: 'https', hostname: '*.r2.dev' },
+      ...(process.env.R2_PUBLIC_URL && !process.env.R2_PUBLIC_URL.includes('.r2.dev')
+        ? [{ protocol: 'https' as const, hostname: new URL(process.env.R2_PUBLIC_URL).hostname }]
+        : []),
+    ],
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
