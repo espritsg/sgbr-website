@@ -18,7 +18,7 @@ Node.js: Version steht in `.nvmrc` und `package.json` (`engines`). Bei einem Wec
 
 ## Datenbank-Migrationen
 
-- Lokal synchronisiert Payload das Schema im Dev-Server automatisch (`push`). Für Produktion braucht jede Schemaänderung eine Migration:
+- Lokal synchronisiert Payload das Schema im Dev-Server automatisch (`push`), aber nur bei einer Datenbank auf `localhost`. Skripte gegen die Produktions-Datenbank (Migration, Zusammenfassungen) pushen nie. Für Produktion braucht jede Schemaänderung eine Migration:
   1. Config ändern (z. B. neues Feld), Dev-Server testen.
   2. `npm run migrate:create kurzer-name` erzeugt `src/migrations/<datum>_kurzer-name.ts`.
   3. `npm run generate:types && npm run generate:importmap`, alles committen.

@@ -22,6 +22,15 @@ import { plugins } from './plugins'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+/** True for databases on this machine (docker-compose, rehearsal, tests). */
+function isLocalDatabase(url = ''): boolean {
+  try {
+    return ['localhost', '127.0.0.1', '::1'].includes(new URL(url).hostname)
+  } catch {
+    return false
+  }
+}
+
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000',
   admin: {
@@ -93,6 +102,9 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
     migrationDir: path.resolve(dirname, 'migrations'),
+    // Schema push only for local databases: scripts run against production
+    // (migration, summaries) must never push, the Vercel build runs the migrations.
+    push: isLocalDatabase(process.env.DATABASE_URL) && process.env.NODE_ENV !== 'production',
   }),
   // Background jobs (docs/architektur.md). Tasks are registered in src/jobs.
   jobs: {
