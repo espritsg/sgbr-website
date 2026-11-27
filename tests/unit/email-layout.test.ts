@@ -25,6 +25,12 @@ describe('email template', () => {
     expect(html).toMatch(/<h2 style="[^"]*font-family/)
   })
 
+  it('keeps paragraphs that already have a style', () => {
+    expect(styleRichText('<p style="font-weight:700">x</p>')).toBe(
+      '<p style="font-weight:700">x</p>',
+    )
+  })
+
   it('keeps links that already have a style', () => {
     expect(styleRichText('<a style="color:red" href="/">x</a>')).toBe(
       '<a style="color:red" href="/">x</a>',

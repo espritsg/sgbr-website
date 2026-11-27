@@ -49,10 +49,10 @@ import { AdminIcon as AdminIcon_cf05759dc79b7737cf5272e2ef70392b } from '@/compo
 import { AdminLogo as AdminLogo_cf05759dc79b7737cf5272e2ef70392b } from '@/components/admin/AdminGraphics'
 import { MailPreviewCard as MailPreviewCard_be68a00927711039072e7513eec61c95 } from '@/components/admin/MailPreviewCard'
 import { MailPreviewLink as MailPreviewLink_b70accb99dea283050a729c4ab570081 } from '@/components/admin/MailPreviewLink'
-import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { MailPreviewView as MailPreviewView_38fea8710e45be107d00133aa5e1c73b } from '@/components/admin/MailPreviewView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
@@ -107,8 +107,8 @@ export const importMap = {
   "@/components/admin/AdminGraphics#AdminLogo": AdminLogo_cf05759dc79b7737cf5272e2ef70392b,
   "@/components/admin/MailPreviewCard#MailPreviewCard": MailPreviewCard_be68a00927711039072e7513eec61c95,
   "@/components/admin/MailPreviewLink#MailPreviewLink": MailPreviewLink_b70accb99dea283050a729c4ab570081,
-  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "@/components/admin/MailPreviewView#MailPreviewView": MailPreviewView_38fea8710e45be107d00133aa5e1c73b,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24
 }

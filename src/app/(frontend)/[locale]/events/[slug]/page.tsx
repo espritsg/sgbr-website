@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
+import { EventRecap, type RecapChapter } from '@/components/events/EventRecap'
 import { LogoPlate, speakerOf } from '@/components/events/EventRow'
 import { FormRenderer } from '@/components/forms/FormRenderer'
 import { AdminBarDocument } from '@/components/preview/AdminBar'
@@ -58,6 +59,18 @@ export default async function EventPage({ params }: Props) {
   const form = application.state === 'open' && formId ? await getForm(formId) : null
   const recap = typeof event.recap === 'object' ? (event.recap as Post | null) : null
   const gallery = (event.gallery ?? []).filter(isMedia)
+  const chapters: RecapChapter[] = (event.recapChapters ?? []).flatMap((chapter, index) =>
+    isMedia(chapter.image)
+      ? [
+          {
+            id: chapter.id ?? String(index),
+            image: chapter.image,
+            heading: chapter.heading,
+            text: chapter.text,
+          },
+        ]
+      : [],
+  )
   const forDinner = event.applicationFor !== 'event'
   const applyLabel = forDinner ? t('applyDinner') : t('applyEvent')
   const applyIntro = forDinner ? t('applyIntroDinner') : t('applyIntroEvent')
@@ -113,6 +126,28 @@ export default async function EventPage({ params }: Props) {
           ))}
         </dl>
       </header>
+
+      {chapters.length > 0 && (
+        <EventRecap
+          title={event.recapTitle}
+          eyebrow={`${t('recapEyebrow')} · ${longDate}`}
+          intro={
+            event.recapIntro ? (
+              <RichText
+                data={event.recapIntro}
+                locale={locale}
+                className="prose prose-lg max-w-none text-text dark:prose-invert"
+              />
+            ) : null
+          }
+          chapters={chapters}
+          labels={{
+            previous: t('recapPrevious'),
+            next: t('recapNext'),
+            chapter: t('recapChapter'),
+          }}
+        />
+      )}
 
       <section className="container-page mt-12 grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
         <div className="min-w-0">
@@ -182,7 +217,7 @@ export default async function EventPage({ params }: Props) {
                     media={speaker.photo}
                     size="card"
                     fill
-                    sizes="(min-width: 1024px) 272px, 80px"
+                    sizes="(min-width: 1024px) 544px, 160px"
                     className="object-cover"
                   />
                 </div>

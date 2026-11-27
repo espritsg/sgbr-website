@@ -1,6 +1,6 @@
 ---
 description: Anleitung für die Redaktion ohne Technik: Artikel, Ausgaben, Events, Newsletter, Formulare im Payload-Admin
-aktualisiert: 2026-11-23
+aktualisiert: 2026-11-27
 ---
 
 # Anleitung für die Redaktion
@@ -46,13 +46,25 @@ Braucht Ghostscript (macOS: `brew install ghostscript`). Im Admin dann die `-web
 
 ## Newsletter
 
-1. **Newsletter → Neu**: Titel, Betreff, Vorschautext, Einleitung, Text (z. B. Gastbeitrag) und empfohlene Artikel eintragen. Zielgruppe wählen: monatlicher Newsletter oder Event-Einladungen.
+1. **Newsletter → Neu**: Titel, Betreff, Vorschautext, Einleitung, Text und weitere Artikel eintragen. Zielgruppe wählen: monatlicher Newsletter oder Event-Einladungen.
+   - **Einleitung:** Leerzeile = neuer Absatz; „Caspar Moebius“ und „Editor-in-Chief“ in zwei Zeilen ohne Leerzeile dazwischen.
+   - **Text:** Rubriken („GUEST COMMENTARY“) als Überschrift. Über **+** oder **/** zwei Blöcke: **Abschnitt mit Bild** (Porträt oder Logo links neben dem Text, Gruppenfoto gross darüber; Titel fett, Unterzeile kursiv, Link als Textlink oder Button) und **Artikel** (ein Artikel der Website genau an dieser Stelle, Bild und Text kommen aus dem Artikel, lassen sich aber ersetzen).
+   - **Weitere Artikel** erscheinen am Ende unter „In this edition“. Für einen Artikel mitten im Newsletter den Block „Artikel“ nehmen.
+   - **Gastkommentar:** als normaler Artikel mit Art „Gastbeitrag“ anlegen und den Autor als Person verknüpfen; im Newsletter dann mit dem Block „Artikel“ oder „Abschnitt mit Bild“ verlinken.
 2. Speichern, dann rechts **Testversand an mich**. Die Mail kommt an die eigene Adresse, mit „[TEST]“ im Betreff. Das dürfen auch Editors.
 3. **Senden** (nur Admin und Editorial Board): Der Dialog zeigt die höchstmögliche Zahl der Empfänger. Nach dem Bestätigen übergibt die Website den Newsletter an Resend (ein Broadcast pro Sprache), Resend verschickt ihn. Zustellung, Öffnungen und Klicks stehen in Resend unter Broadcasts.
 4. Statt sofort zu senden, lässt sich unter „Versand“ ein **geplanter Versand** (Tag) eintragen. Er geht am Morgen dieses Tages raus. Schlägt ein Versand fehl, steht der Grund unter „Versand → Resend“; **Erneut senden** schickt nur, was noch fehlt.
 5. Im Archiv auf der Website erscheint der Newsletter standardmässig **30 Tage** nach dem Versand (einstellbar unter „Archiv“, 0 = sofort, oder ganz ausblenden).
 
 Abonnenten melden sich selbst an und bestätigen per Mail. Die Liste liegt in **Resend** (Audience → Contacts), nicht im Admin; Zugang haben Admin und Editorial Board mit eigenem Resend-Login. Abgemeldete bleiben dort als „Unsubscribed“ und bekommen nichts mehr. Export als CSV in Resend.
+
+## Speaker Events: Rückblick
+
+Nach einem Event im Reiter **Nach dem Event**: Titel, Einleitung und **Kapitel** (je Foto, Überschrift, Text). Die Kapitel erscheinen auf der Eventseite als Slideshow mit Pfeilen. „Weitere Fotos“ erscheinen darunter als Raster.
+
+## Personen: Kurzbiografien
+
+Steht auf `/en` keine englische Kurzbiografie, zeigt die Seite die deutsche. Die fehlenden englischen wurden am 2026-11-27 aus dem Deutschen übersetzt und sind mit **Übersetzung der Kurzbiografie prüfen** markiert (Personen → Filter). Nach dem Prüfen abhaken.
 
 ## Formulare und Bewerbungen
 

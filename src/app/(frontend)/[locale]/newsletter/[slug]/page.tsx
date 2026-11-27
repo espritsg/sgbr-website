@@ -48,9 +48,21 @@ export default async function NewsletterIssuePage({ params }: Props) {
             : t('title')
         }
         title={newsletter.title}
-        intro={newsletter.intro}
       />
       <div className="container-reading">
+        {newsletter.intro && (
+          <div className="prose prose-lg mb-8 max-w-none text-text dark:prose-invert">
+            {newsletter.intro
+              .replace(/\r\n/g, '\n')
+              .split(/\n\s*\n/)
+              .filter((paragraph) => paragraph.trim())
+              .map((paragraph, index) => (
+                <p key={index} className="whitespace-pre-line">
+                  {paragraph.trim()}
+                </p>
+              ))}
+          </div>
+        )}
         <RichText
           data={newsletter.content}
           locale={locale}

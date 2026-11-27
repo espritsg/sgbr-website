@@ -148,11 +148,67 @@ export const Events: CollectionConfig = {
           label: { de: 'Nach dem Event', en: 'After the event' },
           fields: [
             {
+              name: 'recapTitle',
+              type: 'text',
+              localized: true,
+              label: { de: 'Rückblick: Titel', en: 'Recap: title' },
+              admin: {
+                description: {
+                  de: 'Z. B. „An Evening of Perspectives“. Der Rückblick erscheint als Slideshow auf der Eventseite, sobald es Kapitel gibt.',
+                  en: 'E.g. "An Evening of Perspectives". The recap shows as a slideshow on the event page once it has chapters.',
+                },
+              },
+            },
+            {
+              name: 'recapIntro',
+              type: 'richText',
+              localized: true,
+              editor: defaultEditor,
+              label: { de: 'Rückblick: Einleitung', en: 'Recap: introduction' },
+            },
+            {
+              name: 'recapChapters',
+              type: 'array',
+              label: { de: 'Rückblick: Kapitel (Slideshow)', en: 'Recap: chapters (slideshow)' },
+              labels: {
+                singular: { de: 'Kapitel', en: 'Chapter' },
+                plural: { de: 'Kapitel', en: 'Chapters' },
+              },
+              admin: { initCollapsed: true },
+              fields: [
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  required: true,
+                  label: { de: 'Foto', en: 'Photo' },
+                },
+                {
+                  name: 'heading',
+                  type: 'text',
+                  localized: true,
+                  label: { de: 'Überschrift', en: 'Heading' },
+                },
+                {
+                  name: 'text',
+                  type: 'textarea',
+                  localized: true,
+                  label: { de: 'Text', en: 'Text' },
+                  admin: {
+                    description: {
+                      de: 'Leerzeile = neuer Absatz.',
+                      en: 'Blank line = new paragraph.',
+                    },
+                  },
+                },
+              ],
+            },
+            {
               name: 'gallery',
               type: 'upload',
               relationTo: 'media',
               hasMany: true,
-              label: { de: 'Fotos', en: 'Photos' },
+              label: { de: 'Weitere Fotos', en: 'More photos' },
             },
             {
               name: 'recap',

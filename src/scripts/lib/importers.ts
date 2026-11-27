@@ -559,6 +559,8 @@ export type TeamMemberInput = {
   study?: string
   university?: string
   photoUrl?: string
+  email?: string
+  linkedin?: string
   order: number
 }
 
@@ -586,7 +588,11 @@ export function parseAboutTeam(html: string, baseUrl: string): TeamMemberInput[]
       const src = person.match(/<img[^>]*src="([^"]+)"/)?.[1]
       const photoUrl =
         src && !src.startsWith('data:') ? new URL(src, baseUrl).toString() : undefined
+      const email = person.match(/href="mailto:([^"?]+)"/)?.[1]
+      const linkedin = person.match(/href="(https:\/\/([a-z]+\.)?linkedin\.com\/[^"]+)"/)?.[1]
       result.push({
+        email: email ? decodeEntities(email).trim().toLowerCase() : undefined,
+        linkedin: linkedin ? decodeEntities(linkedin) : undefined,
         name,
         group,
         position: field('position'),
@@ -625,6 +631,8 @@ export async function importTeam(
       study: member.study,
       university: member.university,
       photo: photo ?? undefined,
+      email: member.email,
+      linkedin: member.linkedin,
       active: true,
       order: member.order,
       _status: 'published' as const,

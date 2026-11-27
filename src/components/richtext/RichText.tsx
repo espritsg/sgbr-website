@@ -1,4 +1,5 @@
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
+import type { ReactNode } from 'react'
 import {
   type JSXConvertersFunction,
   LinkJSXConverter,
@@ -6,7 +7,14 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { fileUrl, isMedia } from '@/lib/media'
-import type { EmbedBlock, PdfDownloadBlock, QABlock, QuoteBlock } from '@/payload-types'
+import type {
+  EmbedBlock,
+  NewsletterArticleBlock,
+  NewsletterSectionBlock,
+  PdfDownloadBlock,
+  QABlock,
+  QuoteBlock,
+} from '@/payload-types'
 
 import { MediaImage } from '../ui/MediaImage'
 import { Embed } from './Embed'
@@ -38,6 +46,34 @@ const hrefForDoc =
         return `/${locale}/${slug}`
     }
   }
+
+/** Newsletter block on the archive page: image left (portrait, logo) or above. */
+function NewsletterItem({
+  image,
+  imagePosition,
+  children,
+}: {
+  image: unknown
+  imagePosition?: string | null
+  children: ReactNode
+}) {
+  const media = isMedia(image) ? image : null
+  if (!media) return <div className="not-prose my-8">{children}</div>
+  if (imagePosition === 'top') {
+    return (
+      <div className="not-prose my-8">
+        <MediaImage media={media} size="hero" className="mb-4 h-auto w-full" sizes="720px" />
+        {children}
+      </div>
+    )
+  }
+  return (
+    <div className="not-prose my-8 grid grid-cols-[7rem_1fr] gap-5 sm:grid-cols-[9rem_1fr]">
+      <MediaImage media={media} size="card" className="h-auto w-full" sizes="288px" />
+      <div className="min-w-0">{children}</div>
+    </div>
+  )
+}
 
 /** Renders Lexical content with the site's blocks (Q&A, quote, embed, PDF) and images. */
 export function RichText({ data, locale = 'en', className, labels }: Props) {
@@ -96,6 +132,47 @@ export function RichText({ data, locale = 'en', className, labels }: Props) {
       embed: ({ node }: { node: { fields: EmbedBlock } }) => (
         <Embed url={node.fields.url} caption={node.fields.caption} />
       ),
+      newsletterSection: ({ node }: { node: { fields: NewsletterSectionBlock } }) => {
+        const block = node.fields
+        return (
+          <NewsletterItem image={block.image} imagePosition={block.imagePosition}>
+            {block.title && <p className="font-semibold">{block.title}</p>}
+            {block.subtitle && <p className="meta italic">{block.subtitle}</p>}
+            <RichText data={block.text} locale={locale} className="mt-2" />
+            {block.linkUrl && block.linkLabel && (
+              <p className="mt-3">
+                <a href={block.linkUrl} className="font-semibold text-accent underline">
+                  {block.linkLabel}
+                </a>
+              </p>
+            )}
+          </NewsletterItem>
+        )
+      },
+      newsletterArticle: ({ node }: { node: { fields: NewsletterArticleBlock } }) => {
+        const block = node.fields
+        const post = typeof block.post === 'object' ? block.post : null
+        if (!post) return null
+        const href = `/${locale}/article/${post.slug}`
+        return (
+          <NewsletterItem
+            image={isMedia(block.image) ? block.image : post.heroImage}
+            imagePosition={block.imagePosition}
+          >
+            <p className="font-semibold">
+              <a href={href} className="no-underline hover:text-accent">
+                {post.title}
+              </a>
+            </p>
+            <p className="mt-1">{block.text || post.summary}</p>
+            <p className="mt-3">
+              <a href={href} className="font-semibold text-accent underline">
+                {block.linkLabel || 'Read the interview'}
+              </a>
+            </p>
+          </NewsletterItem>
+        )
+      },
       pdfDownload: ({ node }: { node: { fields: PdfDownloadBlock } }) => {
         const href = fileUrl(node.fields.file)
         if (!href) return null

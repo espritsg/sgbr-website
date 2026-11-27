@@ -1,6 +1,6 @@
 ---
 description: Spec Newsletter der SGBR-Website: Resend als Liste der Abonnenten (Kontakte, Segmente, Topics), Double-Opt-in, Texte und Archiv in Payload, Versand als Broadcasts
-aktualisiert: 2026-11-25
+aktualisiert: 2026-11-27
 ---
 
 # Newsletter
@@ -42,7 +42,9 @@ Einrichten mit `npm run resend:setup`, die ausgegebenen IDs kommen als `RESEND_S
 - **Nie doppelt:** Broadcast zuerst als Entwurf anlegen, ID im Newsletter speichern (`resend.broadcastEn`/`broadcastDe`), dann senden. Ein Neuversuch sendet einen gespeicherten Entwurf, lässt einen schon gesendeten in Ruhe.
 - Status: `draft` → `sent` oder `failed` (Fehler unter `resend.lastError`, „Erneut senden“ schickt nur, was fehlt). Gespeichert: Versandzeit, Empfänger-Obergrenze, Broadcast-IDs.
 - Geplanter Versand (`scheduledFor`, Tag): der tägliche Cron sendet am Morgen ([ADR 0013](entscheidungen/0013-newsletter-versand.md)).
-- Mail-Vorlage im SGBR-Design (Logo, eckig, Navy, immer hell; `src/emails/layout.ts`), HTML und Textversion, Inhalt aus dem Lexical-Text. Dieselbe Vorlage für Bestätigungs- und Formular-Mails ([redaktion.md](redaktion.md#mail-vorlage)).
+- Mail-Vorlage im SGBR-Design (Logo, eckig, Navy, immer hell; `src/emails/layout.ts`), HTML und Textversion, Inhalt aus dem Lexical-Text.
+- Aufbau der Mail: Titel, Einleitung (Leerzeile = neuer Absatz, einfacher Zeilenumbruch bleibt, z. B. Name und Funktion), Text, dann „Weitere Artikel“ (`featuredPosts`) mit je einem Link. Im Text zwei Blöcke (`src/blocks/newsletter.ts`): **Abschnitt mit Bild** (Bild links für Porträts und Logos oder gross oben, Titel, Unterzeile, Text, Link als Textlink oder Button) und **Artikel** (Artikel der Website an dieser Stelle, mit Titelbild oder eigenem Bild, Zusammenfassung oder eigenem Text). Bilder in der Mail in der Grösse `card` mit absoluter URL. Im Fuss die Social Links aus der Fusszeile (Global `footer`).
+- Bilder laden die Mailprogramme vom Server. Outlook blockiert externe Bilder, bis der Leser „Bilder herunterladen“ wählt oder den Absender als sicher markiert; dann erscheint ein leerer Rahmen mit Fragezeichen (auch beim Logo). Dieselbe Vorlage für Bestätigungs- und Formular-Mails ([redaktion.md](redaktion.md#mail-vorlage)).
 - Zustellung, Öffnungen und Klicks: in Resend unter Broadcasts.
 
 ## Technik und Konten
@@ -53,7 +55,7 @@ Einrichten mit `npm run resend:setup`, die ausgegebenen IDs kommen als `RESEND_S
 
 ## Übergang
 
-- Der erste Newsletter im Dezember 2026 geht noch über MailPoet.
+- Der erste Newsletter im Dezember 2026 war ursprünglich für MailPoet geplant; die Redaktion hat ihn parallel in Payload aufgebaut (Stand 2026-11-27).
 - Bei der finalen Migration nur bestätigte MailPoet-Abonnenten übernehmen: Kontakt in Resend, Sprache `en`, Topic Newsletter, Anmeldedatum als `consent_at`. Bestehende Kontakte bleiben unverändert.
 
 ## Archiv (entschieden 2026-11-22)

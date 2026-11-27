@@ -74,4 +74,4 @@ Alle mit Status 308 (permanent). Ziel ist immer `/en`, weil die alte Oberfläche
 
 - `/sitemap.xml` (`src/app/sitemap.ts`): alle öffentlichen Seiten in beiden Sprachen mit hreflang, Artikel nur in ihrer Originalsprache.
 - `/robots.txt` (`src/app/robots.ts`): Admin, API, Vorschau, Suche und Newsletter-Links gesperrt. Vercel-Vorschauen (`VERCEL_ENV` ≠ `production`) werden gar nicht indexiert.
-- `/{l}/feed.xml`: RSS der 50 neuesten Artikel, ersetzt `/feed/`.
+- `/{l}/feed.xml`: RSS der 50 neuesten Artikel, ersetzt `/feed/` (bestehende Abonnenten in Feed-Readern laufen weiter). Kein Link im Footer (Board-Rückmeldung 2026-11-27); Feed-Reader finden ihn über `<link rel="alternate">` im Seitenkopf.

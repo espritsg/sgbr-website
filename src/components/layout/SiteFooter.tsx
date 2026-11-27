@@ -5,7 +5,6 @@ import type { Footer, Header } from '@/payload-types'
 
 import { NewsletterSignup } from '../newsletter/NewsletterSignup'
 import { AppLink } from '../ui/AppLink'
-import { Rss } from '../ui/icons'
 import { SocialLinks } from '../ui/SocialLinks'
 import { Logo } from './Logo'
 
@@ -73,13 +72,6 @@ export async function SiteFooter({ footer, header }: { footer: Footer; header: H
               className="space-y-2.5"
               linkClassName={columnLink}
             />
-            <a
-              href="/en/feed.xml"
-              className={`${columnLink} mt-2.5 inline-flex items-center gap-2.5`}
-            >
-              <Rss aria-hidden className="size-5" />
-              RSS
-            </a>
           </div>
         </div>
         <div className="flex flex-wrap justify-between gap-4 border-t border-white/15 py-6 text-xs text-[#8fa1ae]">

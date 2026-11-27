@@ -50,6 +50,33 @@ export const TeamMembers: CollectionConfig = {
       ],
     },
     {
+      type: 'row',
+      fields: [
+        {
+          name: 'email',
+          type: 'email',
+          label: { de: 'E-Mail', en: 'Email' },
+          admin: {
+            width: '50%',
+            description: {
+              de: 'Wird auf der About-Seite angezeigt.',
+              en: 'Shown on the About page.',
+            },
+          },
+        },
+        {
+          name: 'linkedin',
+          type: 'text',
+          label: { de: 'LinkedIn-Profil (URL)', en: 'LinkedIn profile (URL)' },
+          admin: { width: '50%' },
+          validate: (value: unknown) =>
+            !value || /^https:\/\/([a-z]+\.)?linkedin\.com\//.test(String(value))
+              ? true
+              : 'https://www.linkedin.com/in/…',
+        },
+      ],
+    },
+    {
       name: 'active',
       type: 'checkbox',
       defaultValue: true,

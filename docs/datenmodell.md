@@ -1,6 +1,6 @@
 ---
 description: Payload-Datenmodell der SGBR-Website: Collections, Felder, Lokalisierung, Entwürfe, Globals und Plugin-Collections, mit Pfaden im Code
-aktualisiert: 2026-11-23
+aktualisiert: 2026-11-27
 ---
 
 # Datenmodell
@@ -21,7 +21,7 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 - Liste „Zusammenfassung prüfen“: in der Artikelliste nach „Zusammenfassung prüfen = ja“ filtern.
 
 **`people`** (Interviewpartner, Gastautoren, Speaker, URL `/{l}/people/{slug}`)
-- `name`, `slug` · `role` L · `organization` · `photo` → media · `organizationLogo` → media · `bio` L · `linkedin` · `wpId`
+- `name`, `slug` · `role` L · `organization` · `photo` → media · `organizationLogo` → media · `bio` L · `bioNeedsReview` (englische Kurzbiografie übersetzt, bitte prüfen) · `linkedin` · `wpId`
 - Join-Felder `articles` (über `posts.interviewees`) und `events` (über `events.speaker`).
 
 **`topics`** (Themen)
@@ -35,11 +35,11 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 **`events`** (Speaker Events)
 - Reiter Event: `speaker` → people (Pflicht) · `title` L (optional, sonst Name des Speakers) · `startsAt` · `language` (en/de: Sprache des Talks, im Feed als `English`/`German`) · `location` · `description` L
 - Reiter Bewerbung: `applicationForm` → forms · `applicationFor` (`dinner` = Talk offen, Bewerbung nur fürs Dinner, Standard; `event` = Bewerbung für den Talk) · `applicationOpensAt` · `applicationDeadline` ([formulare.md](formulare.md))
-- Reiter Nach dem Event: `gallery` → media (mehrfach) · `recap` → posts
+- Reiter Nach dem Event: `recapTitle` L · `recapIntro` L (Rich Text) · `recapChapters` (Kapitel mit `image` → media, `heading` L, `text` L; auf der Eventseite als Slideshow) · `gallery` → media (mehrfach, „Weitere Fotos“) · `recap` → posts
 - `slug` übernimmt alte IDs wie `weimer`. Kommend/vergangen wird aus `startsAt` berechnet.
 
 **`team-members`** (Redaktion, About-Seite)
-- `name` · `photo` → media · `group` (`editorial-board`, `editors`, `advisory`) · `position` L · `study` L · `university` · `active` · `order`
+- `name` · `photo` → media · `group` (`editorial-board`, `editors`, `advisory`) · `position` L · `study` L · `university` · `email` · `linkedin` (beide auf der About-Seite als Icons) · `active` · `order`
 
 **`pages`** (About, Contact, Imprint, Privacy, URL `/{l}/{slug}`)
 - `title` L · `layout` L aus Blöcken `richText`, `teamGrid`, `contactForm`, `imageText` (Bild links, rechts oder volle Breite), `cta` (`src/blocks/layout.ts`) · `slug` · `meta` L
@@ -53,7 +53,7 @@ Jede routbare Collection hat ein `slug`-Feld: eindeutig, **nicht** lokalisiert, 
 ## Newsletter
 
 **`newsletters`** (URL `/{l}/newsletter/{slug}`, Details: [newsletter.md](newsletter.md))
-- Reiter Inhalt: `title` L · `subject` L · `previewText` L · `intro` L · `content` L · `featuredPosts` → posts
+- Reiter Inhalt: `title` L · `subject` L · `previewText` L · `intro` L (Leerzeile = Absatz) · `content` L (Rich Text mit den Blöcken „Abschnitt mit Bild“ und „Artikel“, `src/blocks/newsletter.ts`) · `featuredPosts` → posts („Weitere Artikel“ am Ende)
 - Reiter Versand: `audience` (newsletter, events) · `scheduledFor` (optional, nur Admin/Board, [ADR 0013](entscheidungen/0013-newsletter-versand.md)) · `status` (draft, sent, failed; nur vom System gesetzt) · `sentAt` · `recipientCount` (Obergrenze) · `resend` (`broadcastEn`, `broadcastDe`, `lastError`; nur lesen)
 - Reiter Archiv: `showInArchive` (Standard an) · `archiveDelayDays` (Standard 30, 0 = sofort) · `archiveVisibleFrom` (berechnet aus `sentAt` + Verzögerung)
 - Versionen ohne Entwürfe: veröffentlicht wird ein Newsletter durch den Versand.

@@ -30,6 +30,8 @@
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:wp": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/migrate.ts",
     "summaries": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/summaries.ts",
+    "sync:old-site": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/sync-old-site.ts",
+    "bios": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/bios.ts",
     "pdf:compress": "tsx src/scripts/compress-pdf.ts",
     "seed:forms": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/seed-forms.ts"
   },

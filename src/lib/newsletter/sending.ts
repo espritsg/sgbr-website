@@ -11,7 +11,7 @@
  */
 import type { Payload } from 'payload'
 
-import { renderNewsletter } from '@/emails/newsletter'
+import { renderNewsletter, type NewsletterFooter } from '@/emails/newsletter'
 import type { Newsletter } from '@/payload-types'
 
 import { getAudience, LOCALES, UNSUBSCRIBE_PLACEHOLDER, type Locale } from './audience'
@@ -35,9 +35,15 @@ export async function countRecipients(): Promise<{ en: number; de: number; total
   return { en, de, total: en + de }
 }
 
-async function siteAddress(payload: Payload): Promise<string> {
-  const settings = await payload.findGlobal({ slug: 'site-settings', depth: 0 })
-  return settings.address || 'St. Gallen Business Review'
+async function footerInfo(payload: Payload): Promise<NewsletterFooter> {
+  const [settings, footer] = await Promise.all([
+    payload.findGlobal({ slug: 'site-settings', depth: 0 }),
+    payload.findGlobal({ slug: 'footer', depth: 0 }),
+  ])
+  return {
+    address: settings.address || 'St. Gallen Business Review',
+    socialLinks: (footer.socialLinks ?? []).map(({ platform, url }) => ({ platform, url })),
+  }
 }
 
 function broadcastLinks(locale: Locale, slug: string) {
@@ -80,7 +86,7 @@ export async function sendNewsletter(
 
   const audience = getAudience()
   const counts = await countRecipients()
-  const address = await siteAddress(payload)
+  const footer = await footerInfo(payload)
   const broadcasts: string[] = []
 
   for (const locale of LOCALES) {
@@ -98,9 +104,9 @@ export async function sendNewsletter(
           collection: 'newsletters',
           id: newsletterId,
           locale,
-          depth: 1,
+          depth: 2,
         })
-        const mail = renderNewsletter(localized, locale, address)
+        const mail = renderNewsletter(localized, locale, footer)
         const links = broadcastLinks(locale, localized.slug)
         broadcastId = await audience.createBroadcast({
           name: `${localized.title} (${locale.toUpperCase()})`,
@@ -142,9 +148,9 @@ export async function sendTest(
     collection: 'newsletters',
     id: newsletterId,
     locale,
-    depth: 1,
+    depth: 2,
   })
-  const rendered = renderNewsletter(newsletter, locale, await siteAddress(payload), true)
+  const rendered = renderNewsletter(newsletter, locale, await footerInfo(payload), true)
   const links = {
     ...broadcastLinks(locale, newsletter.slug),
     preferencesUrl: `${newsletterUrls.online(locale, newsletter.slug)}#test`,

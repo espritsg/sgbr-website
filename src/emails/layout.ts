@@ -49,13 +49,14 @@ export function heading(text: string): string {
 
 /**
  * Brings HTML from the rich-text editor (newsletter, form mails) into the mail style:
- * spacing for paragraphs, serif headings, navy links.
+ * spacing for paragraphs, serif headings, navy links. Elements that already have a style
+ * (newsletter blocks) stay as they are.
  */
 export function styleRichText(html: string): string {
   return html
-    .replace(/<p(\s[^>]*)?>/g, '<p style="margin:0 0 16px">')
+    .replace(/<p(?![^>]*style=)(\s[^>]*)?>/g, '<p style="margin:0 0 16px">')
     .replace(
-      /<h([1-3])(\s[^>]*)?>/g,
+      /<h([1-3])(?![^>]*style=)(\s[^>]*)?>/g,
       `<h$1 style="margin:28px 0 12px;font-family:${SERIF};font-weight:600;line-height:1.25;color:${emailColors.text}">`,
     )
     .replace(/<a (?![^>]*style=)/g, `<a style="color:${emailColors.navy}" `)

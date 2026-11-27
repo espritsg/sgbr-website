@@ -4,6 +4,17 @@ Alle wichtigen Änderungen an diesem Projekt. Format nach [Keep a Changelog](htt
 
 ## [Unveröffentlicht]
 
+### Geändert (2026-11-27, Rückmeldung des Boards)
+
+- Speaker Events: Rückblick mit Titel, Einleitung und Kapiteln (Foto, Überschrift, Text) als Slideshow auf der Eventseite, bei vergangenen Events direkt unter dem Kopf. Neue Felder `recapTitle`, `recapIntro`, `recapChapters`; `gallery` heisst im Admin „Weitere Fotos“.
+- About-Seite: E-Mail und LinkedIn pro Teammitglied (neue Felder `email`, `linkedin`), als Icons unter dem Namen; Silhouette statt Initialen, wenn ein Foto fehlt.
+- Footer: kein RSS-Link mehr (der Feed `/{l}/feed.xml` bleibt).
+- Artikel: Fotos in der Personenbox unscharf, weil das quer zugeschnittene 400×300-Vorschaubild verwendet wurde; jetzt Grösse `card`. Speaker-Foto auf der Eventseite in doppelter Auflösung.
+- Newsletter: Einleitung mit Absätzen und Zeilenumbrüchen; Blöcke „Abschnitt mit Bild“ und „Artikel“ im Text (Mail und Archivseite); weitere Artikel am Ende nur noch mit einem Link statt zusätzlich einem Button; Social Links im Fuss der Mail. Rich-Text-Formatierung der Mail überschreibt keine vorhandenen Stile mehr.
+- Personen: Feld `bioNeedsReview` für übersetzte englische Kurzbiografien; `npm run bios -- export|apply`.
+- Neu: `npm run sync:old-site` holt neue Artikel, Event-Beschreibungen und -Rückblicke sowie Team-Kontakte von der alten Seite, ohne Bestehendes zu überschreiben ([migration.md](docs/migration.md#abgleich-mit-der-alten-seite-solange-sie-live-ist)).
+- Migration `board_rueckmeldung` (nur neue Spalten und Tabellen).
+
 ### Geändert (2026-11-25, Dateispeicher Cloudflare R2)
 
 - Ausgaben-Feed für espritsg.ch: `description` ist wieder die Beschreibung wie im alten Feed, die Unterzeile nur noch als Ersatz.

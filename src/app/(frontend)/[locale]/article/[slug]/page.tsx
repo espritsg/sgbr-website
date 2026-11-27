@@ -155,9 +155,9 @@ export default async function ArticlePage({ params }: Props) {
                   <div className="relative size-24 shrink-0 self-stretch overflow-hidden bg-band sm:h-auto sm:min-h-24 sm:w-24">
                     <MediaImage
                       media={person.photo}
-                      size="thumbnail"
+                      size="card"
                       fill
-                      sizes="96px"
+                      sizes="192px"
                       className="object-cover"
                     />
                   </div>

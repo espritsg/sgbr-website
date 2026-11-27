@@ -58,6 +58,20 @@ export const People: CollectionConfig = {
       localized: true,
       label: { de: 'Kurzbiografie', en: 'Short bio' },
     },
+    {
+      name: 'bioNeedsReview',
+      type: 'checkbox',
+      defaultValue: false,
+      index: true,
+      label: { de: 'Übersetzung der Kurzbiografie prüfen', en: 'Check bio translation' },
+      admin: {
+        position: 'sidebar',
+        description: {
+          de: 'Englische Kurzbiografie wurde aus dem Deutschen übersetzt (2026-11-27). Nach dem Prüfen abhaken.',
+          en: 'English bio was translated from German (2026-11-27). Untick after reviewing.',
+        },
+      },
+    },
     { name: 'linkedin', type: 'text', label: 'LinkedIn' },
     {
       name: 'articles',

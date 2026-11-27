@@ -362,6 +362,10 @@ export interface Person {
   photo?: (number | null) | Media;
   organizationLogo?: (number | null) | Media;
   bio?: string | null;
+  /**
+   * English bio was translated from German (2026-11-27). Untick after reviewing.
+   */
+  bioNeedsReview?: boolean | null;
   linkedin?: string | null;
   articles?: {
     docs?: (number | Post)[];
@@ -420,6 +424,36 @@ export interface Event {
   applicationFor?: ('dinner' | 'event') | null;
   applicationOpensAt?: string | null;
   applicationDeadline?: string | null;
+  /**
+   * E.g. "An Evening of Perspectives". The recap shows as a slideshow on the event page once it has chapters.
+   */
+  recapTitle?: string | null;
+  recapIntro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  recapChapters?:
+    | {
+        image: number | Media;
+        heading?: string | null;
+        /**
+         * Blank line = new paragraph.
+         */
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   gallery?: (number | Media)[] | null;
   recap?: (number | null) | Post;
   meta?: {
@@ -756,6 +790,11 @@ export interface TeamMember {
   study?: string | null;
   university?: string | null;
   /**
+   * Shown on the About page.
+   */
+  email?: string | null;
+  linkedin?: string | null;
+  /**
    * Untick for alumni.
    */
   active?: boolean | null;
@@ -859,7 +898,13 @@ export interface Newsletter {
    * Shown in the inbox after the subject.
    */
   previewText?: string | null;
+  /**
+   * Blank line = new paragraph; a single line break is kept (e.g. name and role).
+   */
   intro?: string | null;
+  /**
+   * Via "+" or "/": "Section with image" (portrait, logo, group photo with text and link) and "Article" (a website article at exactly this position).
+   */
   content?: {
     root: {
       type: string;
@@ -875,6 +920,9 @@ export interface Newsletter {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Shown after the text under "In this edition". For an article within the newsletter, use the "Article" block in the text.
+   */
   featuredPosts?: (number | Post)[] | null;
   audience: 'newsletter' | 'events';
   /**
@@ -1512,6 +1560,7 @@ export interface PeopleSelect<T extends boolean = true> {
   photo?: T;
   organizationLogo?: T;
   bio?: T;
+  bioNeedsReview?: T;
   linkedin?: T;
   articles?: T;
   events?: T;
@@ -1563,6 +1612,16 @@ export interface EventsSelect<T extends boolean = true> {
   applicationFor?: T;
   applicationOpensAt?: T;
   applicationDeadline?: T;
+  recapTitle?: T;
+  recapIntro?: T;
+  recapChapters?:
+    | T
+    | {
+        image?: T;
+        heading?: T;
+        text?: T;
+        id?: T;
+      };
   gallery?: T;
   recap?: T;
   meta?:
@@ -1603,6 +1662,8 @@ export interface TeamMembersSelect<T extends boolean = true> {
   position?: T;
   study?: T;
   university?: T;
+  email?: T;
+  linkedin?: T;
   active?: T;
   order?: T;
   updatedAt?: T;
@@ -2593,6 +2654,51 @@ export interface PdfDownloadBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'pdfDownload';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsletterSectionBlock".
+ */
+export interface NewsletterSectionBlock {
+  image?: (number | null) | Media;
+  imagePosition?: ('left' | 'top') | null;
+  title?: string | null;
+  subtitle?: string | null;
+  text?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  linkLabel?: string | null;
+  linkUrl?: string | null;
+  linkStyle?: ('link' | 'button') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'newsletterSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsletterArticleBlock".
+ */
+export interface NewsletterArticleBlock {
+  post: number | Post;
+  image?: (number | null) | Media;
+  imagePosition?: ('left' | 'top') | null;
+  text?: string | null;
+  linkLabel?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'newsletterArticle';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

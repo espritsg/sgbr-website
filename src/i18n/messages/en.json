@@ -116,7 +116,11 @@
     "kicker": "Speaker Event",
     "back": "All speaker events",
     "applicationsOpen": "Applications open",
-    "pastEvent": "Past event"
+    "pastEvent": "Past event",
+    "recapEyebrow": "Looking back",
+    "recapChapter": "Moment",
+    "recapPrevious": "Previous photo",
+    "recapNext": "Next photo"
   },
   "people": {
     "interviews": "Interviews",

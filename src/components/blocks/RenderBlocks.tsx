@@ -7,6 +7,7 @@ import type { Page } from '@/payload-types'
 import { FormRenderer } from '../forms/FormRenderer'
 import { RichText } from '../richtext/RichText'
 import { ButtonLink } from '../ui/Button'
+import { EnvelopeSimple, LinkedinLogo, User } from '../ui/icons'
 import { MediaImage } from '../ui/MediaImage'
 import { Reveal } from '../ui/Reveal'
 import { SectionHeader } from '../ui/Section'
@@ -22,13 +23,6 @@ const groupLabels: Record<string, string> = {
 const prose =
   'prose prose-lg max-w-none text-text dark:prose-invert prose-headings:font-serif prose-headings:tracking-tight prose-p:leading-[1.75] prose-a:text-accent'
 
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join('')
-}
 
 /** Page layout blocks (About, Contact, Imprint, Privacy). One vertical rhythm: mt-14 between blocks. */
 export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
@@ -118,9 +112,9 @@ export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
                               ) : (
                                 <span
                                   aria-hidden
-                                  className="flex size-full items-center justify-center font-serif text-4xl font-semibold text-muted"
+                                  className="flex size-full items-end justify-center text-muted/40"
                                 >
-                                  {initials(member.name)}
+                                  <User weight="fill" className="size-3/4" />
                                 </span>
                               )}
                             </div>
@@ -131,6 +125,30 @@ export async function RenderBlocks({ blocks }: { blocks: Page['layout'] }) {
                             <p className="meta mt-1">
                               {[member.study, member.university].filter(Boolean).join(' · ')}
                             </p>
+                            {(member.linkedin || member.email) && (
+                              <p className="mt-2 flex gap-3 text-muted">
+                                {member.linkedin && (
+                                  <a
+                                    href={member.linkedin}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="transition-colors hover:text-accent"
+                                  >
+                                    <LinkedinLogo aria-hidden className="size-5" />
+                                    <span className="sr-only">LinkedIn {member.name}</span>
+                                  </a>
+                                )}
+                                {member.email && (
+                                  <a
+                                    href={`mailto:${member.email}`}
+                                    className="transition-colors hover:text-accent"
+                                  >
+                                    <EnvelopeSimple aria-hidden className="size-5" />
+                                    <span className="sr-only">{member.email}</span>
+                                  </a>
+                                )}
+                              </p>
+                            )}
                           </li>
                         ))}
                       </ul>

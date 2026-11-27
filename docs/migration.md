@@ -1,6 +1,6 @@
 ---
 description: Wie die SGBR-Inhalte nach Payload kommen: Dev-Import von der öffentlichen Website während der Entwicklung, finale Migration aus WordPress-Exporten am Ende
-aktualisiert: 2026-11-22
+aktualisiert: 2026-11-27
 ---
 
 # Migration WordPress → Payload
@@ -18,7 +18,7 @@ npm run import:dev -- 198     # alle Artikel (oder IMPORT_LIMIT=198)
 - Skript `src/scripts/import-dev.ts`, läuft mit `payload run`. Liest nur, kein Login nötig:
   - Artikel, Bilder (Beitragsbild und Bilder im Text), Kategorien und Autoren über die öffentliche REST-API (`/wp-json/wp/v2/posts`, `media`, `categories`, eingebettete `author`).
   - Ausgaben und Speaker Events aus den Feeds `/issues/?sgbr_feed=1` und `/category/speaker-events/?sgbr_feed=1` ([esprit-feed.md](esprit-feed.md)), Logos, Cover und PDFs über die URLs darin. Vorwort, Unterzeile und Redaktion aus dem HTML der digitalen Ausgaben (`sgbr-tfof-*`).
-  - Team, Mission und Teamfoto aus `/about/` (`sgbr-about-*`). Imprint und Datenschutz aus der Seite `impressum`, Kontakttext aus `contact`.
+  - Team (mit E-Mail und LinkedIn), Mission und Teamfoto aus `/about/` (`sgbr-about-*`). Imprint und Datenschutz aus der Seite `impressum`, Kontakttext aus `contact`.
 - Beliebig oft wiederholbar, auch auf leerer Datenbank: Artikel über `wpId`, alles andere über `slug`, Dateien über `legacyPath`.
 - Testdaten für neue Teile: Kontaktformular, Bewerbungsformular mit PDF-Upload (am nächsten kommenden Event, Bewerbung ab sofort offen), ein Newsletter-Entwurf, ein versendeter Beispiel-Newsletter im Archiv, drei bestätigte Test-Abonnenten (`@example.com`), Globals, je ein Benutzer pro Rolle (`admin@sgbr.local`, `board@…`, `editor@…`, `advisory@…`, Passwort nur aus `DEV_SEED_PASSWORD`).
 - Fehlt öffentlich: Entwürfe, SEO-Felder, Weiterleitungen, Abonnenten. Für die Entwicklung egal. Test-Kontakte landen nur im lokalen Ersatz für Resend (`.mail-preview/audience.json`), nie in einem echten Resend-Konto.
@@ -55,6 +55,21 @@ npm run import:dev -- 198     # alle Artikel (oder IMPORT_LIMIT=198)
 | featured, world, uncategorized, unkategorisiert-* (en, it, fr, es) | entfällt, Weiterleitung auf `/topics` |
 
 Ein Unter-Thema bringt sein Haupt-Thema mit: Ein Artikel in „Leadership“ steht auch unter „Business“. Die Tabelle ist in `src/lib/categoryMap.ts` die einzige Quelle; Änderungen dort wirken auf Import, Migration und Weiterleitungen.
+
+## Abgleich mit der alten Seite (solange sie live ist)
+
+Seit dem 2026-11-25 liegen die Daten in der Produktions-Datenbank, die Redaktion arbeitet dort. Was danach auf der alten Seite dazukommt, holt `npm run sync:old-site` (`src/scripts/sync-old-site.ts`), **ohne zu überschreiben**:
+
+- **Neue Artikel:** die 30 neuesten aus der REST-API; nur Artikel, deren `wpId` es noch nicht gibt (Code geteilt mit dem Dev-Import: `src/scripts/lib/wpRest.ts`).
+- **Speaker Events:** fehlende Events anlegen; Beschreibung („About the speaker“, „About …“, „About the event“) und Rückblick (Titel, Einleitung, Kapitel mit Fotos) aus der Detailseite `?e=<id>` nur dort, wo sie leer sind (Parser `src/scripts/lib/oldSite.ts`).
+- **Team:** E-Mail und LinkedIn von der About-Seite, nur wo leer.
+
+```bash
+SYNC_DRY_RUN=1 npm run sync:old-site   # nur anzeigen
+npm run sync:old-site                  # lokal; gegen Produktion mit DATABASE_URL und R2_* wie unten
+```
+
+Englische Kurzbiografien für Personen mit nur deutscher: `npm run bios -- export <datei>` schreibt sie heraus, übersetzt (z. B. in einer Claude-Code-Sitzung) spielt `npm run bios -- apply <datei>` sie ein, nur wo die englische leer ist, und setzt `bioNeedsReview`.
 
 ## Phase 2: Finale Migration ganz am Ende
 

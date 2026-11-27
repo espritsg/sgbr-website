@@ -3,7 +3,7 @@ import type { CollectionConfig, FieldAccess } from 'payload'
 import { canSendNewsletter } from '@/access/actions'
 import { newsletterAccess } from '@/access/permissions'
 import { slugField } from '@/fields/slug'
-import { defaultEditor } from '@/lib/richtext/editors'
+import { newsletterEditor } from '@/lib/richtext/editors'
 
 import { newsletterGroup } from '../shared'
 import { newsletterAdminEndpoints } from './endpoints'
@@ -71,15 +71,27 @@ export const Newsletters: CollectionConfig = {
               type: 'textarea',
               localized: true,
               label: { de: 'Einleitung', en: 'Intro' },
+              admin: {
+                description: {
+                  de: 'Leerzeile = neuer Absatz, einfacher Zeilenumbruch bleibt erhalten (z. B. Name und Funktion).',
+                  en: 'Blank line = new paragraph; a single line break is kept (e.g. name and role).',
+                },
+              },
             },
             {
               name: 'content',
               type: 'richText',
               localized: true,
-              editor: defaultEditor,
+              editor: newsletterEditor,
               label: {
                 de: 'Text (Gastbeiträge, Ankündigungen)',
                 en: 'Text (guest articles, announcements)',
+              },
+              admin: {
+                description: {
+                  de: 'Über „+“ bzw. „/“: „Abschnitt mit Bild“ (Porträt, Logo, Gruppenfoto mit Text und Link) und „Artikel“ (Artikel der Website an genau dieser Stelle).',
+                  en: 'Via "+" or "/": "Section with image" (portrait, logo, group photo with text and link) and "Article" (a website article at exactly this position).',
+                },
               },
             },
             {
@@ -87,7 +99,13 @@ export const Newsletters: CollectionConfig = {
               type: 'relationship',
               relationTo: 'posts',
               hasMany: true,
-              label: { de: 'Empfohlene Artikel', en: 'Featured articles' },
+              label: { de: 'Weitere Artikel (am Ende)', en: 'More articles (at the end)' },
+              admin: {
+                description: {
+                  de: 'Erscheinen nach dem Text unter „In dieser Ausgabe“. Für einen Artikel mitten im Newsletter den Block „Artikel“ im Text verwenden.',
+                  en: 'Shown after the text under "In this edition". For an article within the newsletter, use the "Article" block in the text.',
+                },
+              },
             },
           ],
         },
